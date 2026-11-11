@@ -512,6 +512,16 @@
   #intro{position:fixed;inset:0;z-index:200;background:#fff;overflow:hidden;cursor:pointer;
     --rd:#D7352A;--yl:#EFC02A;--bl:#1B2FD6;--seek:0s}
   #intro.gone{display:none}
+  /* After the opening says she sits where three things meet, the menu
+     says what to do with them. Under the plates, below the rule, in the
+     opening's own voice; gone while a course is open. */
+  #tapHint{position:fixed;z-index:5;left:0;top:0;margin:0;transform:translateX(-50%);
+    font-family:var(--body);font-weight:500;font-size:clamp(11px,1.05vw,13px);letter-spacing:-.005em;
+    color:#14130F;white-space:nowrap;opacity:0;pointer-events:none}
+  /* keyframes, not a transition: transitions freeze in a background tab */
+  #tapHint.on{animation:hintIn .8s ease .2s forwards}
+  @keyframes hintIn{to{opacity:1}}
+  body.intro-on #tapHint,body.reading #tapHint{opacity:0!important;animation:none}
   #intro.freeze,#intro.freeze *{animation-play-state:paused!important}
   body.intro-on{overflow:hidden}
   #intro .mid{position:absolute;left:50%;top:50%;width:0;height:0}
@@ -690,6 +700,7 @@
   <p class="skip">click anywhere to skip</p></div>
 
 <div id="aspects"></div>
+<p id="tapHint"></p>
 
 <div id="holes"></div>
 <svg id="leaders"></svg>
@@ -905,6 +916,11 @@ function drawLeaders(){
      being ruled straight through it. */
   const caps=slots.map(s=>s.el.querySelector(".cap").getBoundingClientRect().bottom);
   const y=Math.round(Math.max(...rs.map(b=>b.bottom),...caps))+18.5;
+  const hint=$("tapHint");
+  if(hint){
+    hint.textContent=(matchMedia("(hover: none)").matches?"Tap":"Click")+" to read, see, learn more.";
+    hint.style.left=((l+r)/2).toFixed(1)+"px"; hint.style.top=(y+14)+"px"; hint.classList.add("on");
+  }
   svg.innerHTML=`<path d="M ${l.toFixed(1)} ${y} L ${r.toFixed(1)} ${y}"/>`
    +`<path class="sq" d="M ${(l-3).toFixed(1)} ${y-3} h6 v6 h-6 z `
    +`M ${(r-3).toFixed(1)} ${y-3} h6 v6 h-6 z"/>`;
