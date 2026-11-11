@@ -503,8 +503,10 @@
        7.95  they slide apart, a ninth of a second between them,
              and she tucks down into the overlap
        8.45  the three are named
-       9.80  the three flatten and spread onto the plates
-      10.05  overture fades out
+       9.65  the white clears, so the menu shows through
+       9.80  the three travel to their plates, still round
+      10.55  each drops into its dish and is gone into it
+      11.30  the menu takes over
   =============================================================== */
   /* Every delay below is written against --seek, so ?intro=4550 holds
      the whole sequence at 4.55s with a negative delay and a paused
@@ -619,7 +621,8 @@
     animation:introStack .45s ease calc(7.5s - var(--seek)) forwards,
               introOpen 1s cubic-bezier(.22,.85,.25,1)
                         calc(7.95s + var(--bd) - var(--seek)) forwards,
-              introPlate .85s cubic-bezier(.5,0,.3,1) calc(9.8s - var(--seek)) forwards}
+              introPlate .75s cubic-bezier(.45,0,.25,1) calc(9.8s - var(--seek)) forwards,
+              introFeed .55s cubic-bezier(.55,0,.9,.45) calc(10.55s - var(--seek)) forwards}
   /* One disc, then three. All three arrive stacked exactly on top of
      each other at full size, which multiplies down to near black
      behind her, and then slide apart, so the colours are uncovered
@@ -640,7 +643,15 @@
      plates and close to a small disc as they fade. */
   @keyframes introPlate{
     0%{transform:translate(var(--bx),var(--by)) scale(1);opacity:1}
-    100%{transform:translate(var(--px),var(--py)) scale(.4);opacity:0}
+    100%{transform:translate(var(--px),var(--py)) scale(var(--ps,.42));opacity:1}
+  }
+  /* Then each one is served: it drops into the middle of its dish and
+     goes into it, getting smaller faster as it falls, the way a spoonful
+     lands. Round the whole way. */
+  @keyframes introFeed{
+    0%{transform:translate(var(--px),var(--py)) scale(var(--ps,.42));opacity:1}
+    70%{opacity:1}
+    100%{transform:translate(var(--px),calc(var(--py) + 9px)) scale(.04);opacity:0}
   }
   /* --ax anchors each name away from its own circle: the top one is
      centred, the lower two hang off their outer edge, or they land on
@@ -675,8 +686,8 @@
       text-align:center;line-height:1.45}
   }
 
-  #intro.run{animation:introBye .75s ease calc(10.05s - var(--seek)) forwards}
-  @keyframes introBye{to{opacity:0;visibility:hidden}}
+  #intro.run{animation:introClear .5s ease calc(9.65s - var(--seek)) forwards}
+  @keyframes introClear{to{background-color:rgba(255,255,255,0)}}
   @media (prefers-reduced-motion:reduce){#intro{display:none}}
 
   /* the door into a gallery: the page goes to the gallery's wall colour */
@@ -1848,7 +1859,7 @@ async function mountIntro(){
     return;                                        /* held, so no click out and no timer */
   }
   el.addEventListener("click",end);
-  setTimeout(end,11100);
+  setTimeout(end,11300);
 }
 
 /* The three balls flatten into plates on the way out. Where the plates
@@ -1870,6 +1881,8 @@ function aimIntro(){
     if(!r.width) return;                /* not laid out yet: keep the guess */
     b.style.setProperty("--px",Math.round(r.left+r.width/2-cx)+"px");
     b.style.setProperty("--py",Math.round(r.bottom-r.height*0.18-cy)+"px");
+    /* arrives the size of the dish's well, so it reads as served */
+    if(b.offsetWidth) b.style.setProperty("--ps",Math.min(.6,Math.max(.15,r.width*.42/b.offsetWidth)).toFixed(3));
   });
 }
 
