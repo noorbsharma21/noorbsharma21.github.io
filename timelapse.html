@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>time:lapse · Noor Badal Sharma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;1,400&display=swap">
+<script>
+/* Opened straight from the folder, nothing relative resolves and the
+   globe comes up empty, so hand over to the local server. */
+if(!/^https?:$/.test(location.protocol)) location.replace("http://localhost:4178/timelapse.html");
+/* some previews refuse that hand-over; then say where the live page is */
+addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)) return;
+  const n=document.createElement("a"); n.href="http://localhost:4178/timelapse.html";
+  n.textContent="This is a saved copy, so the photographs can't load. Open the live page →";
+  n.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;font:500 16px/1.4 system-ui,sans-serif;color:#1B2FD6;background:#fff;padding:16px 20px;max-width:80vw;text-align:center";
+  document.body.appendChild(n); });
+</script>
+<script src="assets/manifest.js"></script>
+<script src="ink.js"></script>
+<style>
+  :root{
+    /* a cool screen-grey for a show about time on screens */
+    --ground:#FFFFFF; --ink:#0e0e0d; --mute:#7d838a; --soft:#363a3f;
+    --blue:#1B2FD6;
+    --font:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  }
+  html,body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font)}
+  body{overflow-x:hidden}
+  a{color:inherit}
+  #back{position:absolute;top:18px;left:max(22px,env(safe-area-inset-left));z-index:10;font-size:14px;text-decoration:none}
+  #back:hover{color:var(--blue)}
+
+  #top{position:relative;display:grid;grid-template-columns:minmax(320px,36vw) minmax(0,1fr);
+       height:100vh;height:100svh;min-height:620px}
+  #side{position:relative;z-index:3;display:flex;flex-direction:column;justify-content:center;
+        padding:70px 0 40px max(50px,env(safe-area-inset-left))}
+  #title h1{display:inline-block;font-weight:500;font-size:clamp(36px,4.2vw,58px);line-height:1;margin:0;color:var(--blue);letter-spacing:-.02em;white-space:nowrap}
+  #title p{font-size:13px;line-height:1.55;margin:1.4em 0 0;color:var(--soft)}
+  /* who wrote about it, as their own mastheads, each linking to the piece */
+  #press{margin-top:3.6vh}
+  #press .lbl{display:block;font-size:12px;letter-spacing:.04em;color:var(--mute);margin-bottom:.9em}
+  #press .logos{display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px}
+  #press a{display:block;text-decoration:none;color:var(--ink);transition:opacity .2s,color .2s}
+  #press img{display:block;height:22px;width:auto;filter:brightness(0);opacity:.88;transition:filter .2s,opacity .2s}
+  #press a:hover img{filter:none;opacity:1}
+  #press a.word{font-weight:500;font-size:17px;line-height:22px;letter-spacing:-.01em}
+  #press a.word:hover{color:var(--blue)}
+  #statement{margin-top:4vh;max-width:30em;transition:opacity .35s}
+  #statement p{font-size:clamp(16px,1.3vw,18px);line-height:1.55;margin:0 0 1em}
+  #statement p.small{font-size:13px;line-height:1.6;color:var(--soft)}
+  body.reading #statement{opacity:0}
+  .mark{position:relative}
+  #statement a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+  #statement a:hover{color:var(--blue)}
+
+  /* the words for whichever photograph has come forward */
+  #piece{position:absolute;z-index:3;opacity:0;transition:opacity .35s;pointer-events:none}
+  body.reading #piece{opacity:1}
+  #piece h3{font-weight:500;font-size:clamp(20px,1.8vw,24px);line-height:1.2;margin:0}
+  #piece p{font-size:clamp(15px,1.2vw,17px);line-height:1.55;color:var(--soft);margin:.7em 0 0}
+  #piece small{display:block;font-size:12px;color:var(--mute);margin-top:1em}
+
+  #globe{position:relative;overflow:hidden}
+  #stage{position:absolute;inset:0;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+  #stage.drag{cursor:grabbing}
+  #world{position:absolute;width:0;height:0}
+  #ball{position:absolute;left:0;top:0;transform-style:preserve-3d}
+  .card{position:absolute;left:0;top:0;transform-style:preserve-3d;cursor:pointer;
+        transition:transform .55s cubic-bezier(.2,.7,.2,1)}
+  .face,.back{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:opacity .4s}
+  .back{transform:rotateY(180deg)}
+  .card img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+  body.reading .card:not(.on) .face, body.reading .card:not(.on) .back{opacity:.14}
+  #hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;font-size:13px;color:var(--mute);
+        width:min(90%,56ch);text-align:center;transition:opacity .3s}
+  body.reading #hint{opacity:0}
+
+  svg.ink{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:4}
+  svg.ink path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* the plan: walls in ink, each work a ring of colour where it stood */
+  #plan{position:relative;padding:14vh max(50px,env(safe-area-inset-right)) 0 max(50px,env(safe-area-inset-left))}
+  #plan h2{display:inline-block;font-weight:500;font-size:clamp(32px,3.6vw,48px);line-height:1;margin:0;color:var(--blue);letter-spacing:-.01em}
+  .planwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:6vw;align-items:start;margin-top:7vh}
+  #planSvg{width:100%;max-width:560px;height:auto;overflow:visible}
+  #planSvg .wall{fill:none;stroke:var(--ink);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  #planSvg .spot{cursor:pointer;transition:opacity .25s}
+  #planSvg text{font-family:var(--font);font-size:10px;fill:var(--soft)}
+  #legend{list-style:none;margin:0;padding:0}
+  #legend li{display:grid;grid-template-columns:2.4em minmax(0,1fr);gap:.4em;padding:.55em 0;cursor:pointer;transition:opacity .25s}
+  #legend .n{font-weight:500;font-size:15px;color:var(--c)}
+  #legend b{font-weight:500;font-size:16px;line-height:1.35;display:block}
+  #legend span{display:block;font-size:14px;line-height:1.5;color:var(--soft);margin-top:.15em}
+  #plan.picked #legend li:not(.on), #plan.picked .spot:not(.on){opacity:.28}
+  /* behind the scenes: the film photographs, each with its caption under it */
+  #bts{position:relative;padding:12vh max(50px,env(safe-area-inset-right)) 2vh max(50px,env(safe-area-inset-left))}
+  #bts h2{display:inline-block;font-weight:500;font-size:clamp(32px,3.6vw,48px);line-height:1;margin:0;color:var(--blue);letter-spacing:-.01em}
+  #bts .by{font-size:14px;line-height:1.55;color:var(--soft);margin:1.6em 0 6vh;max-width:40ch}
+  .roll{columns:3 250px;column-gap:20px}
+  .roll figure{break-inside:avoid;margin:0 0 26px}
+  .roll img{display:block;width:100%;height:auto}
+  .roll figcaption{font-size:13px;line-height:1.45;margin-top:.6em;color:var(--soft)}
+  .roll figcaption b{font-weight:500;color:var(--ink);display:block}
+  #next{display:flex;justify-content:space-between;font-size:15px;
+        padding:4vh max(50px,env(safe-area-inset-right)) 6vh max(50px,env(safe-area-inset-left))}
+  #next a{text-decoration:none} #next a:hover{color:var(--blue)}
+
+  /* phones and narrow windows: words first, then the globe */
+  @media (max-width:899px), (max-aspect-ratio:1/1){
+    #top{display:block;height:auto;min-height:0;padding-bottom:var(--pieceRoom,0px)}
+    #side{padding:84px 28px 10px}
+    #globe{height:min(118vw,72svh)}
+    #next{padding-left:28px;padding-right:28px}
+    #bts{padding-left:28px;padding-right:28px}
+    #plan{padding-left:28px;padding-right:28px}
+    .planwrap{grid-template-columns:minmax(0,1fr);gap:5vh}
+    .roll{columns:2 140px;column-gap:14px}
+  }
+</style>
+</head>
+<body>
+<a id="back" href="curation.html">&larr; Curation</a>
+
+<section id="top">
+  <div id="side">
+    <div id="title"><h1>time:lapse</h1>
+      <p>A plus A Gallery, San Marco, Venice<br>28 August to 25 October 2025</p></div>
+    <div id="press">
+      <span class="lbl">Covered by</span>
+      <div class="logos">
+        <a href="https://www.artribune.com/?p=1182030" target="_blank" rel="noopener" title="Artribune"><img src="https://www.artribune.com/wp-content/themes/artribune/assets/images/logo-9df1e2d251.svg" alt="Artribune"></a>
+        <a href="https://www.exibart.com/mostre/timelapse-estetiche-del-tempo-disgregato-alla-plus-a-gallery-di-venezia/" target="_blank" rel="noopener" title="exibart"><img src="https://www.exibart.com/wp-content/themes/exibart/img/exibart-logo-header@2x.png" alt="exibart"></a>
+        <a href="https://artslife.com/2025/10/01/timelapse-una-lezione-sul-tempo-tra-immagini-e-discontinuita" target="_blank" rel="noopener" title="ArtsLife"><img src="assets/press/artslife.svg" alt="ArtsLife"></a>
+        <a class="word" href="https://www.villegiardini.it/timelapse-a-cura-di-school-for-curatorial-studies-venice/" target="_blank" rel="noopener">Ville&amp;Giardini</a>
+        <a class="word" href="https://www.artapartofculture.net/2025/08/28/timelapse-a-plus-a-gallery-venezia/" target="_blank" rel="noopener">art a part of cult(ure)</a>
+      </div>
+    </div>
+    <div id="statement">
+      <p>A group exhibition and public programme on how digital technologies and platform economies reshape our experience of time, space and connection. It treats <span class="mark">simultaneity</span> as a structural condition of late capitalism, where overlapping timelines produce fatigue, fragmentation and alienation.</p>
+      <p>It asks how practices of attentiveness might help us reimagine engagement, <span class="mark">not as capture, but as care.</span></p>
+      <p class="small">With work by Raqs Media Collective, Robert Blatt, Giovanni Borga, Camille Theodet, Roma Bantik and Kensuke Koike, and a screening programme with videos from the Servais Family Collection, Brussels. Exhibition views photographed by Clelia Cadamuro.</p>
+    </div>
+  </div>
+  <div id="globe">
+    <div id="stage"><div id="world"><div id="ball"></div></div></div>
+    <div id="hint">Drag to turn it. Click a photograph to read about it.</div>
+  </div>
+  <div id="piece" aria-live="polite"><h3></h3><p></p><small></small></div>
+  <svg class="ink" id="ink" aria-hidden="true"><g id="titleInk"></g><g id="markInk"></g><g id="pieceInk"></g></svg>
+</section>
+<section id="plan" class="sec">
+  <svg class="ink" id="planInk" aria-hidden="true"></svg>
+  <h2>Floor plan</h2>
+  <div class="planwrap">
+    <svg id="planSvg" viewBox="64 486 372 466" role="img" aria-label="Floor plan of time:lapse at A plus A Gallery, with each work marked"></svg>
+    <ol id="legend"></ol>
+  </div>
+</section>
+<section id="bts" class="sec">
+  <svg class="ink" id="btsInk" aria-hidden="true"></svg>
+  <h2>BTS</h2>
+  <p class="by">Install week, opening night and the days around them, on film by Sean.</p>
+  <div class="roll" id="roll"></div>
+</section>
+<nav id="next"><a href="curation.html">&larr; Curation</a><a href="edible-taboos.html">Edible Taboos &rarr;</a></nav>
+
+<script>
+const $=id=>document.getElementById(id);
+const IMG=/\.(jpe?g|png|webp|gif|avif)$/i;
+const CLELIA="Photograph by Clelia Cadamuro.", SEAN="Film photograph by Sean.";
+
+/* What each photograph is, keyed by its number so a renamed file keeps
+   its words. Work descriptions follow the A plus A exhibition text;
+   behind-the-scenes shots say only what the frame shows. */
+const SCREENING="Video by Orphan Drift, Marina Faust, Dmitri Sarkisov and others, with work from the Servais Family Collection, Brussels. It played toward the street, so passersby could watch at any hour.";
+const PIECES={
+  c01:{t:"Research station", p:"Part of the gallery became a research station: the curators’ documentation, reading and working materials, open to every visitor.", c:CLELIA},
+  c02:{t:"Raqs Media Collective", p:"Blood Moon, 2025. Video projection, 6′35″, at the end of the corridor.", c:CLELIA},
+  c03:{t:"Screening programme", p:SCREENING, c:CLELIA},
+  c04:{t:"Screening programme", p:SCREENING, c:CLELIA},
+  c05:{t:"Giovanni Borga", p:"Willie Pete is running wild, 2024. Treadmill, screenprint on PVC running belt, 138 × 86 × 70 cm. It stands upright like the screens we scroll and repeats the obsessive motions of consuming spectacle. On the wall beside it, three of Camille Theodet’s airbrush paintings.", c:CLELIA},
+  b04:{t:"The fellows on the steps"},
+  b12:{t:"Laying out the research station", p:"The curators’ printouts and references, sorted before they went up."},
+  b14:{t:"Hanging the research station", p:"Notes, references and printouts pinned up as one wall."},
+  b16:{t:"Testing the screening room"},
+  b19:{t:"The door at San Marco 3073", p:"A plus A Gallery’s street door."},
+};
+function pieceOf(f){
+  const key=(f.match(/^[a-z]\d+/i)||[""])[0].toLowerCase();
+  const known=PIECES[key]||{};
+  const fromName=f.replace(/\.[^.]+$/,"").replace(/^[a-z]?\d+[\s._-]*/i,"").split("--")[0]
+    .replace(/-\d+$/,"").replace(/[-_]+/g," ").trim();
+  return {t:known.t||(fromName.charAt(0).toUpperCase()+fromName.slice(1)), p:known.p||"",
+          c:known.c||(/--sean/i.test(f)?SEAN:CLELIA), work:/^c\d/i.test(f)};
+}
+
+/* Exhibition views on the A plus A site that are not in the local folder,
+   loaded from the gallery's own server. Photographs by Clelia Cadamuro. */
+const APA="https://aplusa.it/wp-content/uploads/2025/08/";
+const REMOTE_WORKS=[
+  {f:"apa-street", src:APA+"timelapse-2025-exhibition-view-a-plus-a-gallery-curated-by-school-for-curatorial-studies-venice-ph-clelia-cadamuro-7.jpg",
+   t:"Seen from the street", p:"Through the gallery window: Kensuke Koike’s Identified Flying Object – Eight Cubes, 2014, print on blueback paper, 350 × 220 cm, with Roma Bantik’s A190B2, 2022, in front of it."},
+  {f:"apa-room", src:APA+"timelapse-2025-exhibition-view-a-plus-a-gallery-curated-by-school-for-curatorial-studies-venice-ph-clelia-cadamuro-5.jpg",
+   t:"Roma Bantik and Kensuke Koike", p:"Bantik’s A190B2, 2022, cast pieces and a sound system on the floor, and Koike’s Identified Flying Object – Eight Cubes, 2014, on the wall."},
+  {f:"apa-bantik", src:APA+"Roma-Bantik-2025-timelapse-curated-by-school-for-curatorial-studies-venice-ph-clelia-cadamuro.jpg",
+   t:"Roma Bantik", p:"A190B2, 2022. Melting, casting, tank motor B2, 166 × 33 cm. Sound system Playtronica."},
+  {f:"apa-theodet", src:APA+"timelapse-2025-exhibition-view-a-plus-a-gallery-curated-by-school-for-curatorial-studies-venice-ph-clelia-cadamuro-3.jpg",
+   t:"Camille Theodet and Robert Blatt", p:"Theodet’s airbrush paintings, 2024 and 2025, on the walls, with Blatt’s Book of Hours, 2017, on its plinth."},
+  {f:"apa-blatt", src:APA+"Robert-Blatt-Book-of-Hours-2017-handbound-book-sound-19x10x1.15-cm-timelapse-2025-exhibition-view-a-plus-a-gallery-curated-by-school-for-curatorial-studies-venice-ph-clelia-cadamuro.jpg",
+   t:"Robert Blatt", p:"Book of Hours, 2017. Hand-bound book, sound, 19 × 10 × 1.5 cm."},
+].map(w=>({...w, c:CLELIA, work:true}));
+async function listDir(dir){
+  const baked=((window.ASSETS&&window.ASSETS[dir])||[]).filter(f=>IMG.test(f));
+  try{ const r=await fetch("api/"+dir); if(!r.ok) return baked;
+    return (await r.json()).filter(f=>IMG.test(f)); }
+  catch{ return baked; }
+}
+const loadImg=src=>new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src;});
+
+/* ---------- the globe ---------- */
+let W,H,R,cx,cy,wide;
+const START={spin:20,tilt:-10};
+let spin=START.spin, tilt=START.tilt, vSpin=0, vTilt=0, target=null, focus=null;
+const IDLE=.08, cards=[];
+
+function measure(){
+  wide=!matchMedia("(max-width:899px), (max-aspect-ratio:1/1)").matches;
+  const g=$("globe");
+  W=g.clientWidth; H=g.clientHeight;
+  R=Math.min(W,H)*(wide?.36:.38);
+  cx=W/2; cy=H/2;
+  const world=$("world");
+  world.style.left=cx+"px"; world.style.top=cy+"px"; world.style.perspective=(R*4.2)+"px";
+}
+
+/* Positions are spread evenly over the sphere, then the works take the
+   ones nearest the front, so the pieces are what you meet first and the
+   behind-the-scenes shots wrap round behind them. */
+function place(){
+  const n=cards.length, rad=Math.PI/180;
+  const spots=[];
+  /* too few works to cover a sphere reads as scattered cards, so under
+     ten they turn on a ring; from ten up they fill the globe */
+  const ring=n<8, bands=!ring&&n<20;
+  for(let i=0;i<n;i++){
+    if(ring) spots.push({lat:0, lon:i*360/n});
+    else if(bands){ const up=i%2===0, k=Math.floor(i/2), per=Math.ceil(n/2);
+      spots.push({lat:up?17:-17, lon:k*360/per+(up?0:180/per)}); }
+    else spots.push({lat:Math.asin(1-(i+.5)/n*2)/rad*.86, lon:(i*137.508)%360});
+  }
+  const fl=-START.spin*rad, fa=-START.tilt*rad;
+  const front=[Math.cos(fa)*Math.sin(fl), -Math.sin(fa), Math.cos(fa)*Math.cos(fl)];
+  spots.forEach(s=>{
+    const a=s.lat*rad, o=s.lon*rad;
+    s.d=-(Math.cos(a)*Math.sin(o)*front[0] - Math.sin(a)*front[1] + Math.cos(a)*Math.cos(o)*front[2]);
+  });
+  spots.sort((a,b)=>a.d-b.d);
+  cards.forEach((c,i)=>{
+    c.lat=spots[i].lat; c.lon=spots[i].lon;
+    const long=R*(ring?.74:bands?.56:.46), a=c.aspect||1.5;
+    c.w=a>=1?long:long*a; c.h=a>=1?long/a:long;
+    Object.assign(c.el.style,{width:c.w+"px",height:c.h+"px",marginLeft:(-c.w/2)+"px",marginTop:(-c.h/2)+"px"});
+    setCardTransform(c);
+  });
+}
+function setCardTransform(c){
+  const on=c===focus;
+  c.el.classList.toggle("on",on);
+  c.el.style.transform=`rotateY(${c.lon}deg) rotateX(${c.lat}deg) translateZ(${on?R*1.6:R}px)`+(on?` scale(${c.aspect<1?1.55:1.85})`:"");
+}
+function build(items){
+  const ball=$("ball");
+  items.forEach(it=>{
+    const el=document.createElement("div");
+    el.className="card";
+    el.innerHTML=`<div class="face"><img alt=""></div><div class="back"><img alt=""></div>`;
+    el.querySelectorAll("img").forEach((im,k)=>{ im.src=it.src; im.alt=k?"":it.t; });
+    const c={...it,el}; el._card=c; cards.push(c); ball.appendChild(el);
+  });
+  place();
+}
+
+/* ---------- ink ---------- */
+function rel(el){ const t=$("top").getBoundingClientRect(), r=el.getBoundingClientRect();
+  return {x:r.left-t.left, y:r.top-t.top, w:r.width, h:r.height, r:r.right-t.left, b:r.bottom-t.top}; }
+
+function drawTitleInk(){
+  const h=rel($("title").querySelector("h1")), r=Ink.rng(11);
+  let d=`<path d="${Ink.loop(h.x+h.w/2,h.y+h.h/2+2,h.w/2+18,h.h/2+13,r)}" stroke="var(--blue)" stroke-width="1.6"/>`;
+  if(wide){
+    const g=rel($("globe")), ang=200*Math.PI/180;
+    const to=[g.x+cx+Math.cos(ang)*R*1.04, g.y+cy+Math.sin(ang)*R*1.04];
+    d+=`<path d="${Ink.arrow(h.r+20,h.y+h.h*.7,to[0],to[1],-34,r)}" stroke="var(--blue)" stroke-width="1.6"/>`;
+  }
+  $("titleInk").innerHTML=d;
+}
+function drawMarks(){
+  const top=$("top").getBoundingClientRect(), r=Ink.rng(23);
+  let out="";
+  document.querySelectorAll("#statement .mark").forEach(m=>{
+    [...m.getClientRects()].forEach(q=>{
+      const y=q.bottom-top.top+1;
+      out+=`<path d="${Ink.underline(q.left-top.left-2,q.right-top.left+3,y,r)}" stroke="var(--blue)" stroke-width="1.5"/>`;
+      out+=`<path d="${Ink.underline(q.left-top.left+4,q.right-top.left-1,y+4,r)}" stroke="var(--blue)" stroke-width="1.1"/>`;
+    });
+  });
+  $("markInk").innerHTML=out;
+}
+
+/* the words take the statement's place on a wide screen, and sit under
+   the globe on a phone */
+function placePiece(){
+  const box=$("piece");
+  if(wide){
+    const s=rel($("statement"));
+    Object.assign(box.style,{left:s.x+"px", top:s.y+"px", width:s.w+"px"});
+    $("top").style.removeProperty("--pieceRoom");
+  }else{
+    const g=rel($("globe"));
+    Object.assign(box.style,{left:"28px", top:(g.b+8)+"px", width:"calc(100% - 56px)"});
+    $("top").style.setProperty("--pieceRoom",(box.offsetHeight+30)+"px");
+  }
+}
+let arrowFor=null, arrowAt=0;
+function showPiece(c){
+  arrowFor=null; $("pieceInk").innerHTML="";
+  document.body.classList.toggle("reading",!!c);
+  /* the statement's underlines step back with it */
+  $("markInk").style.opacity=c?0:1;
+  if(!c){ $("top").style.removeProperty("--pieceRoom"); return; }
+  const box=$("piece");
+  box.querySelector("h3").textContent=c.t;
+  box.querySelector("p").textContent=c.p; box.querySelector("p").hidden=!c.p;
+  box.querySelector("small").textContent=c.c;
+  placePiece();
+  arrowFor=c; arrowAt=performance.now()+620;   /* drawn by frame() once the turn has settled */
+}
+function drawPieceArrow(c){
+  const b=rel($("piece").querySelector("h3")), k=rel(c.el), r=Ink.rng(c.lon|0);
+  const d=wide
+    ? Ink.arrow(b.r+18, b.y+b.h/2, k.x-12, k.y+k.h*.3, -22, r)
+    : Ink.arrow(b.x+b.w*.3, b.y-10, k.x+k.w*.4, k.b+10, 18, r);
+  $("pieceInk").innerHTML=`<path d="${d}" stroke="var(--blue)" stroke-width="1.5"/>`;
+}
+
+const norm=d=>((d+540)%360)-180;
+function frame(){
+  if(!drag){
+    if(target){
+      spin+=norm(target.spin-spin)*.09; tilt+=(target.tilt-tilt)*.09;
+      if(Math.abs(norm(target.spin-spin))<.05&&Math.abs(target.tilt-tilt)<.05) target=null;
+    }else if(!focus){
+      spin+=IDLE+vSpin; tilt+=vTilt; vSpin*=.95; vTilt*=.9; tilt+=(START.tilt-tilt)*.004;
+    }
+    if(!target && arrowFor && arrowFor===focus && performance.now()>arrowAt){ drawPieceArrow(arrowFor); arrowFor=null; }
+  }
+  tilt=Math.max(-65,Math.min(65,tilt));
+  $("ball").style.transform=`rotateX(${tilt}deg) rotateY(${spin}deg)`;
+}
+function setFocus(c){
+  const prev=focus; focus=c;
+  if(prev) setCardTransform(prev);
+  if(c){ setCardTransform(c); target={spin:-c.lon+Math.round((spin+c.lon)/360)*360, tilt:-c.lat}; }
+  showPiece(c);
+}
+
+let drag=false, down=null, last=null;
+const stage=$("stage");
+stage.addEventListener("pointerdown",e=>{ down={x:e.clientX,y:e.clientY}; last={x:e.clientX,y:e.clientY}; });
+stage.addEventListener("pointermove",e=>{
+  if(!down) return;
+  if(!drag && Math.hypot(e.clientX-down.x,e.clientY-down.y)>6){
+    drag=true; stage.classList.add("drag"); target=null; if(focus) setFocus(null);
+    try{ stage.setPointerCapture(e.pointerId); }catch{}
+  }
+  if(!drag) return;
+  const dx=e.clientX-last.x, dy=e.clientY-last.y, k=90/R;
+  spin+=dx*k; tilt-=dy*k; vSpin=dx*k*.6; vTilt=-dy*k*.6;
+  last={x:e.clientX,y:e.clientY};
+});
+stage.addEventListener("pointerup",e=>{
+  if(!down) return;
+  if(!drag){
+    const hit=document.elementFromPoint(e.clientX,e.clientY), el=hit&&hit.closest(".card");
+    setFocus(el&&el._card!==focus?el._card:null);
+  }
+  drag=false; down=null; stage.classList.remove("drag");
+});
+stage.addEventListener("pointercancel",()=>{ drag=false; down=null; stage.classList.remove("drag"); });
+/* arrow keys walk the works first, then behind the scenes */
+addEventListener("keydown",e=>{
+  if(e.key==="Escape") setFocus(null);
+  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
+    const i=focus?cards.indexOf(focus):-1;
+    setFocus(cards[(i+(e.key==="ArrowRight"?1:-1)+cards.length)%cards.length]);
+  }
+});
+
+function redraw(){ measure(); place(); drawTitleInk(); drawMarks(); if(focus){ placePiece(); drawPieceArrow(focus); } }
+let rt; addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(redraw,120); });
+
+function drawBtsInk(){
+  const sec=$("bts").getBoundingClientRect(), h=$("bts").querySelector("h2").getBoundingClientRect(), r=Ink.rng(31);
+  $("btsInk").innerHTML=`<path d="${Ink.loop(h.left-sec.left+h.width/2,h.top-sec.top+h.height/2+2,h.width/2+20,h.height/2+14,r)}" stroke="var(--blue)" stroke-width="1.6"/>`;
+}
+addEventListener("resize",()=>setTimeout(drawBtsInk,140));
+
+
+/* ---------- the floor plan, from the A plus A press sheet ---------- */
+const WORKS=[
+  {n:"1", who:"Roma Bantik", what:"<i>A190B2</i>, 2022. Melting, casting, tank motor B2, 166 × 33 cm. Sound system Playtronica.", c:"#E0629F", at:[[98,555]]},
+  {n:"2", who:"Kensuke Koike", what:"<i>Identified Flying Object – Eight Cubes</i>, 2014. Print on blueback paper, 350 × 220 cm.", c:"#1FA493", at:[[195,568]]},
+  {n:"3", who:"Giovanni Borga", what:"<i>Willie Pete is running wild</i>, 2024. Treadmill, screenprint on PVC running belt, 138 × 86 × 70 cm.", c:"#3D6FE0", at:[[229,612]]},
+  {n:"4", who:"Camille Theodet", what:"<i>La Délicatesse Cynégétique 3</i>, <i>La Candeur en Frondaison</i>, <i>La Convoitise</i> and <i>Vermine 2</i>, 2025, airbrush on canvas, 30 × 30 cm. <i>Les Glapissements</i> and <i>Mon Humeur</i>, 2024, airbrush on canvas, 70 × 50 cm.", c:"#EE7F2E",
+   at:[[272,606],[293,606],[314,606],[391,624],[283,688],[262,688]], tags:["4a","4b","4c","4d","4e","4f"]},
+  {n:"5", who:"Robert Blatt", what:"<i>Book of Hours</i>, 2017. Hand-bound book, sound, 19 × 10 × 1.5 cm.", c:"#9C7DDB", at:[[376,652]]},
+  {n:"6", who:"Raqs Media Collective", what:"<i>Blood Moon</i>, 2025. Video projection, 6′35″.", c:"#DE3F44", at:[[368,522]]},
+  {n:"7", who:"Screening room", what:"Videos by Iida Jonsson, Ssi Saarinen, Ona Julija Lukas Steponaityte, 0rphan Drift, Marina Faust, Tommaso Pandolfi, Dmitri Sarkisov, Danilo Correale and Semiconductor, with a selection from the Servais Family Collection, Brussels: Larry Achiampong, Arturo Hernández Alcázar, Petra Cortright, Sari Dorian, Peter Fischli and David Weiss, Leo Gabin, Mi Kafchin Hortensia, Jura Shust and Thomas Verstraeten.", c:"#5DB55B", at:[[300,820]]},
+  {n:"8", who:"Research station", what:"The curators’ documentation, reference literature and working materials, open to the public.", c:"#D9B320", at:[[150,812]]},
+];
+const WALLS=[
+  [[83,503],[216,503],[216,590],[330,590],[330,503],[415,503],[415,698],[83,698],[83,503]],
+  [[216,590],[216,634]],
+  [[89,731],[413,731],[413,935],[89,935],[89,731]],
+  [[219,731],[219,880]],
+];
+function drawPlan(){
+  const svg=$("planSvg"); let out="";
+  /* walls: each run broken into short steps and drawn twice, by hand */
+  WALLS.forEach((poly,k)=>[0,1].forEach(pass=>{
+    const r=Ink.rng(700+k*3+pass), pts=[];
+    for(let i=0;i<poly.length-1;i++){
+      const [a,b]=[poly[i],poly[i+1]], L=Math.hypot(b[0]-a[0],b[1]-a[1]), n=Math.max(1,Math.round(L/22));
+      for(let j=0;j<n;j++) pts.push([a[0]+(b[0]-a[0])*j/n, a[1]+(b[1]-a[1])*j/n]);
+    }
+    pts.push(poly[poly.length-1]);
+    out+=`<path class="wall" d="${Ink.line(pts,pass?1.1:.7,r)}" stroke-width="${pass?.8:1.4}" ${pass?'opacity=".45"':""}/>`;
+  }));
+  WORKS.forEach(w=>{
+    out+=`<g class="spot" data-n="${w.n}">`;
+    w.at.forEach(([x,y],i)=>{
+      const big=w.at.length>1?.8:1;
+      out+=`<circle cx="${x}" cy="${y}" r="${15*big}" fill="${w.c}" opacity=".16"/><circle cx="${x}" cy="${y}" r="${9*big}" fill="${w.c}" opacity=".32"/><circle cx="${x}" cy="${y}" r="${3.4*big}" fill="${w.c}"/>`;
+      out+=`<text x="${x+7}" y="${y-8}">${w.tags?w.tags[i]:w.n}</text>`;
+    });
+    out+=`</g>`;
+  });
+  svg.innerHTML=out;
+  $("legend").innerHTML=WORKS.map(w=>`<li data-n="${w.n}" style="--c:${w.c}"><span class="n">${w.n}</span><div><b>${w.who}</b><span>${w.what}</span></div></li>`).join("");
+  const pick=n=>{
+    const on=$("plan").dataset.on===n?"":n;
+    $("plan").dataset.on=on; $("plan").classList.toggle("picked",!!on);
+    document.querySelectorAll("#plan [data-n]").forEach(el=>el.classList.toggle("on",el.dataset.n===on));
+  };
+  document.querySelectorAll("#plan [data-n]").forEach(el=>el.addEventListener("click",()=>pick(el.dataset.n)));
+}
+function drawSectionInk(id,seed){
+  const sec=$(id).getBoundingClientRect(), h=$(id).querySelector("h2").getBoundingClientRect(), r=Ink.rng(seed);
+  $(id).querySelector("svg.ink").innerHTML=`<path d="${Ink.loop(h.left-sec.left+h.width/2,h.top-sec.top+h.height/2+2,h.width/2+20,h.height/2+14,r)}" stroke="var(--blue)" stroke-width="1.6"/>`;
+}
+addEventListener("resize",()=>setTimeout(()=>drawSectionInk("plan",41),140));
+
+(async()=>{
+  measure();
+  const files=(await listDir("curation")).filter(f=>!/^e\d/i.test(f));
+  const works=files.filter(f=>/^c\d/i.test(f)), film=files.filter(f=>!/^c\d/i.test(f));
+  /* the globe holds the works */
+  const local=works.map(f=>({f, src:"assets/curation/"+f, ...pieceOf(f)}));
+  const loaded=(await Promise.all([...local, ...REMOTE_WORKS].map(async w=>{
+    const img=await loadImg(w.src);
+    return img&&{...w, aspect:img.naturalWidth/img.naturalHeight};
+  }))).filter(Boolean);
+  build(loaded);
+  /* the film photographs run below, in the order they were taken */
+  $("roll").innerHTML=film.map(f=>{
+    const p=pieceOf(f);
+    return `<figure><img loading="lazy" src="assets/curation/${f}" alt="${p.t}"><figcaption><b>${p.t}</b>${p.p}</figcaption></figure>`;
+  }).join("");
+  await document.fonts.ready;
+  drawPlan();
+  drawTitleInk(); drawMarks(); drawBtsInk(); drawSectionInk("plan",41);
+  frame(); setInterval(frame,20);
+  /* draw the ink again once fonts and pictures have settled */
+  setTimeout(()=>{ drawTitleInk(); drawMarks(); drawBtsInk(); drawSectionInk("plan",41); },700);
+})();
+document.fonts.addEventListener("loadingdone",()=>setTimeout(()=>{ drawTitleInk(); drawMarks(); },60));
+</script>
+</body>
+</html>

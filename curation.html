@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Curation · Noor Badal Sharma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;1,400&display=swap">
+<script>
+/* Opened straight from the folder, nothing relative resolves, so hand over to the local server. */
+if(!/^https?:$/.test(location.protocol)) location.replace("http://localhost:4178/curation.html");
+/* some previews refuse that hand-over; then say where the live page is */
+addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)) return;
+  const n=document.createElement("a"); n.href="http://localhost:4178/curation.html";
+  n.textContent="This is a saved copy, so the photographs can't load. Open the live page →";
+  n.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;font:500 16px/1.4 system-ui,sans-serif;color:#1B2FD6;background:#fff;padding:16px 20px;max-width:80vw;text-align:center";
+  document.body.appendChild(n); });
+</script>
+<script src="ink.js"></script>
+<style>
+  :root{
+    --tl-ground:#FFFFFF; --et-ground:#FFFFFF; --ink:#0e0e0d; --mute:#7d838a; --soft:#3a3a3a;
+    --blue:#1B2FD6; --red:#D7352A; --graphite:#4a4944;
+    --font:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  }
+  html,body{margin:0;min-height:100%;background:var(--tl-ground);color:var(--ink);font-family:var(--font)}
+  a{color:inherit;text-decoration:none}
+  #hud{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:baseline;
+       padding:18px max(22px,env(safe-area-inset-right)) 0 max(22px,env(safe-area-inset-left));font-size:13px}
+  #hud a:hover{color:var(--blue)} #hud span{color:var(--mute)}
+
+  /* each show stands on its own ground: the same colours as its page */
+  main{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;min-height:100svh}
+  .lede{position:absolute;top:56px;left:max(22px,env(safe-area-inset-left));z-index:2;
+        font-size:15px;line-height:1.5;color:var(--soft);margin:0;max-width:30ch}
+  .door{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;
+        padding:120px 24px 60px}
+  #tl{background:var(--tl-ground)} #et{background:var(--et-ground)}
+  .door svg{width:var(--d);height:var(--d);overflow:visible}
+  .door svg path{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .door h2{font-weight:500;font-size:clamp(30px,3.4vw,46px);letter-spacing:-.02em;line-height:1;margin:2.4vh 0 0}
+  .door p{font-size:13px;line-height:1.55;color:var(--soft);margin:.9em 0 0}
+  #tl h2{color:var(--blue)} #et h2{color:var(--red)}
+  @media (max-width:700px){ main{grid-template-columns:1fr} .door{min-height:58svh;padding:110px 24px 50px} #et{padding-top:60px} }
+
+  body.leaving::after{content:"";position:fixed;inset:0;z-index:30;background:var(--to,var(--tl-ground));animation:fade .38s ease forwards}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+<nav id="hud"><a href="index.html?intro=0">&larr; Menu</a></nav>
+<main>
+  <p class="lede">Curatorial projects</p>
+    <a class="door" id="tl" href="timelapse.html">
+      <svg viewBox="0 0 200 200" aria-hidden="true"></svg>
+      <h2>time:lapse</h2>
+      <p>A plus A Gallery, San Marco, Venice<br>2025</p>
+    </a>
+    <a class="door" id="et" href="edible-taboos.html">
+      <svg viewBox="0 0 200 200" aria-hidden="true"></svg>
+      <h2>Edible Taboos</h2>
+      <p>Ashoka University<br>2024</p>
+    </a>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+
+/* Both drawings are redrawn eight times a second from a small set of
+   seeds, the way hand-drawn animation boils, so the ink never sits
+   perfectly still. */
+let tick=0, spin=0, hover=null;
+
+/* time:lapse: the globe of cards, drawn as it turns */
+function globe(seed){
+  const r=Ink.rng(seed), R=78, cx=100, cy=100;
+  let d=`<path d="${Ink.loop(cx,cy,R,R,r,1.1,.04)}" stroke="var(--blue)" stroke-width="1.6"/>`;
+  const n=22;
+  for(let i=0;i<n;i++){
+    const lat=Math.asin(1-(i+.5)/n*2)*.82, lon=i*2.39996+spin;
+    const x=Math.cos(lat)*Math.sin(lon), y=-Math.sin(lat), z=Math.cos(lat)*Math.cos(lon);
+    if(z<.08) continue;
+    const px=cx+x*R*.88, py=cy+y*R*.88, s=8+z*13;
+    /* cards turn edge-on toward the rim, so they narrow with the sideways
+       part of their position */
+    const w=s*1.35*Math.max(.18,z), h=s*Math.max(.35,Math.cos(lat));
+    const j=()=>(r()-.5)*1.4;
+    /* straight strokes, corners kept: smoothed corners read as blobs */
+    const c=[[px-w/2+j(),py-h/2+j()],[px+w/2+j(),py-h/2+j()],[px+w/2+j(),py+h/2+j()],[px-w/2+j(),py+h/2+j()]];
+    const over=[c[0][0]+(c[1][0]-c[0][0])*.12+j()*.5, c[0][1]+(c[1][1]-c[0][1])*.12-.6];
+    let p=`M${c[0][0].toFixed(1)} ${c[0][1].toFixed(1)}`+c.slice(1).map(q=>` L${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join("")+` L${c[0][0].toFixed(1)} ${c[0][1].toFixed(1)} L${over[0].toFixed(1)} ${over[1].toFixed(1)}`;
+    d+=`<path d="${p}" stroke="var(--blue)" stroke-width="${(.7+z*.7).toFixed(2)}"/>`;
+  }
+  return d;
+}
+
+/* Edible Taboos: the corridor, squeezing slightly as you watch */
+function gutDrawing(seed){
+  const r=Ink.rng(seed), top=34, bot=170, out=[];
+  const mid=y=>y<top?100:y>bot?100:100+44*Math.sin((y-top)/(bot-top)*Math.PI*2.5);
+  [-1,1].forEach(side=>{
+    const pts=[];
+    for(let y=top-10;y<=bot+10;y+=7){
+      const half=15+2.6*Math.sin(y/9-tick*.5);
+      pts.push([mid(y)+side*half,y]);
+    }
+    out.push(`<path d="${Ink.line(pts,.8,r)}" stroke="var(--red)" stroke-width="1.6"/>`);
+  });
+  [top+(bot-top)*.36, top+(bot-top)*.7].forEach(y=>{
+    for(let k=-12;k<=12;k+=4.5){
+      const x=mid(y)+k;
+      out.push(`<path d="${Ink.line([[x,y-6],[x+(r()-.5)*1.5,y],[x,y+6]],.5,r)}" stroke="var(--graphite)" stroke-width=".8"/>`);
+    }
+  });
+  out.push(`<path d="${Ink.arrow(100,2,100,top-4,4,r,8)}" stroke="var(--red)" stroke-width="1.4"/>`);
+  out.push(`<path d="${Ink.arrow(100,bot+6,100,198,-4,r,8)}" stroke="var(--red)" stroke-width="1.4"/>`);
+  return out.join("");
+}
+
+function size(){
+  const W=innerWidth, H=innerHeight, stacked=W<=700;
+  const d=stacked?Math.min(W*.56,H*.26):Math.min(W*.27,H*.44,400);
+  document.documentElement.style.setProperty("--d",d+"px");
+}
+function draw(){
+  const seed=tick%3;
+  $("tl").querySelector("svg").innerHTML=globe(10+seed);
+  $("et").querySelector("svg").innerHTML=gutDrawing(20+seed);
+}
+function step(){
+  tick++;
+  spin+=hover==="tl"?.09:.035;
+  draw();
+}
+
+document.querySelectorAll(".door").forEach(a=>{
+  a.addEventListener("mouseenter",()=>hover=a.id);
+  a.addEventListener("mouseleave",()=>hover=null);
+  a.addEventListener("click",e=>{
+    e.preventDefault();
+    if(document.body.classList.contains("leaving")) return;
+    document.body.style.setProperty("--to",a.id==="et"?"var(--et-ground)":"var(--tl-ground)");
+    document.body.classList.add("leaving");
+    setTimeout(()=>{ location.href=a.getAttribute("href"); },360);
+  });
+});
+addEventListener("pageshow",()=>document.body.classList.remove("leaving"));
+addEventListener("resize",size);
+size(); draw();
+setInterval(step,125);
+</script>
+</body>
+</html>

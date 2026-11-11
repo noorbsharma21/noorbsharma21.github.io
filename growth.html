@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Growth · Noor Badal Sharma</title>
+<script>
+/* Opened straight from the folder, nothing relative resolves, so hand over to the local server. */
+if(!/^https?:$/.test(location.protocol)) location.replace("http://localhost:4178/growth.html");
+addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)) return;
+  const n=document.createElement("a"); n.href="http://localhost:4178/growth.html";
+  n.textContent="This is a saved copy, so the work can't load. Open the live page →";
+  n.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;font:500 16px/1.4 system-ui,sans-serif;color:#1B2FD6;background:#fff;padding:16px 20px;max-width:80vw;text-align:center";
+  document.body.appendChild(n); });
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;1,400&display=swap">
+<script src="ink.js"></script>
+<style>
+  :root{
+    --ground:#FFFFFF; --ink:#0e0e0d; --soft:#3c3c3a; --mute:#8a8a86;
+    --red:#D7352A;
+    --font:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  }
+  html,body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font)}
+  body{overflow-x:hidden}
+  a{color:inherit}
+  #back{position:absolute;top:18px;left:max(22px,env(safe-area-inset-left));z-index:10;font-size:14px;text-decoration:none}
+  #back:hover{color:var(--red)}
+  svg.ink{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  svg.ink path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  header{position:relative;max-width:1100px;margin:0 auto;
+         padding:12vh max(50px,env(safe-area-inset-right)) 0 max(50px,env(safe-area-inset-left))}
+  header h1{display:inline-block;font-weight:500;font-size:clamp(40px,5vw,68px);line-height:1;margin:0;color:var(--red);letter-spacing:-.02em}
+  header p{font-size:clamp(17px,1.5vw,20px);line-height:1.5;margin:1.6em 0 0;max-width:34ch}
+
+  /* one company at a time: what I did on the left, the proof on the right */
+  .co{position:relative;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:6vw;
+      padding:10vh max(50px,env(safe-area-inset-right)) 4vh max(50px,env(safe-area-inset-left))}
+  .co h2{font-weight:500;font-size:clamp(30px,3.2vw,44px);line-height:1;margin:0;letter-spacing:-.015em}
+  .co h2 a{text-decoration:none} .co h2 a:hover{color:var(--red)}
+  .co .site{display:inline-block;font-size:14px;margin-top:.9em;color:var(--soft)}
+  .co .site:hover{color:var(--red)}
+  .co .role{font-size:16px;line-height:1.55;color:var(--soft);margin:1.2em 0 0;max-width:42ch}
+  .figure{margin:5vh 0 0}
+  .figure b{display:block;font-weight:500;font-size:clamp(44px,5vw,68px);line-height:1;letter-spacing:-.02em}
+  .figure span{display:block;font-size:14px;color:var(--soft);margin-top:.6em}
+  .did{list-style:none;margin:5vh 0 0;padding:0;display:grid;gap:1.1em;max-width:46ch}
+  .did li{font-size:16px;line-height:1.55}
+
+  .proof{display:grid;gap:6vh;align-content:start;padding-top:.4em}
+  .proof h3{font-weight:500;font-size:17px;letter-spacing:0;color:var(--ink);margin:0 0 1.1em}
+
+  /* the email: an envelope you open */
+  .mail{display:grid;grid-template-columns:96px minmax(0,1fr);gap:22px;align-items:center;background:none;border:0;padding:0;
+        font:inherit;color:inherit;text-align:left;cursor:pointer}
+  .mail svg{width:96px;height:70px;overflow:visible}
+  .mail svg path{fill:none;stroke:var(--red);stroke-linecap:round;stroke-linejoin:round}
+  .mail b{display:block;font-weight:500;font-size:20px}
+  .mail span{display:block;font-size:14px;line-height:1.5;color:var(--soft);margin-top:.35em}
+  .mail em{display:inline-block;font-style:normal;font-size:14px;margin-top:.6em;color:var(--ink)}
+  .mail:hover em{color:var(--red)}
+
+  .launches{list-style:none;margin:0;padding:0;display:grid;gap:1.4em}
+  .launches b{font-weight:500;font-size:17px}
+  .launches span{display:block;font-size:14px;line-height:1.5;color:var(--soft);margin-top:.25em}
+  .launches a{font-size:14px;margin-right:1.1em}
+  .launches a:hover,.cases a:hover{color:var(--red)}
+  .cases p{font-size:15px;line-height:1.55;margin:0;max-width:40ch}
+  .cases a{display:inline-block;font-size:14px;margin-top:.7em}
+
+  /* full-width rows under a company: the case studies, then the news */
+  .row{max-width:1100px;margin:0 auto;padding:6vh max(50px,env(safe-area-inset-right)) 2vh max(50px,env(safe-area-inset-left))}
+  .row h3{font-weight:500;font-size:17px;letter-spacing:0;color:var(--ink);margin:0 0 1.6em}
+  .cases3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px}
+  .case{display:flex;flex-direction:column;text-decoration:none;color:inherit}
+  .case img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#f2f2f0}
+  .launch img{aspect-ratio:2/1}
+  .launch img.badge{width:auto;height:44px;aspect-ratio:auto;background:none;margin-top:1em;align-self:flex-start}
+  .case .when{font-size:14px;line-height:1.5;color:var(--soft);margin-top:.4em}
+  .case b{font-weight:500;font-size:17px;line-height:1.35;margin-top:1em}
+  .case .nums{display:flex;gap:26px;margin-top:1em}
+  .case .nums>span{font-size:13px;line-height:1.4;color:var(--soft);max-width:12em}
+  .case .nums i{display:block;font-style:normal;font-weight:500;font-size:26px;line-height:1.1;color:var(--ink);margin-bottom:.15em}
+  .case em{font-style:normal;font-size:14px;margin-top:1.1em}
+  .case:hover b,.case:hover em{color:var(--red)}
+  .row .all{display:inline-block;font-size:14px;margin-top:3vh}
+  .row .all:hover{color:var(--red)}
+  .news{list-style:none;margin:0;padding:0;display:grid;gap:1.6em;max-width:60ch}
+  .news a{display:block;text-decoration:none;color:inherit}
+  .news .pub{display:block;font-size:13px;color:var(--mute);margin-bottom:.3em}
+  .news b{font-weight:500;font-size:18px;line-height:1.35}
+  .news a:hover b{color:var(--red)}
+
+  /* a second company starts with room above it */
+  #jimini{padding-top:16vh}
+  .pod{display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;align-items:start}
+  .pod img{display:block;width:150px;height:150px;object-fit:cover}
+  .pod .credit{display:block;font-size:12px;color:var(--mute);margin-top:.5em}
+  .co-logo{display:block;height:30px;width:auto;margin:0 0 1.4em}
+  .note{font-size:15px;line-height:1.55;color:var(--soft);margin:-.6em 0 2em;max-width:52ch}
+  .cards4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+  .cards4 img{display:block;width:100%;height:auto}
+  @media (max-width:800px){ .cards4{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  .big{display:block;font-weight:500;font-size:clamp(30px,3vw,40px);line-height:1;letter-spacing:-.015em}
+  .pod span,.stat span{display:block;font-size:14px;line-height:1.5;color:var(--soft);margin-top:.5em;max-width:34ch}
+  .where{display:flex;flex-wrap:wrap;gap:.5em 1.1em;margin:1em 0 0;font-size:14px}
+  .where a:hover{color:var(--red)}
+  @media (max-width:520px){ .pod{grid-template-columns:minmax(0,1fr)} }
+
+  /* the email itself, open over the page */
+  #letter{position:fixed;inset:0;z-index:50;background:rgba(255,255,255,.97);display:flex;flex-direction:column;align-items:center}
+  #letter[hidden]{display:none}
+  #letter .bar{width:min(680px,94vw);display:flex;justify-content:space-between;align-items:baseline;padding:18px 0 12px;font-size:14px}
+  #letter .bar b{font-weight:500}
+  #letter button{background:none;border:0;font:inherit;font-size:14px;cursor:pointer;color:var(--ink);padding:0}
+  #letter button:hover{color:var(--red)}
+  #letterBody{width:min(680px,94vw);flex:1;overflow:auto;background:#fff;-webkit-overflow-scrolling:touch}
+
+  #next{display:flex;justify-content:space-between;max-width:1100px;margin:0 auto;font-size:15px;
+        padding:8vh max(50px,env(safe-area-inset-right)) 6vh max(50px,env(safe-area-inset-left))}
+  #next a{text-decoration:none} #next a:hover{color:var(--red)}
+  @media (max-width:800px){
+    header,.co,.row,#next{padding-left:28px;padding-right:28px}
+    .cases3{grid-template-columns:minmax(0,1fr);gap:7vh}
+    .co{grid-template-columns:minmax(0,1fr);gap:7vh}
+  }
+</style>
+</head>
+<body>
+<a id="back" href="index.html?intro=0">&larr; Menu</a>
+
+<header id="head">
+  <svg class="ink" id="headInk" aria-hidden="true"></svg>
+  <h1>Growth</h1>
+  <p>I think in systems, not just campaigns.</p>
+</header>
+
+<section class="co" id="wispr">
+  <div>
+    <img class="co-logo" src="assets/logos/wispr-flow.png" alt="Wispr Flow logo">
+    <h2><a href="https://wisprflow.ai" target="_blank" rel="noopener">Wispr Flow</a></h2>
+    <a class="site" href="https://wisprflow.ai" target="_blank" rel="noopener">wisprflow.ai &nearr;</a>
+    <p class="role">2024 to 2025. The first growth hire at Wispr. Joined while Flow was still in beta, to take it from its first 10,000 users to tens of thousands, with high retention and conversion, and started the first conversions to enterprise.</p>
+    <div class="figure"><b>$1M+ ARR</b><span>at Wispr, as first growth hire</span></div>
+    <ul class="did">
+      <li>Built the brand systems and the brand guide, rebuilding the brand from the ground up.</li>
+      <li>Brand language, a behavioural audit of the site, and user case studies.</li>
+      <li>Community-led growth, from the first hire through to $1M+ ARR.</li>
+      <li>Community growth loops across Reddit, word of mouth and Slack.</li>
+      <li>Lifecycle marketing: Flow State, the monthly usage rewind, end to end.</li>
+      <li>Three product launches, including the first market launch.</li>
+    </ul>
+  </div>
+
+  <div class="proof">
+    <div>
+      <h3>Lifecycle</h3>
+      <button class="mail" id="openMail" aria-haspopup="dialog">
+        <svg viewBox="0 0 96 70" aria-hidden="true"><path id="envelope"/></svg>
+        <div><b>Flow State</b>
+          <span>The monthly usage email: words spoken, days dictated, rank in cohort, words per minute, apps used.</span>
+          <em>Open the June 2025 edition &rarr;</em></div>
+      </button>
+    </div>
+
+
+  </div>
+</section>
+
+
+<section class="row" id="wispr-launches">
+  <h3>Product launches</h3>
+  <div class="cases3">
+    <a class="case launch" href="https://www.producthunt.com/products/wisprflow/launches/wispr-flow" target="_blank" rel="noopener">
+      <img src="https://ph-files.imgix.net/36563258-6df6-4a3e-a850-8de20fa92609.png?auto=format&amp;fit=crop&amp;frame=1&amp;h=512&amp;w=1024" alt="Wispr Flow on Product Hunt">
+      <img class="badge" src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?theme=light&period=daily&post_id=488879" alt="#1 Product of the Day on Product Hunt, 30 September 2024">
+      <b>Mac, the first market launch</b>
+      <span class="when">30 September 2024, with a $12M raise. 2,699 upvotes.</span>
+      <em>On Product Hunt &nearr;</em></a>
+    <a class="case launch" href="https://www.producthunt.com/products/wisprflow/launches/wispr-flow-for-windows" target="_blank" rel="noopener">
+      <img src="https://ph-files.imgix.net/04681136-cd5d-4432-be28-cb6f525fbf67.png?auto=format&amp;fit=crop&amp;frame=1&amp;h=512&amp;w=1024" alt="Wispr Flow for Windows on Product Hunt">
+      <img class="badge" src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?theme=light&period=daily&post_id=935408" alt="#1 Product of the Day on Product Hunt, 12 March 2025">
+      <b>Windows</b>
+      <span class="when">12 March 2025. 787 upvotes.</span>
+      <em>On Product Hunt &nearr;</em></a>
+    <a class="case launch" href="https://www.producthunt.com/products/wisprflow/launches/wispr-flow-for-ios" target="_blank" rel="noopener">
+      <img src="https://ph-files.imgix.net/9ada05a7-5eac-4eb6-a063-8fbe2cef6fe8.png?auto=format&amp;fit=crop&amp;frame=1&amp;h=512&amp;w=1024" alt="Wispr Flow for iOS on Product Hunt">
+      <img class="badge" src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?theme=light&period=daily&post_id=971198" alt="#2 Product of the Day on Product Hunt, 3 June 2025">
+      <b>iOS</b>
+      <span class="when">3 June 2025. 558 upvotes.</span>
+      <em>On Product Hunt &nearr;</em></a>
+  </div>
+</section>
+
+<section class="row" id="wispr-cases">
+  <h3>Case studies I made</h3>
+  <div class="cases3">
+    <a class="case" href="https://wisprflow.ai/case-study/clay" target="_blank" rel="noopener">
+      <img src="https://cdn.prod.website-files.com/682f84b3838c89f8ff7667db/6a5e0836e976d834eda5f253_clay-bg%20(1).webp" alt="Clay">
+      <b>How Clay drove 20% faster GTM execution with Wispr Flow</b>
+      <span class="nums"><span><i>20%</i>more customer calls per day</span><span><i>$3.08M</i>estimated cost savings per year</span></span>
+      <em>Read it on wisprflow.ai &nearr;</em></a>
+    <a class="case" href="https://wisprflow.ai/case-study/dean-payn" target="_blank" rel="noopener">
+      <img src="https://cdn.prod.website-files.com/682f84b3838c89f8ff7667db/6a6a49549a32961be844cc7d_dean.webp" alt="Dean Payn">
+      <b>How a prolific founder stopped writing emails and started talking</b>
+      <span class="nums"><span><i>~50%</i>less mental load</span><span><i>3 hrs</i>saved per day</span></span>
+      <em>Read it on wisprflow.ai &nearr;</em></a>
+    <a class="case" href="https://wisprflow.ai/case-study/gaurav-vohra" target="_blank" rel="noopener">
+      <img src="https://cdn.prod.website-files.com/682f84b3838c89f8ff7667db/6a6a499493e0960ae76a6342_gaurav-vohra.webp" alt="Gaurav Vohra">
+      <b>Fast, good advice: how a prolific advisor and growth leader uses Flow</b>
+      <span class="nums"><span><i>2&ndash;3&times;</i>faster communication</span><span><i>1+ hr</i>saved a day</span></span>
+      <em>Read it on wisprflow.ai &nearr;</em></a>
+  </div>
+  <a class="all" href="https://wisprflow.ai/case-studies" target="_blank" rel="noopener">All case studies on wisprflow.ai &nearr;</a>
+</section>
+
+<section class="row" id="wispr-news">
+  <h3>In the news</h3>
+  <ul class="news">
+    <li><a href="https://techcrunch.com/2025/06/24/wispr-flow-raises-30m-from-menlo-ventures-for-its-ai-powered-dictation-app/" target="_blank" rel="noopener">
+      <span class="pub">TechCrunch, 24 June 2025</span><b>Wispr Flow raises $30M from Menlo Ventures for its AI-powered dictation app</b></a></li>
+    <li><a href="https://9to5mac.com/2025/06/30/wispr-flow-is-an-ai-that-transcribes-what-you-say-right-from-the-iphone-keyboard/" target="_blank" rel="noopener">
+      <span class="pub">9to5Mac, 30 June 2025</span><b>Wispr Flow is an AI that transcribes what you say right from the iPhone keyboard</b></a></li>
+    <li><a href="https://techcrunch.com/2025/06/03/wispr-flow-releases-ios-app-in-a-bid-to-make-dictation-feel-effortless/" target="_blank" rel="noopener">
+      <span class="pub">TechCrunch, 3 June 2025</span><b>Wispr Flow releases iOS app in a bid to make dictation feel effortless</b></a></li>
+    <li><a href="https://www.businesswire.com/news/home/20240930079034/en" target="_blank" rel="noopener">
+      <span class="pub">Business Wire, 30 September 2024</span><b>Wispr raises $12M and launches Wispr Flow to replace keyboards with voice</b></a></li>
+  </ul>
+</section>
+
+<section class="co" id="jimini">
+  <div>
+    <img class="co-logo" src="assets/logos/jimini-health.png" alt="Jimini Health logo">
+    <h2><a href="https://jiminihealth.com" target="_blank" rel="noopener">Jimini Health</a></h2>
+    <a class="site" href="https://jiminihealth.com" target="_blank" rel="noopener">jiminihealth.com &nearr;</a>
+    <p class="role">2025. First growth hire. Consumer growth end to end, across the podcast app and B2B onboarding.</p>
+    <div class="figure"><b>79 &rarr; 14,000</b><span>Neural Compass subscriptions, in a single month</span></div>
+    <ul class="did">
+      <li>Rebuilt the podcast acquisition funnel: friction audits at every stage, messaging tested systematically. Conversion up 30%.</li>
+      <li>Overhauled the emails for clinicians and for patients, lifting conversion 13%.</li>
+      <li>Ran the YouTube campaigns in Google Ads.</li>
+      <li>Designed the Neural Compass logo in Flora.</li>
+    </ul>
+  </div>
+
+  <div class="proof">
+    <div>
+      <h3>Neural Compass, the podcast</h3>
+      <div class="pod">
+        <a class="covlink" href="https://jiminihealth.com/podcast" target="_blank" rel="noopener"><img class="cover" src="https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/2c/74/0b/2c740bbc-0adb-17fa-a9b5-324d37b1d40e/mza_3094879484495160787.png/560x560bb-60.jpg" alt="Neural Compass podcast cover"><span class="credit">Logo designed in Flora</span></a>
+        <div>
+          <b class="big">50,000+</b>
+          <span>subscribers now, from 79 when I started</span>
+          <p class="where">
+            <a href="https://www.youtube.com/@ListenNeuralCompass" target="_blank" rel="noopener">YouTube &nearr;</a>
+            <a href="https://open.spotify.com/show/5hPTisLCGPq0oN6LGydQ4s" target="_blank" rel="noopener">Spotify &nearr;</a>
+            <a href="https://podcasts.apple.com/us/podcast/neural-compass/id1815965099" target="_blank" rel="noopener">Apple Podcasts &nearr;</a>
+            <a href="https://www.iheart.com/podcast/1333-neural-compass-284733945" target="_blank" rel="noopener">iHeartRadio &nearr;</a>
+            <a href="https://jiminihealth.com/podcast" target="_blank" rel="noopener">jiminihealth.com/podcast &nearr;</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>Lifecycle</h3>
+      <div class="stat"><b class="big">+13%</b><span>conversion, after I overhauled the emails for clinicians and for patients</span></div>
+    </div>
+  </div>
+</section>
+
+<nav id="next"><a href="index.html?intro=0">&larr; Menu</a><a href="art.html">Art &rarr;</a></nav>
+
+<div id="letter" role="dialog" aria-modal="true" aria-label="Flow State, June 2025" hidden>
+  <div class="bar"><b>Flow State, June 2025</b><button id="closeMail">Close</button></div>
+  <div id="letterBody" tabindex="0" aria-label="Flow State email, June 2025"></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/* a hand-drawn envelope: body, flap, and the fold lines */
+function drawEnvelope(seed){
+  const r=Ink.rng(seed);
+  const body=Ink.line([[4,10],[92,8],[93,64],[3,66],[4,10]],.9,r);
+  const flap=Ink.line([[5,11],[30,32],[48,44],[66,32],[91,9]],.9,r);
+  const folds=Ink.line([[4,64],[36,38]],.6,r)+" "+Ink.line([[92,63],[60,38]],.6,r);
+  $("envelope").setAttribute("d",body+" "+flap+" "+folds);
+  $("envelope").setAttribute("stroke-width","1.6");
+}
+/* the flap lifts a little while you hover, by redrawing the drawing */
+let boil;
+$("openMail").addEventListener("mouseenter",()=>{ let k=0; boil=setInterval(()=>drawEnvelope(30+(k++%3)),130); });
+$("openMail").addEventListener("mouseleave",()=>{ clearInterval(boil); drawEnvelope(30); });
+
+/* The email is read straight from its HTML and drawn into a shadow root,
+   so its own styles stay inside it and the page's stay out. */
+let letterReady=null;
+function loadLetter(){
+  if(letterReady) return letterReady;
+  letterReady=(async()=>{
+    const t=await (await fetch("assets/growth/flow-state-june-2025.html")).text();
+    const doc=new DOMParser().parseFromString(t,"text/html");
+    /* its web fonts have to live on the page to apply inside the shadow root */
+    doc.querySelectorAll('link[rel="stylesheet"]').forEach(l=>{
+      if(![...document.querySelectorAll("link")].some(x=>x.href===l.href)){
+        const n=document.createElement("link"); n.rel="stylesheet"; n.href=l.href; document.head.appendChild(n); }
+    });
+    const css=[...doc.querySelectorAll("style")].map(x=>x.textContent.replace(/\bbody\b/g,".mailbody")).join("\n");
+    doc.querySelectorAll("a[href]").forEach(a=>{ a.target="_blank"; a.rel="noopener"; });
+    const root=$("letterBody").attachShadow({mode:"open"});
+    root.innerHTML=`<style>${css}\n.mailbody{margin:0}</style><div class="mailbody" style="${(doc.body.getAttribute("style")||"").replace(/"/g,"&quot;")}">${doc.body.innerHTML}</div>`;
+  })();
+  return letterReady;
+}
+async function openLetter(){
+  $("letter").hidden=false; document.body.style.overflow="hidden";
+  await loadLetter(); $("letterBody").scrollTop=0; $("closeMail").focus();
+}
+function closeLetter(){ $("letter").hidden=true; document.body.style.overflow=""; $("openMail").focus(); }
+$("openMail").addEventListener("click",openLetter);
+$("closeMail").addEventListener("click",closeLetter);
+$("letter").addEventListener("click",e=>{ if(e.target.id==="letter") closeLetter(); });
+addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("letter").hidden) closeLetter(); });
+
+function drawHead(){
+  const hb=$("head").getBoundingClientRect(), h=$("head").querySelector("h1").getBoundingClientRect(), r=Ink.rng(5);
+  /* keep the circle on screen when the title nearly fills the width */
+  const cx=h.left-hb.left+h.width/2, rx=Math.min(h.width/2+22, cx-6, innerWidth-hb.left-cx-6);
+  $("headInk").innerHTML=`<path d="${Ink.loop(cx,h.top-hb.top+h.height/2+2,rx,h.height/2+14,r)}" stroke="var(--red)" stroke-width="1.8"/>`;
+}
+drawEnvelope(30);
+document.fonts.ready.then(()=>{ drawHead(); setTimeout(drawHead,500); });
+addEventListener("resize",()=>setTimeout(drawHead,120));
+</script>
+</body>
+</html>

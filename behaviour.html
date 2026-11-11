@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Behavioural design · Noor Badal Sharma</title>
+<script>
+/* Opened straight from the folder, nothing relative resolves, so hand over to the local server. */
+if(!/^https?:$/.test(location.protocol)) location.replace("http://localhost:4178/behaviour.html");
+addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)) return;
+  const n=document.createElement("a"); n.href="http://localhost:4178/behaviour.html";
+  n.textContent="This is a saved copy, so the work can't load. Open the live page →";
+  n.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;font:500 16px/1.4 system-ui,sans-serif;color:#1B2FD6;background:#fff;padding:16px 20px;max-width:80vw;text-align:center";
+  document.body.appendChild(n); });
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;1,400&display=swap">
+<script src="ink.js"></script>
+<style>
+  :root{
+    --ground:#FFFFFF; --ink:#0e0e0d; --soft:#3c3c3a; --mute:#8a8a86;
+    /* behavioural science's yellow from the opening, darkened so it reads on white */
+    --yellow:#C99A06;
+    --font:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  }
+  html,body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font)}
+  body{overflow-x:hidden}
+  a{color:inherit}
+  #back{position:absolute;top:18px;left:max(22px,env(safe-area-inset-left));z-index:10;font-size:14px;text-decoration:none}
+  #back:hover{color:var(--yellow)}
+  svg.ink{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  svg.ink path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  header{position:relative;max-width:1100px;margin:0 auto;
+         padding:12vh max(50px,env(safe-area-inset-right)) 0 max(50px,env(safe-area-inset-left))}
+  header h1{display:inline-block;font-weight:500;font-size:clamp(40px,5vw,68px);line-height:1;margin:0;color:var(--yellow);letter-spacing:-.02em}
+  header p{font-size:clamp(17px,1.5vw,20px);line-height:1.5;margin:1.6em 0 0;max-width:34ch}
+
+  .co{position:relative;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:6vw;
+      padding:12vh max(50px,env(safe-area-inset-right)) 2vh max(50px,env(safe-area-inset-left))}
+  .co h2{font-weight:500;font-size:clamp(30px,3.2vw,44px);line-height:1;margin:0;letter-spacing:-.015em}
+  .co .role{font-size:16px;line-height:1.55;color:var(--soft);margin:1.2em 0 0;max-width:42ch}
+  .figure{margin:5vh 0 0}
+  .figure b{display:block;font-weight:500;font-size:clamp(44px,5vw,68px);line-height:1;letter-spacing:-.02em}
+  .figure span{display:block;font-size:14px;color:var(--soft);margin-top:.6em}
+  .did{list-style:none;margin:5vh 0 0;padding:0;display:grid;gap:1.1em;max-width:46ch}
+  .did li{font-size:16px;line-height:1.55}
+  .did a{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+  .did a:hover{color:var(--yellow)}
+  .proof{display:grid;gap:6vh;align-content:start;padding-top:.4em}
+  .proof h3,.row h3{font-weight:500;font-size:17px;color:var(--ink);margin:0 0 1.1em}
+  .proof p{font-size:15px;line-height:1.55;color:var(--soft);margin:0;max-width:40ch}
+  .proof p.links{display:flex;flex-direction:column;gap:.6em;margin-top:.9em;color:var(--ink)}
+  .proof p.links a:hover{color:var(--yellow)}
+  .co-logo{display:block;height:52px;width:auto;margin:0 0 1.4em}
+  .moves{list-style:none;margin:0;padding:0;display:grid;gap:2.2em;counter-reset:m}
+  .moves li{counter-increment:m}
+  .moves b{display:block;font-weight:500;font-size:19px}
+  .moves b::before{content:counter(m) "  ";color:var(--yellow)}
+  .moves span{display:block;font-size:15px;line-height:1.55;color:var(--soft);margin-top:.45em;max-width:40ch}
+  #csbc,#flourish{padding-top:14vh}
+  /* A row of photographs at one height. Each figure carries its own shape
+     as --a (width over height) and grows in proportion to it, so the
+     widths follow the pictures and nothing is cropped. */
+  .strip{display:flex;gap:18px;align-items:flex-start}
+  .strip+.strip{margin-top:18px}
+  .strip figure{flex:var(--a) 1 0;min-width:0}
+  .strip img{display:block;width:100%;height:auto}
+  /* square posts, four to a row, so a row of three keeps the same size */
+  .squares{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+  .squares img{display:block;width:100%;height:auto}
+  @media (max-width:800px){
+    /* on a phone a row keeps its height and slides sideways instead */
+    .strip{overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:6px}
+    .strip figure{flex:0 0 auto;width:calc(var(--a) * 240px);scroll-snap-align:start}
+    .squares{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+
+  /* pictures of the work, full width under the words */
+  .row{max-width:1100px;margin:0 auto;padding:5vh max(50px,env(safe-area-inset-right)) 2vh max(50px,env(safe-area-inset-left))}
+  .row figure{margin:0}
+  .row img{display:block;width:100%;height:auto}
+  .row figcaption,.row .cap{font-size:13px;line-height:1.45;color:var(--soft);margin-top:.6em}
+  .row .cap{margin:.9em 0 0}
+  .wide{margin-bottom:28px}
+  .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+  .grid3 img{aspect-ratio:4/3;object-fit:cover}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:28px}
+  .grid2 img{aspect-ratio:16/9;object-fit:cover}
+
+  #next{display:flex;justify-content:space-between;max-width:1100px;margin:0 auto;font-size:15px;
+        padding:10vh max(50px,env(safe-area-inset-right)) 6vh max(50px,env(safe-area-inset-left))}
+  #next a{text-decoration:none} #next a:hover{color:var(--yellow)}
+  @media (max-width:800px){
+    header,.co,.row,#next{padding-left:28px;padding-right:28px}
+    .co{grid-template-columns:minmax(0,1fr);gap:5vh}
+    .grid3,.grid2{grid-template-columns:minmax(0,1fr)}
+  }
+</style>
+</head>
+<body>
+<a id="back" href="index.html?intro=0">&larr; Menu</a>
+
+<header id="head">
+  <svg class="ink" id="headInk" aria-hidden="true"></svg>
+  <h1>Behavioural design</h1>
+  <p>Research that ends in a decision, not a deck.</p>
+</header>
+
+<!-- ABIT -->
+<section class="co" id="abit">
+  <div>
+    <img class="co-logo" src="assets/behaviour-page/abit-logo.jpg" alt="ABIT logo">
+    <h2>Ashoka Behavioural Insights Team</h2>
+    <p class="role">2022 to 2024. Started as Creative Head of the Nudgelet, the club&rsquo;s publication, and rose to President of India&rsquo;s first student-run behavioural insights team, the largest club on campus. Funded by the Gates Foundation.</p>
+    <div class="figure"><b>80+</b><span>members</span></div>
+    <ul class="did">
+      <li>On-campus nudge interventions: behavioural experiments designed to help students adopt healthier habits.</li>
+      <li>Nudgeathons.</li>
+      <li>The Nudgelet: behavioural science research opened up through zines, blogs and workshops on beauty standards, crypto and tax compliance, with infographics that made it shareable.</li>
+      <li>A partnership with the Centre for Social and Behaviour Change.</li>
+      <li>Grew it into something people actually wanted to join. Not just an academic club, a creative one.</li>
+    </ul>
+  </div>
+  <div class="proof">
+    <div>
+      <h3>Read and follow</h3>
+      <p class="links">
+        <a href="https://medium.com/the-nudgelet" target="_blank" rel="noopener">The Nudgelet, on Medium &nearr;</a>
+        <a href="https://www.linkedin.com/company/ashoka-behavioural-insights-team" target="_blank" rel="noopener">ABIT on LinkedIn &nearr;</a>
+        <a href="https://www.instagram.com/abit.ashoka/" target="_blank" rel="noopener">@abit.ashoka on Instagram &nearr;</a>
+      </p>
+    </div>
+    <div>
+      <h3>Data through art</h3>
+      <p>Launched the first data visualisation project at the Trivedi Centre for Political Data.</p>
+      <p class="links"><a href="https://tcpd.ashoka.edu.in/data-through-art/" target="_blank" rel="noopener">Data Through Art, TCPD &nearr;</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="row" id="abit-instagram">
+  <h3>ABIT on Instagram</h3>
+  <div class="squares">
+    <figure><img src="assets/behaviour-page/abit-ig-1-introduction.jpg" alt="Introduction card: Ashoka Behavioural Insights Team, India's pioneer student-led behavioural insights unit, affiliated with CSBC"></figure>
+    <figure><img src="assets/behaviour-page/abit-ig-2-why-abit-exists.jpg" alt="Why does ABIT exist? To bridge the gap between behavioural science and real-world impact"></figure>
+    <figure><img src="assets/behaviour-page/abit-ig-3-what-abit-does.jpg" alt="What does ABIT do? The departments: the Nudgelet, strategy and insights, events, social media, research labs"></figure>
+    <figure><img src="assets/behaviour-page/abit-ig-4-what-we-offer.jpg" alt="What value do we offer? Updates on the work, toolkits, events and publications"></figure>
+  </div>
+</section>
+
+<section class="row" id="nudgelet">
+  <h3>The Nudgelet, Spring 2023</h3>
+  <div class="squares">
+    <figure><img src="assets/behaviour-page/nudgelet-1-behavioural-science-in-food-marketing.jpg" alt="Nudgelet post: the role of behavioural science in food marketing"></figure>
+    <figure><img src="assets/behaviour-page/nudgelet-2-shared-culinary-practices.jpg" alt="Nudgelet post: the impact of shared culinary practices on collective memories"></figure>
+    <figure><img src="assets/behaviour-page/nudgelet-3-food-and-the-senses.jpg" alt="Nudgelet post: food as a source of sensory stimulation, and the act of eating and cooking together"></figure>
+  </div>
+</section>
+
+<section class="row" id="abit-team">
+  <h3>The team</h3>
+  <div class="strip">
+    <figure style="--a:1.058"><img src="assets/behaviour-page/abit-team.jpg" alt="The ABIT team, twelve people in matching white ABIT tees on campus"></figure>
+    <figure style="--a:1.499"><img src="assets/behaviour-page/abit-tees-1.jpg" alt="Two ABIT members in the ABIT tee, in front of a wall of leaves"></figure>
+    <figure style="--a:.667"><img src="assets/behaviour-page/abit-tees-2.jpg" alt="The same two ABIT members in the tee, against the leaves"></figure>
+  </div>
+</section>
+
+<section class="row" id="abit-merch">
+  <h3>ABIT merch</h3>
+  <div class="strip">
+    <figure style="--a:.75"><img src="assets/behaviour-page/abit-merch-4-the-totes.jpg" alt="A stack of ABIT totes, the star print on each"></figure>
+    <figure style="--a:1.333"><img src="assets/behaviour-page/abit-merch-1-the-print.jpg" alt="Close-up of the ABIT tote print: hand-drawn stars with faces and lettering"></figure>
+    <figure style="--a:.75"><img src="assets/behaviour-page/abit-merch-2-the-tote.jpg" alt="The ABIT tote on the grass, packed with a laptop, headphones and a phone"></figure>
+  </div>
+  <div class="strip">
+    <figure style="--a:1.333"><img src="assets/behaviour-page/abit-merch-3-on-the-lawn.jpg" alt="The ABIT tote on the lawn beside two people sitting on the grass"></figure>
+    <figure style="--a:1.333"><img src="assets/behaviour-page/abit-merch-5-the-tees-from-behind.jpg" alt="ABIT members on the lawn, seen from behind, the print on the back of the tees"></figure>
+  </div>
+</section>
+
+<!-- CSBC: smoking on trains -->
+<section class="co" id="csbc">
+  <div>
+    <h2>Centre for Social and Behaviour Change</h2>
+    <p class="role">Spring 2024. Research Assistant, for the Railway Ministry of India and the Gates Foundation. The brief: reduce smoking among passengers on the Intercity Express 14315.</p>
+  </div>
+  <div class="proof">
+    <ol class="moves">
+      <li><b>&ldquo;Why Not to Smoke&rdquo;</b><span>A two-frame sign: a passenger lighting a cigarette, then the train on fire. It turns a prohibition into cause and effect, and gives a reason instead of a rule.</span></li>
+      <li><b>The Ripple Effect</b><span>The fire reaches the smoker&rsquo;s family. Smokers are numb to their own health risk; harm to the people they love lands harder.</span></li>
+      <li><b>The Casual Spark</b><span>A comic in which one discarded cigarette stub becomes a fire. Made for train toilets, where people have time to read a story through.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- Flourish Science: the Penn capstone client -->
+<section class="co" id="flourish">
+  <div>
+    <h2>Flourish Science</h2>
+    <p class="role">Fall 2025 to Spring 2026. Strategy and Design Lead for Flourish Science, the client on Penn&rsquo;s capstone in consulting for behavioural science. Flourish makes a science-based wellness app with a companion called Sunnie, for journaling, focus and tiny habits.</p>
+    <ul class="did">
+      <li>Led the first deck for the client.</li>
+      <li>Built the competitive landscape.</li>
+      <li>Designed the team&rsquo;s posters.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="row" id="flourish-app">
+  <h3>The app</h3>
+  <div class="strip">
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-1-home.jpg" alt="Flourish home screen: Sunnie, with Journal, Focus and Relax"></figure>
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-2-insights.jpg" alt="Flourish insights screen"></figure>
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-3-tiny-habits.jpg" alt="Flourish tiny habits screen"></figure>
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-4-chat.jpg" alt="Flourish chat with Sunnie"></figure>
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-5-memory.jpg" alt="Flourish memory screen"></figure>
+  </div>
+  <p class="cap">Flourish Science&rsquo;s own app, the product the work was for.</p>
+</section>
+
+<nav id="next"><a href="index.html?intro=0">&larr; Menu</a><a href="growth.html">Growth &rarr;</a></nav>
+
+<script>
+const $=id=>document.getElementById(id);
+function drawHead(){
+  const hb=$("head").getBoundingClientRect(), h=$("head").querySelector("h1").getBoundingClientRect(), r=Ink.rng(6);
+  /* keep the circle on screen when the title nearly fills the width */
+  const cx=h.left-hb.left+h.width/2, rx=Math.min(h.width/2+22, cx-6, innerWidth-hb.left-cx-6);
+  $("headInk").innerHTML=`<path d="${Ink.loop(cx,h.top-hb.top+h.height/2+2,rx,h.height/2+14,r)}" stroke="var(--yellow)" stroke-width="1.8"/>`;
+}
+document.fonts.ready.then(()=>{ drawHead(); setTimeout(drawHead,500); });
+addEventListener("resize",()=>setTimeout(drawHead,120));
+</script>
+</body>
+</html>

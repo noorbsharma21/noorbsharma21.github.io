@@ -1,0 +1,22 @@
+# drafts and experiments, kept locally, never published
+art-salon.html
+exhibition.html
+fonts.html
+gallery.html
+ideas.html
+index.axonometric.backup.html
+index.gallery.backup.html
+ingredients.html
+mockups.html
+plates-contact-sheet.html
+review.html
+timeline.html
+type-sheet.html
+type.html
+# unused and working images; Overheard at Wispr is not to appear anywhere
+assets/_unused/
+assets/_grab/
+assets/growth-page/
+# local tooling
+.claude/
+.DS_Store

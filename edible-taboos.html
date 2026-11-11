@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Edible Taboos · Noor Badal Sharma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;1,400&display=swap">
+<script>
+/* Opened straight from the folder, nothing relative resolves, so hand over to the local server. */
+if(!/^https?:$/.test(location.protocol)) location.replace("http://localhost:4178/edible-taboos.html");
+/* some previews refuse that hand-over; then say where the live page is */
+addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)) return;
+  const n=document.createElement("a"); n.href="http://localhost:4178/edible-taboos.html";
+  n.textContent="This is a saved copy, so the photographs can't load. Open the live page →";
+  n.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;font:500 16px/1.4 system-ui,sans-serif;color:#1B2FD6;background:#fff;padding:16px 20px;max-width:80vw;text-align:center";
+  document.body.appendChild(n); });
+</script>
+<script src="assets/manifest.js"></script>
+<script src="ink.js"></script>
+<style>
+  :root{
+    --paper:#FFFFFF; --ink:#0e0e0d; --mute:#8c7770; --soft:#45332e;
+    --red:#D7352A; --graphite:#4a4944;
+    --menu:#BA7517; --digestion:#993556; --egestion:#5F5E5A;
+    --font:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  }
+  html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font)}
+  body{overflow-x:hidden}
+  a{color:inherit}
+  svg.ink{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  svg.ink path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .curt{transition:opacity .5s}
+
+  #hud{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:baseline;
+       padding:18px max(22px,env(safe-area-inset-right)) 14px max(22px,env(safe-area-inset-left));font-size:13px;
+       background:var(--paper)}
+  #hud a{text-decoration:none} #hud a:hover{color:var(--red)}
+  #hud span{color:var(--mute)}
+
+  header{position:relative;max-width:720px;margin:0 auto;
+         padding:12vh max(22px,env(safe-area-inset-right)) 0 max(22px,env(safe-area-inset-left))}
+  header h1{display:inline-block;font-weight:500;font-size:clamp(40px,6vw,76px);line-height:1;margin:0;color:var(--red);letter-spacing:-.025em}
+  header .meta{font-size:13px;color:var(--soft);margin:1.6em 0 2.4em;line-height:1.6}
+  header p{font-size:clamp(17px,1.6vw,20px);line-height:1.55;margin:0 0 1em;max-width:40ch}
+
+  /* the model, before you walk the corridor it proposes */
+  .model{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:5vh 0 0}
+  .model figure{margin:0}
+  .model img{display:block;width:100%;height:auto}
+  .model figcaption{font-size:13px;line-height:1.5;color:var(--soft);margin-top:.6em}
+  #gut{position:relative;margin-top:2vh}
+  .spacer{height:96px}
+  .spacer.entry{height:120px}
+  .spacer.exit{height:120px}
+  .room{position:relative;z-index:2;width:var(--bw);margin:0 auto;padding:16px 0 20px;transform:translateX(var(--dx,0px))}
+  .room h2{display:inline-block;font-weight:500;font-size:clamp(34px,4.6vw,58px);line-height:1;margin:0;letter-spacing:-.02em}
+  .room>p{font-size:16px;line-height:1.55;color:var(--soft);margin:1.1em 0 0;max-width:36ch}
+  /* the works hang on the corridor walls: one title against each wall */
+  .works{display:flex;justify-content:space-between;align-items:flex-start;gap:28px;margin-top:30px}
+  .work{max-width:46%}
+  .work.r{text-align:right;margin-top:34px}
+  .work b{font-weight:500;font-size:clamp(19px,1.8vw,23px);line-height:1.2;display:block}
+  .work small{display:block;font-size:13px;color:var(--soft);margin-top:.35em}
+  .work img{display:block;width:100%;max-width:280px;height:auto;margin:0 0 14px}
+  .work .desc{font-size:14px;line-height:1.5;color:var(--soft);margin:.55em 0 0;max-width:30ch}
+  .work.r .desc{margin-left:auto}
+  .work .cr{display:block;font-size:11px;color:var(--mute);margin-top:.6em}
+  header p.insp{font-size:clamp(17px,1.6vw,20px)}
+  .mark{position:relative}
+  .work.r img{margin-left:auto}
+  .note{position:absolute;z-index:3;width:190px;font-style:italic;font-size:14px;line-height:1.4;color:var(--graphite)}
+  .note.r{text-align:left} .note.l{text-align:right}
+
+  footer{position:relative;display:flex;justify-content:space-between;max-width:720px;margin:0 auto;font-size:15px;
+         padding:2vh max(22px,env(safe-area-inset-right)) 10vh max(22px,env(safe-area-inset-left))}
+  footer a{text-decoration:none} footer a:hover{color:var(--red)}
+</style>
+</head>
+<body>
+<nav id="hud"><a href="curation.html">&larr; Curation</a></nav>
+
+<header id="head">
+  <svg class="ink" id="headInk" aria-hidden="true"></svg>
+  <h1>Edible Taboos</h1>
+  <div class="meta">Ashoka University, Spring 2024. Curator.</div>
+  <p>An exhibition on abject art and what the body does with food. It applies Julia Kristeva&rsquo;s abjection to eating: the revulsion certain foods and certain ways of eating provoke, which is never only about the food and always about the identity and the social order underneath it.</p>
+  <p class="insp">Its inspiration lies in Han Kang&rsquo;s <span class="mark"><i>The Vegetarian</i></span>.</p>
+  <p>The room was built as the argument. A clay-walled corridor shaped like a gut, with one entry and one exit, so a visitor walks the three stages in sequence and cannot take them in any other order.</p>
+  <div class="model">
+    <figure><img src="assets/edible-taboos/m01-the-model-from-above.jpg" alt="The Edible Taboos model seen from above: a painted frame with wire loops rising from every side"><figcaption>The model, from above.</figcaption></figure>
+    <figure><img src="assets/edible-taboos/m02-the-model-on-its-plinth.jpg" alt="The Edible Taboos model on a plinth in a gallery, with miniature works inside"><figcaption>The model on its plinth, with Cindy Sherman&rsquo;s <i>Untitled #175</i> (1987) and Kiki Smith&rsquo;s <i>Tale</i> (1992) in place.</figcaption></figure>
+  </div>
+</header>
+
+<main id="gut">
+  <svg class="ink" id="walls" aria-hidden="true"></svg>
+  <div class="spacer entry"></div>
+  <section class="room" style="--dot:var(--menu)">
+    <h2>Menu</h2>
+    <p>On choosing and consuming, where the body is both the eater and the thing eaten.</p>
+    <div class="works">
+      <div class="work l"><img src="https://admin.schneemannfoundation.org/media/pages/artworks/meat-joy/2f0e8784c5-1792719143/4-1964meatjoy_giese008.jpg" alt="Meat Joy, 1964: performers piled on the floor, covered in paint, paper and raw meat"><b>Meat Joy</b><small>Carolee Schneemann, 1964</small><p class="desc">A performance in which near-naked performers rolled together with raw fish, chickens, sausages, wet paint and paper.</p><span class="cr">Photograph by Al Giese. Courtesy Carolee Schneemann Foundation.</span></div>
+      <div class="work r"><b>Heartfelt Delicacies</b></div>
+    </div>
+  </section>
+  <div class="spacer curtain"></div>
+  <section class="room" style="--dot:var(--digestion)">
+    <h2>Digestion</h2>
+    <p>On absorbing and altering what you take in.</p>
+    <div class="works">
+      <div class="work l"><b>The Starving Artist</b></div>
+      <div class="work r"><b>Women and Food</b></div>
+    </div>
+  </section>
+  <div class="spacer curtain"></div>
+  <section class="room" style="--dot:var(--egestion)">
+    <h2>Egestion</h2>
+    <p>On expulsion, decay and the end of a cycle.</p>
+    <div class="works">
+      <div class="work l"><b>Tale</b><small>Kiki Smith, 1992</small><p class="desc">A life-size woman in pale beeswax crawls on her hands and knees, trailing a long tail of excrement. Smith has said it is about shame and humiliation.</p></div>
+      <div class="work r"><img src="https://whitneymedia.org/assets/artwork/10911/96_134_cropped.jpg" alt="Untitled #175: cookies, snacks, sunglasses and spilled food scattered on sand"><b>Untitled #175</b><small>Cindy Sherman, 1987, from the Disasters series</small><p class="desc">Chromogenic print, 119 × 182 cm. Cookies, snacks, sunglasses and spilled food left on sand.</p><span class="cr">Whitney Museum of American Art, New York.</span></div>
+    </div>
+  </section>
+  <div class="spacer exit"></div>
+</main>
+
+<footer><a href="timelapse.html">&larr; time:lapse</a><a href="curation.html">Curation</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const gut=$("gut"), rooms=[...gut.querySelectorAll(".room")], curtains=[...gut.querySelectorAll(".curtain")];
+let W, cw, A, knots=[], walls=[];
+
+/* The corridor's centre line: straight through each room, bending
+   between them, so the rooms sit alternately left and right the way
+   a gut folds. */
+function xAt(y){
+  for(let i=0;i<knots.length-1;i++){
+    const a=knots[i], b=knots[i+1];
+    if(y>=a.y&&y<=b.y){
+      if(a.x===b.x) return a.x;
+      const t=(y-a.y)/(b.y-a.y);
+      return a.x+(b.x-a.x)*(1-Math.cos(t*Math.PI))/2;
+    }
+  }
+  return knots[knots.length-1].x;
+}
+
+function layout(){
+  W=document.documentElement.clientWidth;
+  cw=Math.min(660,W-28);
+  const bw=W<560?cw-36:cw-88;
+  A=Math.max(0,Math.min(140,(W-cw)/2-24));
+  gut.style.setProperty("--bw",bw+"px");
+  rooms.forEach((r,i)=>r.style.setProperty("--dx",(i%2?A:-A)+"px"));
+
+  const H=gut.offsetHeight, mid=W/2;
+  knots=[{y:0,x:mid}];
+  rooms.forEach((r,i)=>{
+    const x=mid+(i%2?A:-A);
+    knots.push({y:r.offsetTop,x},{y:r.offsetTop+r.offsetHeight,x});
+  });
+  knots.push({y:H,x:mid});
+  drawWalls(H);
+  drawNotes();
+  drawHead();
+  onScroll();
+}
+
+function drawWalls(H){
+  const top=70, bottom=H-70, half=cw/2, out=[];
+  [-1,1].forEach((side,s)=>{
+    [0,1].forEach(pass=>{
+      const r=Ink.rng(100+s*10+pass), pts=[];
+      for(let y=top;y<=bottom;y+=22) pts.push([xAt(y)+side*half+(pass?side*2.5:0), y]);
+      out.push(`<path class="wall" d="${Ink.line(pts,pass?1.8:1.3,r)}" stroke="var(--red)" stroke-width="${pass?.9:1.7}" ${pass?'opacity=".5"':""}/>`);
+    });
+  });
+  /* curtains: loose vertical strokes hung across the corridor */
+  curtains.forEach((c,k)=>{
+    const y=c.offsetTop+c.offsetHeight/2-18, x0=xAt(y)-half+4, x1=xAt(y)+half-4, r=Ink.rng(300+k);
+    let g=`<g class="curt" data-y="${y}">`;
+    /* the rod, then folds hanging off it at uneven spacing and length */
+    g+=`<path d="${Ink.underline(x0-6,x1+6,y,r)}" stroke="var(--graphite)" stroke-width="1.1"/>`;
+    for(let x=x0+4;x<=x1-4;x+=10+r()*9){
+      const h=30+r()*22, sway=(r()-.5)*5;
+      g+=`<path d="${Ink.line([[x,y+2],[x+sway*.5,y+h*.5],[x+sway,y+h]],1,r)}" stroke="var(--graphite)" stroke-width=".8" opacity=".8"/>`;
+    }
+    out.push(g+"</g>");
+  });
+  /* each title is pinned to its wall with a short stroke of graphite */
+  const gb=gut.getBoundingClientRect();
+  gut.querySelectorAll(".work").forEach((w,k)=>{
+    const t=w.querySelector("b").getBoundingClientRect(), side=w.classList.contains("r")?1:-1;
+    const y=t.top-gb.top+Math.min(t.height,26)*.55, wallX=xAt(y)+side*half;
+    const edge=side<0?t.left-gb.left-12:t.right-gb.left+12;
+    if(Math.abs(wallX-edge)<16) return;
+    const rr=Ink.rng(500+k), mid=(wallX+edge)/2;
+    out.push(`<path d="${Ink.line([[wallX-side*2,y+(rr()-.5)*3],[mid,y+(rr()-.5)*4],[edge,y]],1.2,rr)}" stroke="var(--graphite)" stroke-width="1.1"/>`);
+  });
+  /* one way in, one way out */
+  const r=Ink.rng(9), m=xAt(0);
+  out.push(`<path d="${Ink.arrow(m-6,0,m+4,top+40,16,r,13)}" stroke="var(--red)" stroke-width="1.6"/>`);
+  out.push(`<path d="${Ink.arrow(m+2,bottom-50,m-6,H-4,-14,r,13)}" stroke="var(--red)" stroke-width="1.6"/>`);
+  $("walls").innerHTML=out.join("");
+  walls=[...$("walls").querySelectorAll(".wall")].map(p=>{
+    const L=p.getTotalLength(); p.style.strokeDasharray=L; p.style.strokeDashoffset=L; return {p,L};
+  });
+}
+
+/* notes in the margin, only where there is a margin to write in */
+function drawNotes(){
+  gut.querySelectorAll(".note").forEach(n=>n.remove());
+  const half=cw/2, room=(W-cw)/2+A;
+  if(room<230) return;
+  const notes=[
+    {y:70, text:"one way in", side:1},
+    {y:rooms[0].offsetTop+rooms[0].offsetHeight*.55, text:"the food held at nine inches, the viewing slot cut at ten", side:1},
+    {y:curtains[0].offsetTop+curtains[0].offsetHeight/2, text:"a curtain between each stage", side:-1},
+    {y:rooms[1].offsetTop+rooms[1].offsetHeight*.4, text:"clay walls", side:-1},
+    {y:gut.offsetHeight-70, text:"one way out", side:-1},
+  ];
+  const r=Ink.rng(51); let ink="";
+  notes.forEach(n=>{
+    const wallX=xAt(n.y)+n.side*half;
+    const el=document.createElement("div");
+    el.className="note "+(n.side>0?"r":"l");
+    el.textContent=n.text;
+    gut.appendChild(el);
+    const x=n.side>0?wallX+64:wallX-64-190;
+    el.style.left=x+"px"; el.style.top=(n.y-46)+"px";
+    const h=el.offsetHeight;
+    const from=n.side>0?[x-8,n.y-46+h/2]:[x+198,n.y-46+h/2];
+    ink+=`<path d="${Ink.arrow(from[0],from[1],wallX+n.side*8,n.y+8,n.side*-14,r,9)}" stroke="var(--graphite)" stroke-width="1.1"/>`;
+  });
+  $("walls").insertAdjacentHTML("beforeend",ink);
+}
+
+function drawHead(){
+  const hb=$("head").getBoundingClientRect(), h=$("head").querySelector("h1").getBoundingClientRect(), r=Ink.rng(4);
+  const x=h.left-hb.left, y=h.top-hb.top;
+  let ink=`<path d="${Ink.loop(x+h.width/2,y+h.height/2+2,h.width/2+20,h.height/2+15,r)}" stroke="var(--red)" stroke-width="1.7"/>`;
+  rooms.forEach(()=>{});
+  document.querySelectorAll("#head .mark").forEach(m=>{
+    [...m.getClientRects()].forEach(q=>{ const y=q.bottom-hb.top+1, rr=Ink.rng(77);
+      ink+=`<path d="${Ink.underline(q.left-hb.left-2,q.right-hb.left+3,y,rr)}" stroke="var(--red)" stroke-width="1.5"/>`;
+      ink+=`<path d="${Ink.underline(q.left-hb.left+4,q.right-hb.left-1,y+4,rr)}" stroke="var(--red)" stroke-width="1.1"/>`; });
+  });
+  $("headInk").innerHTML=ink;
+  /* each stage's name gets a scrawled underline */
+  rooms.forEach((room,i)=>{
+    let s=room.querySelector("svg.ink");
+    if(!s){ s=document.createElementNS("http://www.w3.org/2000/svg","svg"); s.setAttribute("class","ink"); room.prepend(s); }
+    const rb=room.getBoundingClientRect(), t=room.querySelector("h2").getBoundingClientRect(), rr=Ink.rng(60+i);
+    const yy=t.bottom-rb.top+4;
+    s.innerHTML=`<path d="${Ink.underline(t.left-rb.left-4,t.right-rb.left+8,yy,rr)}" stroke="var(--red)" stroke-width="1.6"/>`+
+                `<path d="${Ink.underline(t.left-rb.left+6,t.right-rb.left-2,yy+5,rr)}" stroke="var(--red)" stroke-width="1"/>`;
+  });
+}
+
+/* the walls draw themselves as you walk down */
+function onScroll(){
+  const g=gut.getBoundingClientRect();
+  const p=Math.max(0,Math.min(1,(innerHeight*.82-g.top)/g.height));
+  walls.forEach(w=>{ w.p.style.strokeDashoffset=w.L*(1-p); });
+  /* a curtain hangs once the walls have been drawn down to it */
+  const reached=p*g.height;
+  document.querySelectorAll("#walls .curt").forEach(c=>{ c.style.opacity=reached>=+c.dataset.y?1:0; });
+}
+addEventListener("scroll",onScroll,{passive:true});
+let rt; addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(layout,120); });
+/* Images of the works come from assets/curation, named e01 to e06 in
+   corridor order (e01 Meat Joy ... e06 Untitled #175). Anything after
+   "--" in the filename is the artist, e.g. e01-meat-joy--carolee-schneemann.jpg */
+const IMG=/\.(jpe?g|png|webp|gif|avif)$/i;
+async function listDir(dir){
+  const baked=((window.ASSETS&&window.ASSETS[dir])||[]).filter(f=>IMG.test(f));
+  try{ const r=await fetch("api/"+dir); if(!r.ok) return baked;
+    return (await r.json()).filter(f=>IMG.test(f)); }
+  catch{ return baked; }
+}
+async function hangImages(){
+  const works=[...gut.querySelectorAll(".work")];
+  const files=(await listDir("curation")).filter(f=>/^e\d/i.test(f));
+  await Promise.all(files.map(f=>new Promise(res=>{
+    const n=parseInt(f.slice(1),10)-1, w=works[n];
+    if(!w||w.querySelector("img")) return res();
+    const img=new Image(); img.alt=w.querySelector("b").textContent;
+    img.onload=img.onerror=res; img.src="assets/curation/"+f; w.prepend(img);
+    const artist=(f.replace(/\.[^.]+$/,"").split("--")[1]||"").replace(/[-_]+/g," ").trim();
+    if(artist){
+      const sm=document.createElement("small");
+      sm.textContent=artist.replace(/\b\w/g,ch=>ch.toUpperCase());
+      w.querySelector("b").after(sm);
+    }
+  })));
+}
+let relay; gut.querySelectorAll(".work img").forEach(im=>im.addEventListener("load",()=>{ clearTimeout(relay); relay=setTimeout(layout,80); }));
+document.fonts.ready.then(async()=>{ layout(); await hangImages(); layout(); });
+/* draw again once fonts and pictures have settled, so no ink is left where the text used to be */
+document.fonts.addEventListener("loadingdone",()=>setTimeout(layout,60));
+addEventListener("load",()=>setTimeout(layout,120));
+document.querySelectorAll(".model img").forEach(im=>im.addEventListener("load",()=>setTimeout(layout,60)));
+</script>
+</body>
+</html>

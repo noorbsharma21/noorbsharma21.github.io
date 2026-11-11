@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Art · Noor Badal Sharma</title>
+<script>
+/* Opened straight from the folder, nothing relative resolves, so hand over to the local server. */
+if(!/^https?:$/.test(location.protocol)) location.replace("http://localhost:4178/art.html");
+addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)) return;
+  const n=document.createElement("a"); n.href="http://localhost:4178/art.html";
+  n.textContent="This is a saved copy, so the work can't load. Open the live page →";
+  n.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;font:500 16px/1.4 system-ui,sans-serif;color:#1B2FD6;background:#fff;padding:16px 20px;max-width:80vw;text-align:center";
+  document.body.appendChild(n); });
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;1,400&display=swap">
+<script src="assets/manifest.js"></script>
+<script src="ink.js"></script>
+<style>
+  :root{
+    /* an open, light space, the work floating in it */
+    --ground:#EEEEEC; --ink:#0e0e0d; --soft:#3c3c3a; --mute:#8a8a86;
+    --yellow:#D9A514;
+    --font:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  }
+  html,body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font)}
+  body{overflow-x:hidden}
+  a{color:inherit}
+  #back{position:absolute;top:18px;left:max(22px,env(safe-area-inset-left));z-index:10;font-size:14px;text-decoration:none}
+  #back:hover{color:var(--yellow)}
+  svg.ink{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  svg.ink path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* title, words, and the furniture button held to the right edge */
+  header{position:relative;z-index:3;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;gap:2vh 4vw;
+         padding:72px max(50px,env(safe-area-inset-right)) 0 max(50px,env(safe-area-inset-left))}
+  header h1{display:inline-block;font-weight:500;font-size:clamp(40px,5vw,68px);line-height:1;margin:0;letter-spacing:-.02em}
+  header .lede{max-width:34em;margin:0;font-size:clamp(16px,1.3vw,18px);line-height:1.55}
+  header .lede span{display:block;font-size:13px;color:var(--soft);margin-top:.6em}
+
+  /* the field: every work hangs in open space at its own depth and angle */
+  #field{position:relative;height:min(80vh,820px);min-height:460px;overflow:hidden;
+         touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+  #field.drag{cursor:grabbing}
+  #view{position:absolute;inset:0;perspective:1100px;perspective-origin:50% 46%}
+  #world{position:absolute;left:50%;top:46%;width:0;height:0;transform-style:preserve-3d}
+  .work{position:absolute;left:0;top:0;transform-style:preserve-3d;cursor:pointer;
+        transition:transform .7s cubic-bezier(.2,.7,.2,1),opacity .4s}
+  .work img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none;
+            backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  #field.close .work:not(.on){opacity:.1 !important}
+
+  #label{position:absolute;z-index:4;width:min(270px,70vw);opacity:0;transition:opacity .35s;pointer-events:none}
+  #field.close #label.on{opacity:1}
+  #label h3{font-weight:500;font-size:clamp(20px,1.8vw,24px);line-height:1.2;margin:0}
+  #label p{font-size:15px;line-height:1.5;color:var(--soft);margin:.5em 0 0}
+  #fieldInk{z-index:5}
+  #hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;font-size:13px;color:var(--mute);
+        width:min(90%,62ch);text-align:center;transition:opacity .3s;pointer-events:none}
+  #field.close #hint{opacity:0}
+
+  /* its own way in, circled by hand like the title */
+  #toTable{position:relative;display:block;justify-self:end;text-decoration:none;padding:14px 24px 14px 22px;margin:0 6px 2px 0}
+  @media (max-width:900px){
+    header{grid-template-columns:auto minmax(0,1fr)}
+    #toTable{grid-column:1/-1;margin-top:1vh}
+  }
+  #toTable b{display:block;font-weight:500;font-size:clamp(18px,1.5vw,21px)}
+  #toTable span{display:block;font-size:14px;color:var(--soft);margin-top:.3em}
+  #toTable:hover b{color:var(--yellow)}
+  #label a{pointer-events:auto;display:inline-block;margin-top:.8em;font-size:15px;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+  #label a:hover{color:var(--yellow)}
+  #field:not(.close) #label a,#label:not(.on) a{pointer-events:none}
+  header a.mat{text-decoration:none;font-weight:500;cursor:pointer}
+  header a.mat:hover{color:var(--yellow)}
+
+  /* every piece at once, sorted by what it is made of */
+  #all{position:relative;padding:12vh max(50px,env(safe-area-inset-right)) 2vh max(50px,env(safe-area-inset-left))}
+  #all h2{display:inline-block;font-weight:500;font-size:clamp(32px,3.6vw,48px);line-height:1;margin:0;letter-spacing:-.01em}
+  #mats{display:flex;flex-wrap:wrap;gap:10px 26px;margin:5vh 0 5vh;font-size:16px}
+  #mats button{position:relative;background:none;border:0;padding:4px 0;font:inherit;color:var(--soft);cursor:pointer}
+  #mats button:hover{color:var(--ink)}
+  #mats button.on{color:var(--ink);font-weight:500}
+  #grid{columns:4 220px;column-gap:22px}
+  #grid figure{break-inside:avoid;margin:0 0 28px;cursor:pointer}
+  #grid figure[hidden]{display:none}
+  #grid img{display:block;width:100%;height:auto}
+  #grid figcaption{font-size:14px;line-height:1.4;margin-top:.6em;color:var(--soft)}
+  #grid figcaption b{display:block;font-weight:500;color:var(--ink)}
+  #grid figure:hover figcaption b{color:var(--yellow)}
+  #next{display:flex;justify-content:space-between;font-size:15px;
+        padding:4vh max(50px,env(safe-area-inset-right)) 6vh max(50px,env(safe-area-inset-left))}
+  #next a{text-decoration:none} #next a:hover{color:var(--yellow)}
+  @media (max-width:700px){
+    header{padding-left:28px;padding-right:28px;grid-template-columns:minmax(0,1fr)}
+    header h1{justify-self:start}
+    #field{height:66svh}
+    #next{padding-left:28px;padding-right:28px}
+    #all{padding-left:28px;padding-right:28px}
+    #grid{columns:2 140px;column-gap:14px}
+  }
+</style>
+</head>
+<body>
+<a id="back" href="index.html?intro=0">&larr; Menu</a>
+<header id="head">
+  <svg class="ink" id="headInk" aria-hidden="true"></svg>
+  <h1>Art</h1>
+  <p class="lede">
+    <a class="mat" data-k="oil" href="#all">Oil</a> and charcoal since 2017, <a class="mat" data-k="ink" href="#all">ink</a> since 2019,
+    <a class="mat" data-k="digital" href="#all">digital</a> since 2020, with <a class="mat" data-k="painting" href="#all">painting</a>,
+    <a class="mat" data-k="photography" href="#all">photography</a>, <a class="mat" data-k="cyanotype" href="#all">cyanotype</a>
+    and <a class="mat" data-k="mixed" href="#all">mixed and spatial</a> work alongside. Most recently,
+    <a class="mat" data-k="furniture" href="#all">furniture</a>: a table for Emeco whose leg is a storage column.
+    <span>Click a material to see everything made in it.</span></p>
+  <a id="toTable" href="emeco.html"><b>Furniture design</b><span>The Emeco &times; Rarify table, drawn in 3D &rarr;</span></a>
+</header>
+
+<section id="field" aria-label="Every work, floating at its own depth">
+  <div id="view"><div id="world"></div></div>
+  <div id="label" aria-live="polite"><h3></h3><p></p><a id="labelGo" href="emeco.html" hidden>Open the table in 3D &rarr;</a></div>
+  <svg class="ink" id="fieldInk" aria-hidden="true"></svg>
+  <div id="hint">Drag to look around. Scroll to move through. Click a work to bring it forward.</div>
+</section>
+<section id="all">
+  <svg class="ink" id="allInk" aria-hidden="true"></svg>
+  <h2>All work</h2>
+  <div id="mats"></div>
+  <div id="grid"></div>
+</section>
+<nav id="next"><a href="index.html?intro=0">&larr; Menu</a><a href="curation.html">Curation &rarr;</a></nav>
+
+<script>
+const $=id=>document.getElementById(id);
+const IMG=/\.(jpe?g|png|webp|gif|avif)$/i;
+async function listDir(dir){
+  const baked=((window.ASSETS&&window.ASSETS[dir])||[]).filter(f=>IMG.test(f));
+  try{ const r=await fetch("api/"+dir); if(!r.ok) return baked;
+    return (await r.json()).filter(f=>IMG.test(f)); }
+  catch{ return baked; }
+}
+const loadImg=src=>new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src;});
+/* the site's own convention: title before "--", medium after */
+function meta(f){
+  const base=f.replace(/\.[^.]+$/,"").replace(/^[a-z]?\d+[\s._-]*/i,"");
+  const [t,m]=base.split("--");
+  const cap=s=>s?s.replace(/[-_]+/g," ").trim().replace(/^./,c=>c.toUpperCase()):"";
+  return {t:cap(t), m:cap(m||"")};
+}
+
+/* ---------- placing the work in space ----------
+   Each piece gets its own depth, a step further back than the last,
+   and swings left or right of the centre line, turned a little toward
+   it, so moving forward reads as walking down an open corridor. */
+let works=[], STEP=210, FW=0, FH=0;
+function place(){
+  const r=Ink.rng(12);
+  const spread=Math.min(FW*.62,780);
+  works.forEach((w,i)=>{
+    const side=i%2?1:-1;
+    w.z=-i*STEP;
+    w.x=side*(spread*.12+r()*spread*.88);
+    w.y=(r()-.5)*FH*.62;
+    w.ry=-side*(24+r()*30);
+    w.rx=(r()-.5)*8;
+    const base=Math.min(FH*.4,300);
+    w.h=w.a<1?base:base/Math.max(w.a,1)*1.1;
+    w.w=w.h*w.a;
+    Object.assign(w.el.style,{width:w.w+"px",height:w.h+"px",marginLeft:(-w.w/2)+"px",marginTop:(-w.h/2)+"px"});
+    setWorkTransform(w);
+  });
+}
+function setWorkTransform(w){
+  const flat=w===focus;
+  w.el.style.transform=`translate3d(${w.x}px,${w.y}px,${w.z}px) rotateY(${flat?0:w.ry}deg) rotateX(${flat?0:w.rx}deg)`;
+}
+
+/* ---------- the camera ---------- */
+const cam={x:0,y:0,z:0}, aim={x:0,y:0,z:0};
+let focus=null, t=0, dragging=false;
+const FRONT=400;          // how close a piece comes when you bring it forward
+function zRange(){ return [-560, (works.length-1)*STEP-260]; }
+function frame(){
+  t+=.02;
+  /* at rest the space breathes a little, so it never sits frozen */
+  const sway=focus||dragging?0:1;
+  const k=focus?.085:.12;
+  cam.x+=(aim.x+Math.sin(t*.35)*26*sway-cam.x)*k;
+  cam.y+=(aim.y+Math.cos(t*.27)*14*sway-cam.y)*k;
+  cam.z+=(aim.z-cam.z)*k;
+  $("world").style.transform=`translate3d(${-cam.x}px,${-cam.y}px,${cam.z}px)`;
+  /* anything the camera has passed fades out rather than filling the screen */
+  works.forEach(w=>{
+    const zEff=w.z+cam.z;
+    const o=w===focus?1:zEff>700?0:zEff>380?(700-zEff)/320:1;
+    if(Math.abs((w._o??1)-o)>.01){ w.el.style.opacity=o; w._o=o; }
+    w.el.style.pointerEvents=o<.2?"none":"";
+  });
+  if(focus && pendingLabel && performance.now()>labelAt && Math.abs(cam.z-aim.z)<1 && Math.abs(cam.x-aim.x)<1) drawLabel();
+}
+
+/* ---------- bringing one forward ---------- */
+let pendingLabel=false, labelAt=0, back=null;
+function bring(w){
+  const field=$("field"), lab=$("label");
+  $("fieldInk").innerHTML=""; pendingLabel=false;
+  const prev=focus; focus=w;
+  if(prev) setWorkTransform(prev);
+  works.forEach(x=>x.el.classList.toggle("on",x===w));
+  if(!w){
+    field.classList.remove("close"); lab.classList.remove("on");
+    if(back){ Object.assign(aim,back); back=null; }
+    return;
+  }
+  if(!back||!prev) back={...aim};
+  setWorkTransform(w);
+  /* stand in front of it, with room on the right for its label */
+  const wide=FW>760;
+  aim.x=w.x+(wide?FW*.14:0); aim.y=w.y+(wide?0:FH*.06); aim.z=(wide?FRONT:220)-w.z;
+  field.classList.add("close");
+  lab.querySelector("h3").textContent=w.t;
+  lab.querySelector("p").textContent=w.m; lab.querySelector("p").hidden=!w.m;
+  $("labelGo").hidden=!/furniture/.test(w.tags);
+  lab.classList.remove("on");
+  pendingLabel=true; labelAt=performance.now()+850;   /* after the piece has turned flat */
+}
+function drawLabel(){
+  pendingLabel=false;
+  const w=focus, field=$("field"), lab=$("label");
+  const f=field.getBoundingClientRect(), k=w.el.getBoundingClientRect();
+  const wide=FW>760;
+  if(wide){
+    lab.style.left=Math.min(FW-lab.offsetWidth-30, k.right-f.left+70)+"px";
+    lab.style.top=(k.top-f.top+k.height*.3)+"px";
+  }else{
+    lab.style.left="28px"; lab.style.top=Math.min(FH-96, k.bottom-f.top+22)+"px";
+  }
+  lab.classList.add("on");
+  const b=lab.querySelector("h3").getBoundingClientRect(), r=Ink.rng(w.i+40);
+  const d=wide
+    ? Ink.arrow(b.left-f.left-14, b.top-f.top+b.height/2, k.right-f.left+12, k.top-f.top+k.height*.24, 20, r)
+    : Ink.arrow(b.left-f.left+30, b.top-f.top-8, k.left-f.left+k.width*.5, k.bottom-f.top+10, -16, r);
+  $("fieldInk").innerHTML=`<path d="${d}" stroke="var(--yellow)" stroke-width="1.6"/>`;
+}
+
+/* ---------- moving through ---------- */
+const field=$("field");
+let down=null, last=null;
+field.addEventListener("pointerdown",e=>{ down={x:e.clientX,y:e.clientY,touch:e.pointerType==="touch"}; last={x:e.clientX,y:e.clientY}; });
+field.addEventListener("pointermove",e=>{
+  if(!down) return;
+  if(!dragging && Math.hypot(e.clientX-down.x,e.clientY-down.y)>6){
+    dragging=true; field.classList.add("drag"); try{field.setPointerCapture(e.pointerId);}catch{}
+    if(focus){ bring(null); }
+  }
+  if(!dragging) return;
+  const dx=e.clientX-last.x, dy=e.clientY-last.y; last={x:e.clientX,y:e.clientY};
+  if(down.touch){
+    /* on a phone, a sideways swipe walks you forward and back */
+    const [lo,hi]=zRange(); aim.z=Math.max(lo,Math.min(hi,aim.z-dx*3));
+  }else{
+    aim.x-=dx*1.1; aim.y-=dy*1.1;
+    aim.x=Math.max(-FW*.9,Math.min(FW*.9,aim.x)); aim.y=Math.max(-FH*.5,Math.min(FH*.5,aim.y));
+  }
+});
+field.addEventListener("pointerup",e=>{
+  if(!down) return;
+  if(!dragging){
+    const hit=document.elementFromPoint(e.clientX,e.clientY), el=hit&&hit.closest(".work");
+    if(hit&&hit.closest("#label a")){ down=null; return; }
+    bring(el&&el._w!==focus?el._w:null);
+  }
+  down=null; dragging=false; field.classList.remove("drag");
+});
+field.addEventListener("pointercancel",()=>{ down=null; dragging=false; field.classList.remove("drag"); });
+field.addEventListener("wheel",e=>{
+  const [lo,hi]=zRange(), before=aim.z;
+  if(focus) bring(null);
+  aim.z=Math.max(lo,Math.min(hi,aim.z+e.deltaY*1.6));
+  /* at either end, let the page scroll on as normal */
+  if(aim.z!==before) e.preventDefault();
+},{passive:false});
+addEventListener("keydown",e=>{
+  if(e.key==="Escape") bring(null);
+  if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
+    const i=focus?works.indexOf(focus):-1;
+    bring(works[(i+(e.key==="ArrowRight"?1:-1)+works.length)%works.length]);
+  }
+});
+
+
+/* ---------- all work, by material ---------- */
+const MATS=[
+  {k:"all", label:"Everything", test:()=>true},
+  {k:"oil", label:"Oil", test:s=>/\boil\b/.test(s)},
+  {k:"ink", label:"Ink", test:s=>/\bink\b/.test(s)},
+  {k:"digital", label:"Digital", test:s=>/digital/.test(s)},
+  {k:"painting", label:"Painting", test:s=>/painting|folk/.test(s)},
+  {k:"photography", label:"Photography", test:s=>/photograph/.test(s)},
+  {k:"cyanotype", label:"Cyanotype", test:s=>/cyanotype/.test(s)},
+  {k:"mixed", label:"Mixed and spatial", test:s=>/mixed|spatial/.test(s)},
+  {k:"furniture", label:"Furniture", test:s=>/furniture/.test(s)},
+];
+let mat="all";
+function buildGallery(){
+  const used=MATS.filter(m=>m.k==="all"||works.some(w=>m.test(w.tags)));
+  $("mats").innerHTML=used.map(m=>`<button data-k="${m.k}">${m.label}</button>`).join("");
+  $("grid").innerHTML="";
+  works.forEach(w=>{
+    const fig=document.createElement("figure");
+    fig.innerHTML=`<img loading="lazy" alt=""><figcaption><b></b><span></span></figcaption>`;
+    fig.querySelector("img").src=w.src; fig.querySelector("img").alt=w.t;
+    fig.querySelector("b").textContent=w.t; fig.querySelector("span").textContent=w.m;
+    fig.addEventListener("click",()=>{
+      /* up to the field, and bring this one forward */
+      $("field").scrollIntoView({behavior:"smooth",block:"center"});
+      setTimeout(()=>bring(w),550);
+    });
+    w.fig=fig; $("grid").appendChild(fig);
+  });
+  $("mats").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) pick(b.dataset.k); });
+  document.querySelectorAll("header a.mat").forEach(a=>a.addEventListener("click",e=>{
+    e.preventDefault(); pick(a.dataset.k);
+    $("all").scrollIntoView({behavior:"smooth",block:"start"});
+  }));
+  pick("all");
+}
+function pick(k){
+  mat=k; const m=MATS.find(x=>x.k===k)||MATS[0];
+  works.forEach(w=>{ w.fig.hidden=!m.test(w.tags); });
+  document.querySelectorAll("#mats button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
+  drawAllInk();
+}
+/* the title circled, the chosen material underlined, both by hand */
+function drawAllInk(){
+  const sec=$("all").getBoundingClientRect(), h=$("all").querySelector("h2").getBoundingClientRect(), r=Ink.rng(21);
+  let d=`<path d="${Ink.loop(h.left-sec.left+h.width/2,h.top-sec.top+h.height/2+2,h.width/2+20,h.height/2+14,r)}" stroke="var(--yellow)" stroke-width="1.7"/>`;
+  const on=document.querySelector("#mats button.on");
+  if(on){ const q=on.getBoundingClientRect(), y=q.bottom-sec.top+1, rr=Ink.rng(mat.length+3);
+    d+=`<path d="${Ink.underline(q.left-sec.left-2,q.right-sec.left+3,y,rr)}" stroke="var(--yellow)" stroke-width="1.6"/>`;
+    d+=`<path d="${Ink.underline(q.left-sec.left+4,q.right-sec.left-1,y+4,rr)}" stroke="var(--yellow)" stroke-width="1.1"/>`; }
+  $("allInk").innerHTML=d;
+}
+addEventListener("resize",()=>setTimeout(drawAllInk,160));
+function drawHead(){
+  const hb=$("head").getBoundingClientRect(), h=$("head").querySelector("h1").getBoundingClientRect(), r=Ink.rng(8);
+  const b=$("toTable").getBoundingClientRect(), r2=Ink.rng(14);
+  $("headInk").innerHTML=`<path d="${Ink.loop(h.left-hb.left+h.width/2,h.top-hb.top+h.height/2+2,h.width/2+22,h.height/2+14,r)}" stroke="var(--yellow)" stroke-width="1.8"/>`
+    +`<path d="${Ink.loop(b.left-hb.left+b.width/2,b.top-hb.top+b.height/2,b.width/2+4,b.height/2+6,r2,1.12,.06)}" stroke="var(--yellow)" stroke-width="1.6"/>`;
+}
+function measure(){ FW=field.clientWidth; FH=field.clientHeight; }
+let rt; addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(()=>{ if(focus) bring(null); measure(); place(); drawHead(); },140); });
+
+(async()=>{
+  measure();
+  const files=await listDir("art");
+  works=(await Promise.all(files.map(async f=>{
+    const img=await loadImg("assets/art/"+f);
+    const m=meta(f);
+    return img&&{f, src:"assets/art/"+f, a:img.naturalWidth/img.naturalHeight, ...m, tags:(m.m+" "+m.t).toLowerCase()};
+  }))).filter(Boolean);
+  const world=$("world");
+  works.forEach((w,i)=>{
+    w.i=i;
+    const el=document.createElement("div");
+    el.className="work"; el.innerHTML=`<img alt="">`;
+    el.querySelector("img").src=w.src; el.querySelector("img").alt=w.t+(w.m?", "+w.m:"");
+    el._w=w; w.el=el; world.appendChild(el);
+  });
+  place();
+  /* start a little way back, so the first pieces are already in view */
+  aim.z=cam.z=-400;
+  await document.fonts.ready;
+  drawHead(); buildGallery();
+  frame(); setInterval(frame,20);
+})();
+</script>
+</body>
+</html>

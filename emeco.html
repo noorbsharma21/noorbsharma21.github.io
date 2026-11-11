@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emeco &times; Rarify · Noor Badal Sharma</title>
+<script>
+/* Opened straight from the folder, nothing relative resolves, so hand over to the local server. */
+if(!/^https?:$/.test(location.protocol)) location.replace("http://localhost:4178/emeco.html");
+addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)) return;
+  const n=document.createElement("a"); n.href="http://localhost:4178/emeco.html";
+  n.textContent="This is a saved copy, so the work can't load. Open the live page →";
+  n.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:99;font:500 16px/1.4 system-ui,sans-serif;color:#1B2FD6;background:#fff;padding:16px 20px;max-width:80vw;text-align:center";
+  document.body.appendChild(n); });
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;1,400&display=swap">
+<script src="ink.js"></script>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+<style>
+  :root{
+    --ground:#FFFFFF; --ink:#0e0e0d; --soft:#3c3c3a; --mute:#8a8a86;
+    /* the Art course's ochre, for every hand-drawn mark on the page */
+    --ochre:#D9A514;
+    --font:'Hanken Grotesk',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  }
+  html,body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font)}
+  body{overflow-x:hidden}
+  a{color:inherit}
+  #back{position:absolute;top:18px;left:max(22px,env(safe-area-inset-left));z-index:10;font-size:14px;text-decoration:none}
+  #back:hover{color:var(--ochre)}
+  svg.ink{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  svg path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+  /* the drawing holds still on the left while the flow runs past it */
+  #story{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:4vw}
+  #stage{position:sticky;top:0;height:100vh;align-self:start;overflow:hidden;cursor:grab;touch-action:pan-y}
+  #stage.drag{cursor:grabbing}
+  #cv{display:block;width:100%;height:100%}
+  #stage > img{display:block;width:100%;height:100%;object-fit:contain}
+  #notes,#marks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  #labels{position:absolute;inset:0;pointer-events:none}
+  .lab{position:absolute;left:0;top:0;font-size:13px;line-height:1.3;white-space:nowrap;opacity:0;transition:opacity .35s}
+  .lab.under{font-size:12px;letter-spacing:.07em;text-transform:uppercase}
+  #labels.on .lab{opacity:1}
+
+  #flow{position:relative;padding:16vh max(50px,env(safe-area-inset-right)) 24vh 34px}
+  #flow > header{position:relative;margin-bottom:34vh}
+  #flow h1{position:relative;display:inline-block;font-weight:500;font-size:clamp(38px,4.2vw,60px);line-height:1;margin:0;letter-spacing:-.02em}
+  #flow .lede{font-size:clamp(16px,1.25vw,18px);line-height:1.55;margin:1.5em 0 0;max-width:30em}
+  #flow .hint{font-size:13px;color:var(--soft);margin:1.2em 0 0}
+  /* the two wordmarks are the title, each one a way out to the company */
+  #flow h1{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.32em;font-size:clamp(34px,3.4vw,60px);padding:.12em 0;max-width:100%}
+  #flow h1 a{display:block;line-height:0}
+  #flow h1 img.mark{display:block;width:auto}
+  #flow h1 .x{font-size:.42em;line-height:1}
+  #flow .lede a,.node a{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+  #flow .lede a:hover,.node a:hover{color:var(--ochre)}
+  #flow .lede+.lede{margin-top:.9em}
+  .links{display:flex;flex-direction:column;gap:.55em;margin:1.2em 0 0;font-size:15px}
+  .links a{text-decoration:none!important}
+  .node{position:relative;margin-bottom:52vh;max-width:30em;opacity:.34;transition:opacity .45s}
+  .node.on{opacity:1}
+  .node:last-of-type{margin-bottom:12vh}
+  .node h2{font-weight:500;font-size:20px;margin:0 0 .55em}
+  .node p{font-size:16px;line-height:1.58;margin:0}
+  .node figure{margin:1.4em 0 0}
+  .node img{display:block;width:100%;height:auto}
+  .node figcaption{font-size:13px;line-height:1.45;color:var(--soft);margin-top:.55em}
+  .pics{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.4em}
+  .pics figure{margin:0}
+
+  #next{display:flex;justify-content:space-between;font-size:15px;padding:8vh max(50px,env(safe-area-inset-right)) 6vh max(50px,env(safe-area-inset-left))}
+  #next a{text-decoration:none} #next a:hover{color:var(--ochre)}
+
+  @media (max-width:900px){
+    #story{display:block}
+    #stage{height:56vh;z-index:3;background:var(--ground)}
+    #flow{padding:6vh 28px 20vh 40px}
+    #flow > header{margin-bottom:30vh}
+    .node{margin-bottom:46vh}
+    #next{padding-left:28px;padding-right:28px}
+  }
+</style>
+</head>
+<body>
+<a id="back" href="art.html">&larr; Art</a>
+
+<main id="story">
+  <div id="stage" aria-label="The table, drawn in three dimensions. Drag to turn it.">
+    <canvas id="cv"></canvas>
+    <svg id="notes" aria-hidden="true"><path id="dashes" stroke="#8a8a86" stroke-width="1" stroke-dasharray="3 4"/><path id="leaders" stroke="var(--ochre)" stroke-width="1.3"/></svg>
+    <div id="labels" aria-hidden="true"></div>
+    <svg id="marks" aria-hidden="true"></svg>
+  </div>
+
+  <div id="flow">
+    <svg class="ink" id="flowInk" aria-hidden="true"></svg>
+    <header>
+      <svg class="ink" id="headInk" aria-hidden="true"></svg>
+      <h1 aria-label="Emeco and Rarify"><a href="https://www.emeco.net" target="_blank" rel="noopener"><img class="mark" src="assets/logos/emeco.svg" alt="Emeco" style="height:.5em"></a><span class="x">&times;</span><a href="https://rarify.co" target="_blank" rel="noopener"><img class="mark" src="assets/logos/rarify.svg" alt="Rarify" style="height:.4em"></a></h1>
+      <p class="lede">A shared table whose leg holds what you carry. Designed with a team of two in Spring 2026 for <i>Furniture Design as a Strategic Process</i> at the University of Pennsylvania&rsquo;s <a href="https://www.design.upenn.edu" target="_blank" rel="noopener">Weitzman School of Design</a>, a graduate studio led by <a href="https://www.design.upenn.edu/people/mikael-avery" target="_blank" rel="noopener">Mikael Avery</a> and <a href="https://www.bradascalon.com" target="_blank" rel="noopener">Brad Ascalon</a> with <a href="https://www.emeco.net" target="_blank" rel="noopener">Emeco</a>, the American manufacturer of the Navy Chair, and the Philadelphia design source <a href="https://rarify.co" target="_blank" rel="noopener">Rarify</a>.</p>
+      <p class="lede">Exhibited at <a href="https://www.design.upenn.edu/events/building-legacy-furniture-design-penn-collaborates-emeco-and-rarify-market" target="_blank" rel="noopener">Rarify&rsquo;s Market Street showroom</a>, Philadelphia, from 9 May to 31 July 2026, with the studio&rsquo;s drawings, material samples and 1:1 models.</p>
+      <p class="hint">Scroll to take it apart. Drag the drawing to turn it.</p>
+    </header>
+
+    <section class="node" data-step="table">
+      <h2>The table</h2>
+      <p>A wood top on an aluminium apron, on four aluminium columns. From across the room it is an ordinary table.</p>
+    </section>
+
+    <section class="node" data-step="problem">
+      <h2>What it was missing</h2>
+      <p>Everyone arrives at a shared table carrying something: a bag, a bottle, keys, a charger. A table gives you a surface and nothing else, so all of it ends up on the floor or on the chair beside you.</p>
+    </section>
+
+    <section class="node" data-step="apart">
+      <h2>Taken apart</h2>
+      <p>Lift the top and the apron away and four columns are left. Three are solid. One is open.</p>
+    </section>
+
+    <section class="node" data-step="leg">
+      <h2>The leg is the brief</h2>
+      <p>The open column is hollow: a hook at the top, a shelf halfway down, a well at the floor. What you carried goes inside it. Keys on the hook, the bottle and the charger on the shelf, the bag in the well.</p>
+    </section>
+
+    <section class="node" data-step="users">
+      <h2>Fitted to who sits there</h2>
+      <p>The column is specified for the person at the table. A mug, markers and lunch tins for an office worker. Books, a pencil case and a cable for a student. Brushes, a palette and sketchbooks for an artist. A tote, sunglasses and an umbrella for everyone else.</p>
+      <figure><img src="assets/art/b15-the-leg-as-storage-by-user--furniture-design.jpg" alt="Four open aluminium columns side by side, fitted for an office worker, a student, an artist and lifestyle use"><figcaption>The four columns.</figcaption></figure>
+    </section>
+
+    <section class="node" data-step="outside">
+      <h2>Outside the column</h2>
+      <p>The solid columns carry the rest: a hook for a bag, a ledge, a tab for keys and a foot plate at the floor. People already hang their bags off table legs. No table is built for it.</p>
+    </section>
+
+    <section class="node" data-step="rooms">
+      <h2>Where it goes</h2>
+      <p>Drawn for a library, a studio and a classroom, and scaled down for children.</p>
+      <div class="pics">
+        <figure><img src="assets/art/b16-a-study-room--furniture-design.jpg" alt="The table in a library study room, a bottle in the open column"><figcaption>A library.</figcaption></figure>
+        <figure><img src="assets/art/b17-the-table-in-red--furniture-design.jpg" alt="The table with a red base in a study space, a bag hung from the open column"><figcaption>In red.</figcaption></figure>
+        <figure><img src="assets/art/b18-the-table-for-children--furniture-design.jpg" alt="A smaller version of the table in a classroom, children around it"><figcaption>Scaled for children.</figcaption></figure>
+        <figure><img src="assets/art/b19-cyclorama-shoot--furniture-design.jpg" alt="The table on a white cyclorama, a miniature chair on the open column's shelf"><figcaption>On the cyclorama.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="node" data-step="studio">
+      <h2>In the studio</h2>
+      <p>Built at full size and exhibited at Rarify, Philadelphia, May to July 2026.</p>
+      <figure><img src="assets/art/b14-emeco-rarify--furniture.jpg" alt="The open column built at full size, beside the studio's sign for Emeco and Rarify"><figcaption>The column, built, and the studio&rsquo;s sign.</figcaption></figure>
+      <p class="links">
+        <a href="https://www.design.upenn.edu/events/building-legacy-furniture-design-penn-collaborates-emeco-and-rarify-market" target="_blank" rel="noopener">The exhibition at Rarify, on Penn Weitzman &nearr;</a>
+        <a href="https://www.emeco.net" target="_blank" rel="noopener">Emeco &nearr;</a>
+        <a href="https://rarify.co" target="_blank" rel="noopener">Rarify &nearr;</a>
+        <a href="https://www.bradascalon.com" target="_blank" rel="noopener">Brad Ascalon Studio &nearr;</a>
+        <a href="https://www.design.upenn.edu/people/mikael-avery" target="_blank" rel="noopener">Mikael Avery &nearr;</a>
+      </p>
+    </section>
+  </div>
+</main>
+
+<nav id="next"><a href="art.html">&larr; Art</a><a href="curation.html">Curation &rarr;</a></nav>
+
+<script>
+/* the hand-drawn parts of the page: the title ringed, and an arrow from
+   each step down to the next, so the column reads as one flow */
+(function(){
+  const $=id=>document.getElementById(id);
+  function drawHead(){
+    const hb=$("flow").querySelector("header").getBoundingClientRect(), h=$("flow").querySelector("h1").getBoundingClientRect(), r=Ink.rng(9);
+    const cx=h.left-hb.left+h.width/2;
+    $("headInk").innerHTML=`<path d="${Ink.loop(cx,h.top-hb.top+h.height/2+2,h.width/2+20,h.height/2+14,r)}" stroke="var(--ochre)" stroke-width="1.8"/>`;
+  }
+  function drawFlow(){
+    const f=$("flow").getBoundingClientRect(), nodes=[$("flow").querySelector("header"),...document.querySelectorAll(".node")];
+    let d="";
+    for(let i=0;i<nodes.length-1;i++){
+      const a=nodes[i].getBoundingClientRect(), b=nodes[i+1].getBoundingClientRect(), r=Ink.rng(30+i);
+      const x=a.left-f.left-18;
+      d+=Ink.arrow(x, a.bottom-f.top+18, x+(i%2?-3:3), b.top-f.top-14, i%2?14:-14, r, 10)+" ";
+    }
+    $("flowInk").innerHTML=`<path d="${d}" stroke="var(--ochre)" stroke-width="1.5"/>`;
+  }
+  const all=()=>{ drawHead(); drawFlow(); };
+  document.fonts.ready.then(()=>{ all(); setTimeout(all,600); });
+  addEventListener("load",all);
+  document.querySelectorAll("#flow img").forEach(i=>i.addEventListener("load",drawFlow));
+  addEventListener("resize",()=>setTimeout(all,120));
+})();
+</script>
+
+<script type="module">
+import * as THREE from "three";
+const $=id=>document.getElementById(id);
+const stage=$("stage"), cv=$("cv");
+
+/* ---------- the renderer, drawing in ink ----------
+   Three passes. Flat colour; then the surface normals; then a pass that
+   finds every silhouette and crease from the depth and normals and inks
+   it. No lights, no shading, no shadow: a technical drawing with flat
+   fills, so the table reads the way a plan does. */
+THREE.ColorManagement.enabled=false;
+let renderer;
+try{ renderer=new THREE.WebGLRenderer({canvas:cv, antialias:false}); }
+catch(e){
+  stage.innerHTML=`<img src="assets/art/b19-cyclorama-shoot--furniture-design.jpg" alt="The table on a white cyclorama">`;
+  throw e;
+}
+renderer.outputColorSpace=THREE.LinearSRGBColorSpace;
+renderer.setClearColor(0xffffff,1);
+const DPR=Math.min(devicePixelRatio||1,2);
+renderer.setPixelRatio(DPR);
+
+const scene=new THREE.Scene();
+/* a real perspective, like a photograph of the table, not a plan projection:
+   parallel edges meet, so the far end reads smaller and nothing looks skewed */
+const FOV=18, camera=new THREE.PerspectiveCamera(FOV,1,20,6000);
+const normalMat=new THREE.MeshNormalMaterial({side:THREE.DoubleSide});
+scene.add(camera, new THREE.AmbientLight(0xffffff,Math.PI/2));
+{ const sun=new THREE.DirectionalLight(0xffffff,Math.PI/2), aim=new THREE.Object3D();
+  sun.position.set(-1.2,1.6,1); camera.add(sun,aim); sun.target=aim; }
+
+/* The ink is found at twice the screen's resolution and averaged four
+   ways per pixel, so curves come out as smooth pen lines rather than
+   stair steps. */
+const post=new THREE.ShaderMaterial({
+  uniforms:{tC:{value:null},tD:{value:null},tN:{value:null},res:{value:new THREE.Vector2(1,1)},
+            ink:{value:new THREE.Color(0x1a1a18)},far:{value:6000},near:{value:20},ss:{value:1}},
+  vertexShader:`varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }`,
+  fragmentShader:`
+    uniform sampler2D tC,tD,tN; uniform vec2 res; uniform vec3 ink; uniform float far,near,ss; varying vec2 vUv;
+    float D(vec2 uv){ return texture2D(tD,uv).r; }
+    vec3 N(vec2 uv){ return normalize(texture2D(tN,uv).rgb*2.-1.); }
+    float edge(vec2 uv){
+      vec2 k=ss/res; float d=D(uv);
+      float lap=abs(D(uv-vec2(k.x,0.))+D(uv+vec2(k.x,0.))-2.*d)+abs(D(uv-vec2(0.,k.y))+D(uv+vec2(0.,k.y))-2.*d);
+      /* perspective depth is linear in 1/z, so this measures real breaks
+         in the surface, in centimetres, and ignores flat planes at any angle */
+      float z=near*far/(far-d*(far-near));
+      lap=lap*(far-near)/(far*near)*z*z;
+      vec3 n=N(uv);
+      float nd=(1.-dot(n,N(uv+vec2(k.x,0.))))+(1.-dot(n,N(uv-vec2(k.x,0.))))+(1.-dot(n,N(uv+vec2(0.,k.y))))+(1.-dot(n,N(uv-vec2(0.,k.y))));
+      return max(smoothstep(.7,1.4,lap),smoothstep(.22,.4,nd));
+    }
+    void main(){
+      vec2 q=.25*ss/res; vec3 acc=vec3(0.);
+      for(int i=0;i<4;i++){
+        vec2 uv=vUv+vec2((i==0||i==2)?-q.x:q.x,(i<2)?-q.y:q.y);
+        acc+=mix(texture2D(tC,uv).rgb,ink,edge(uv));
+      }
+      gl_FragColor=vec4(acc*.25,1.);
+    }`
+});
+const postScene=new THREE.Scene(), postCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),post));
+let rtC=null, rtN=null, W=1, H=1;
+function size(){
+  /* a hidden or collapsed pane reports zero; never divide by it */
+  W=Math.max(1,stage.clientWidth); H=Math.max(1,stage.clientHeight);
+  renderer.setSize(W,H,false);
+  const cw=Math.round(W*DPR), ch=Math.round(H*DPR);
+  /* drawn at up to twice the canvas, held under about seven million pixels */
+  const ss=Math.max(1,Math.min(2,Math.sqrt(7e6/(cw*ch))));
+  const w=Math.round(cw*ss), h=Math.round(ch*ss);
+  if(rtC){ rtC.dispose(); rtN.dispose(); }
+  rtC=new THREE.WebGLRenderTarget(w,h,{depthTexture:new THREE.DepthTexture(w,h)});
+  rtN=new THREE.WebGLRenderTarget(w,h,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter});
+  post.uniforms.tC.value=rtC.texture; post.uniforms.tD.value=rtC.depthTexture; post.uniforms.tN.value=rtN.texture;
+  post.uniforms.res.value.set(w,h); post.uniforms.ss.value=w/cw;
+}
+function render(){
+  camera.layers.enableAll();
+  renderer.setRenderTarget(rtC); renderer.render(scene,camera);
+  camera.layers.set(0); scene.overrideMaterial=normalMat;
+  renderer.setRenderTarget(rtN); renderer.render(scene,camera);
+  scene.overrideMaterial=null; camera.layers.enableAll();
+  renderer.setRenderTarget(null); renderer.render(postScene,postCam);
+}
+
+/* ---------- materials and shapes ---------- */
+const C={alu:0xE9E9E6, aluCap:0xF4F4F2, aluIn:0xCFCFCB, oak:0xEAD7B0, oakSide:0xD6BE90, red:0xC9402F,
+  mug:0xE6DED2, white:0xF7F7F5, black:0x2A2A2A, sticky:0xF2DE6B, tin:0xD8D8D4, tinTop:0xE8E8E5,
+  bookA:0xE8C46A, bookB:0x2F5D8A, bookC:0xF1ECE2, bookD:0x9CC2D6, olive:0x6E6A4E, pouch:0x5B5F66,
+  canvas:0xE7DCC4, paintR:0xB53A2E, paintG:0x2E6B4F, kraft:0xC9A27A, tote:0xEFE7D6, brown:0x9C5A3C,
+  umb:0xB7C3CB, bag:0x58635D, bagD:0x47504B, bottle:0x86ABB2, grid:0xE7E7E4};
+/* Three hard tone bands, no gradient: lit, half and shade. The light
+   rides with the camera from the viewer's upper left, so a column always
+   reads round, lit on its left and shaded on its right, from any side. */
+const ramp=new THREE.DataTexture(new Uint8Array([120,120,120,255, 200,200,200,255, 255,255,255,255]),3,1);
+ramp.minFilter=ramp.magFilter=THREE.NearestFilter; ramp.generateMipmaps=false; ramp.needsUpdate=true;
+const mats={};
+const mat=(c,side=THREE.FrontSide)=>mats[c+"_"+side]||(mats[c+"_"+side]=new THREE.MeshToonMaterial({color:c,side,gradientMap:ramp}));
+function cylG(r,h,seg=40,open=false,ts=0,tl=Math.PI*2){ const g=new THREE.CylinderGeometry(r,r,h,seg,1,open,ts,tl); g.translate(0,h/2,0); return g; }
+/* a cylinder standing on y=0, its ends lighter than its side */
+const cyl=(r,h,side,cap=side,seg=40)=>new THREE.Mesh(cylG(r,h,seg),[mat(side),mat(cap),mat(cap)]);
+/* a box standing on y=0, its top lighter if a second colour is given */
+function box(w,h,d,c,top){ const g=new THREE.BoxGeometry(w,h,d); g.translate(0,h/2,0);
+  return new THREE.Mesh(g, top?[mat(c),mat(c),mat(top),mat(c),mat(c),mat(c)]:mat(c)); }
+function slab(w,d,t,r,top,side){
+  const s=new THREE.Shape(), x=-w/2, y=-d/2;
+  s.moveTo(x+r,y); s.lineTo(x+w-r,y); s.quadraticCurveTo(x+w,y,x+w,y+r); s.lineTo(x+w,y+d-r);
+  s.quadraticCurveTo(x+w,y+d,x+w-r,y+d); s.lineTo(x+r,y+d); s.quadraticCurveTo(x,y+d,x,y+d-r);
+  s.lineTo(x,y+r); s.quadraticCurveTo(x,y,x+r,y);
+  const g=new THREE.ExtrudeGeometry(s,{depth:t,bevelEnabled:false,curveSegments:28}); g.rotateX(-Math.PI/2);
+  return new THREE.Mesh(g,[mat(top),mat(side)]);
+}
+const at=(m,x,y,z,o={})=>{ m.position.set(x,y,z); m.rotation.set(o.rx||0,o.ry||0,o.rz||0); return m; };
+/* a thin rod from a point, along a direction */
+function rod(r,len,from,dir,c){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(r*2,len,r*4),mat(c));
+  const v=dir.clone().normalize(); m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v);
+  m.position.copy(from).addScaledVector(v,len/2); return m;
+}
+
+/* ---------- the open column ----------
+   Hollow, open at the front from a band under the apron down to the
+   floor: a hook at the top, a shelf halfway, a well at the base. */
+const BAND=3.5;
+/* The open column, as in the studies: a cylinder whose front half is open,
+   with a full ring at the top, a full round base, and a full round shelf
+   the same size as the column. Ring, shelf and base share the column's
+   circle, so from any side the column keeps one cylindrical outline and
+   the shelf reads as a slice through it. */
+const WALL=.4, OPEN=Math.PI, BASE=1.2;
+function storageCol(R,Hc,side=C.alu){
+  const g=new THREE.Group(), ri=R-WALL, hs=Hc-BAND, hw=hs-BASE;
+  const outer=at(new THREE.Mesh(cylG(R,hw,72,true,OPEN/2,Math.PI*2-OPEN),mat(side)),0,BASE,0);
+  const inner=at(new THREE.Mesh(cylG(ri,hw,72,true,OPEN/2,Math.PI*2-OPEN),mat(C.aluIn,THREE.BackSide)),0,BASE,0);
+  g.add(outer,inner);
+  /* the two cut edges, at the column's left and right, show the metal's thickness */
+  for(const a of [OPEN/2,Math.PI*2-OPEN/2]){
+    const e=new THREE.Mesh(new THREE.PlaneGeometry(WALL,hw),mat(side,THREE.DoubleSide));
+    e.position.set(Math.sin(a)*(R+ri)/2,BASE+hw/2,Math.cos(a)*(R+ri)/2); e.rotation.y=a-Math.PI/2; g.add(e);
+  }
+  g.add(at(cyl(R,BAND,side,C.aluIn,72),0,hs,0));          /* the ring at the top */
+  g.add(cyl(R,BASE,side,C.aluCap,72));                      /* the round base */
+  g.add(at(cyl(R-.03,.8,side,C.aluCap,72),0,Hc*.5,0));      /* the shelf, full round */
+  g.add(at(box(1.1,3.2,1.6,C.alu),0,hs-4.2,-ri+.8));        /* the hook */
+  g.userData={R,ri,H:Hc,shelf:Hc*.5+.8,hook:hs-4.2,floor:BASE};
+  return g;
+}
+/* a solid column with what it carries outside: a V hook, a ledge, a key tab, a foot plate */
+function solidCol(R,Hc,kit,side=C.alu){
+  const g=new THREE.Group(); g.add(cyl(R,Hc,side,C.aluCap,56));
+  const out=new THREE.Vector3(kit.out,0,0);
+  if(kit.foot) g.add(cyl(R*1.32,1.3,side,C.aluCap,64));
+  if(kit.hook){
+    const y=Hc*.64, o=kit.out, V3=(x,yy)=>new THREE.Vector3(o*(R+x),y+yy,0);
+    const path=new THREE.CatmullRomCurve3([V3(-.6,0),V3(1.4,-.5),V3(3,0),V3(3.7,1.6),V3(3.5,3.2)]);
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(path,32,.42,10,false),mat(C.alu)));
+    g.add(at(new THREE.Mesh(new THREE.SphereGeometry(.42,12,8),mat(C.alu)),o*(R+3.5),y+3.2,0));
+    g.userData.hook=new THREE.Vector3(o*(R+3.5),y+3.2,0);
+  }
+  if(kit.ledge){
+    const y=Hc*.54; g.add(at(cyl(5,.8,C.alu,C.aluCap,48),kit.out*(R+4.2),y,0));
+    g.add(at(box(4.6,1.6,1.2,C.alu),kit.out*(R+1.9),y-1.6,0));
+    g.userData.ledge=new THREE.Vector3(kit.out*(R+4.2),y+.8,0);
+  }
+  if(kit.tab){
+    const y=Hc*.66; g.add(at(box(1.1,3.4,2.4,C.alu,C.aluCap),kit.out*(R+.3),y,0), at(box(1.6,.6,2.4,C.alu),kit.out*(R+1.2),y,0));
+    g.userData.tab=new THREE.Vector3(kit.out*(R+1.9),y,0);
+  }
+  g.userData.foot=new THREE.Vector3(kit.out*R*1.32,1.3,0);
+  return g;
+}
+function buildTable({L=180,D=95,Ht=74,r=8,R=9,inset=[26,17],side=C.alu}={}){
+  const g=new THREE.Group(), topT=3.8, apT=1.6, legH=Ht-topT-apT;
+  const top=at(slab(L,D,topT,r,C.oak,C.oakSide),0,legH+apT,0);
+  const apron=at(slab(L-4,D-4,apT,Math.max(2,r-2),C.aluCap,side),0,legH,0);
+  g.add(top,apron);
+  const lx=L/2-inset[0], lz=D/2-inset[1], legs={};
+  const spots={FL:[-lx,lz,{out:-1,foot:1,hook:1,ledge:1}], FR:[lx,lz,null], BL:[-lx,-lz,{out:-1,foot:1,tab:1}], BR:[lx,-lz,{out:1,foot:1,hook:1,ledge:1}]};
+  for(const k in spots){ const [x,z,kit]=spots[k];
+    const leg=kit?solidCol(R,legH,kit,side):storageCol(R,legH,side); leg.position.set(x,0,z); g.add(leg); legs[k]=leg; }
+  return {g,top,apron,legs,legH,L,D,topY:Ht};
+}
+
+/* ---------- what people carry ---------- */
+function keyring(){ const g=new THREE.Group();
+  g.add(at(new THREE.Mesh(new THREE.TorusGeometry(1.1,.22,8,18),mat(0xBDBDB8)),0,-1.1,0));
+  g.add(at(box(.9,3.8,.3,0xC9C9C4),-.5,-6,0,{rz:.18}), at(box(.9,3.4,.3,0xB4B4AE),.6,-5.6,0,{rz:-.22}));
+  return g; }
+function bagShape(){ const g=new THREE.Group();
+  g.add(box(14,24,9,C.bag,C.bagD), at(box(10,9,2.2,C.bagD),0,3,5.4), at(box(14.4,3,9.4,C.bagD),0,21.5,0));
+  g.add(at(new THREE.Mesh(new THREE.TorusGeometry(3,.4,8,18,Math.PI),mat(C.bagD)),0,24,0));
+  return g; }
+function bottleShape(){ const g=new THREE.Group(); g.add(cyl(3.3,19,C.bottle,0xA9C6CB,30), at(cyl(2.1,3,C.black,0x444444,24),0,19,0)); return g; }
+function cableShape(r=3.6){ return new THREE.Mesh(new THREE.TorusGeometry(r,.36,8,30),mat(C.white)); }
+
+/* everything sits on the shelf or the well floor, behind its front edge,
+   and clear of the wall */
+function contents(kind,col){
+  const g=new THREE.Group(), {shelf:sy,hook:hy}=col.userData;
+  const add=(m,x,y,z,o)=>g.add(at(m,x,y,z,o));
+  if(kind==="office"){
+    add(keyring(),0,hy-.4,-6.2);
+    add(cyl(3.2,7,C.mug,0xD9D0C2,28),-3.2,sy,-1);
+    add(new THREE.Mesh(new THREE.TorusGeometry(2,.45,8,18,Math.PI),mat(C.mug)),-6.4,sy+3.6,-1,{rz:Math.PI/2});
+    [0xC0392B,0x2E7D4F,0x2F5D8A,0x2A2A2A].forEach((c,i)=>add(cyl(.7,11,C.white,c,16),2+i*1.4,sy,-4.6+(i%2)*1));
+    add(box(5,1.4,5,C.sticky,0xF7E88E),2.8,sy,-.2);
+    add(box(12,4.4,7,C.tin,C.tinTop),0,1.2,-1.2); add(box(12,4.4,7,C.tin,C.tinTop),0,5.7,-1.2);
+  }
+  if(kind==="student"){
+    add(keyring(),0,hy-.4,-6.2);
+    [C.bookB,C.bookC,C.bookA,C.bookD].forEach((c,i)=>add(box(12,1.8,8,c,C.bookC),0,sy+i*1.8,-1.6,{ry:(i%2?.04:-.03)}));
+    add(box(11,3,3.6,C.olive),0,sy+7.2,-1.6);
+    add(box(8,7,3,C.pouch),2.2,1.2,-2,{rx:-.22});
+    add(cableShape(2.6),-4.6,1.6,-.4,{rx:Math.PI/2});
+  }
+  if(kind==="artist"){
+    add(box(11,14,.6,C.canvas),0,hy-15,-6.2);
+    [0xC0392B,0x2F5D8A,0xE8C46A,0x2E6B4F,0x2A2A2A,0x9C5A3C].forEach((c,i)=>add(cyl(.28,10,c,c,8),-4+i*1.6,hy-13.2,-5.6));
+    add(cyl(4.4,.6,C.white,C.white,36),-2,sy,-1.6);
+    [[3.6,-3.6,C.paintR],[5.4,-1.6,C.paintG],[3.8,.6,C.paintR]].forEach(([x,z,c])=>add(cyl(1.2,8.5,c,C.white,16),x,sy,z));
+    add(box(11,19,1.2,C.black),-.5,1.2,-3.6,{rx:-.1}); add(box(10,16,1.2,C.kraft),0,1.2,-1.8,{rx:-.08}); add(box(8,13,1,C.kraft),.5,1.2,-.2,{rx:-.06});
+  }
+  if(kind==="lifestyle"){
+    add(box(11,11,1.6,C.tote),0,hy-16.5,-5.6);
+    add(new THREE.Mesh(new THREE.TorusGeometry(3.2,.3,8,18,Math.PI),mat(C.tote)),0,hy-5.5,-5.6);
+    add(cyl(1.7,.4,C.black,0x3a3a3a,24),-5,sy,.2); add(cyl(1.7,.4,C.black,0x3a3a3a,24),-1.4,sy,.2); add(box(1.6,.4,.5,C.black),-3.2,sy+.1,.2);
+    add(box(7,2.2,5,C.brown),3.4,sy,-.8);
+    add(cyl(1.9,19,C.umb,0xC9D3D9,24),0,1.2,-1); add(cyl(.6,3.6,C.black,C.black,12),0,20.2,-1);
+  }
+  return g;
+}
+
+/* ---------- the scene ---------- */
+const T=buildTable(); scene.add(T.g);
+const KID=buildTable({L:118,D:100,Ht:58,r:10,R:8,inset:[24,22]}); KID.g.position.x=178; scene.add(KID.g);
+const lineup=new THREE.Group(); scene.add(lineup);
+const KINDS=[["office","Office worker"],["student","Student"],["artist","Artist / creative"],["lifestyle","Lifestyle"]];
+const cols=KINDS.map(([k],i)=>{ const c=storageCol(9,T.legH); c.add(contents(k,c)); c.position.x=-69+i*46; lineup.add(c); return c; });
+const bag=bagShape(), bottle=bottleShape(), keys=keyring(), cable=cableShape(2.8);
+bag.scale.setScalar(.78);   /* a day bag, sized to fit the well */
+scene.add(bag,bottle,keys,cable);
+
+/* graph paper on the floor, drawn but kept out of the inking */
+{ const pts=[];
+  for(let x=-150;x<=280;x+=10) pts.push(x,0,-110, x,0,140);
+  for(let z=-110;z<=140;z+=10) pts.push(-150,0,z, 280,0,z);
+  const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.Float32BufferAttribute(pts,3));
+  const grid=new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:C.grid,depthWrite:false}));
+  grid.layers.set(1); grid.renderOrder=-1; scene.add(grid); }
+
+/* ---------- parts that move between steps ---------- */
+const parts=[];
+function part(obj,extra={}){
+  const base={x:obj.position.x,y:obj.position.y,z:obj.position.z,rx:obj.rotation.x,ry:obj.rotation.y,vis:true,...extra};
+  const p={obj,base,cur:{...base},tgt:{...base}}; parts.push(p); return p;
+}
+const P={table:part(T.g), top:part(T.top), apron:part(T.apron), fr:part(T.legs.FR),
+  kid:part(KID.g,{vis:false}), lineup:part(lineup,{vis:false}),
+  bag:part(bag,{vis:false}), bottle:part(bottle,{vis:false}), keys:part(keys,{vis:false}), cable:part(cable,{vis:false})};
+const FR0=T.legs.FR.position.clone(), FU=T.legs.FR.userData;
+const FLOOR={bag:{x:-46,y:0,z:64,ry:.35,rx:0}, bottle:{x:-4,y:0,z:78,rx:0,ry:0}, keys:{x:22,y:.3,z:70,rx:-Math.PI/2,ry:.6}, cable:{x:44,y:.4,z:58,rx:Math.PI/2,ry:0}};
+function inside(c){ return {bag:{x:c.x,y:1.2,z:c.z-2.6,ry:0,rx:0}, bottle:{x:c.x+2.2,y:FU.shelf,z:c.z-1.2,rx:0,ry:0},
+  keys:{x:c.x,y:FU.hook-.4,z:c.z-6.2,rx:0,ry:0}, cable:{x:c.x-4,y:FU.shelf+.36,z:c.z-1.6,rx:Math.PI/2,ry:0}}; }
+function outside(){ const fl=T.legs.FL, bl=T.legs.BL, h=fl.userData.hook, t=bl.userData.tab;
+  return {...inside(FR0), keys:{x:bl.position.x+t.x-.3,y:t.y-.4,z:bl.position.z,rx:0,ry:Math.PI/2}}; }
+function carry(pose){ for(const k of ["bag","bottle","keys","cable"]) Object.assign(P[k].tgt,pose[k],{vis:true}); }
+
+/* ---------- the camera ---------- */
+const cam={az:.65,el:.52,tx:0,ty:34,tz:0,h:160,w:320}, aim={...cam};
+let sway=0, dragAz=0, t=0;
+function placeCamera(){
+  const az=cam.az+dragAz+Math.sin(t*.28)*.32*sway, el=cam.el;
+  /* stand far enough back to fit the step's width and height in view */
+  const a=W/H, th=Math.tan(FOV*Math.PI/360), r=Math.max(cam.h/2/th, cam.w/2/(th*a))*1.06;
+  camera.position.set(cam.tx+r*Math.cos(el)*Math.sin(az), cam.ty+r*Math.sin(el), cam.tz+r*Math.cos(el)*Math.cos(az));
+  camera.lookAt(cam.tx,cam.ty,cam.tz);
+  camera.aspect=a; camera.updateProjectionMatrix();
+}
+
+/* ---------- labels on leaders, inked by hand over the drawing ---------- */
+const V=(o,x,y,z)=>()=>o.localToWorld(new THREE.Vector3(x,y,z));
+let labels=[], labelsAt=0, dashes=null;
+/* Labels stand in two columns beside the drawing, never on it: each
+   step names the parts its labels must keep clear of, their outline on
+   screen is measured every frame, and every label goes just outside it
+   on its own side, with an inked leader crossing back to the part. */
+let focus=[];
+function setLabels(list,d=null,f=[]){
+  const host=$("labels"); host.innerHTML=""; host.classList.remove("on");
+  labels=list.map((L,i)=>{ const el=document.createElement("span"); el.className="lab"+(L.under?" under":""); el.textContent=L.t; host.appendChild(el);
+    return {...L,el,seed:i*7+3,w:0,h:0}; });
+  labels.forEach(L=>{ L.w=L.el.offsetWidth; L.h=L.el.offsetHeight; });
+  dashes=d; focus=f; labelsAt=performance.now()+900;
+}
+const toScreen=v=>{ const p=v.clone().project(camera); return [(p.x+1)/2*W,(1-p.y)/2*H]; };
+const _b=new THREE.Box3(), _v=new THREE.Vector3();
+function focusBox(){
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for(const o of focus){
+    if(!o.visible) continue; _b.setFromObject(o); if(_b.isEmpty()) continue;
+    for(let i=0;i<8;i++){
+      _v.set(i&1?_b.max.x:_b.min.x, i&2?_b.max.y:_b.min.y, i&4?_b.max.z:_b.min.z);
+      const [x,y]=toScreen(_v); if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
+    }
+  }
+  return x0<x1?{x0,y0,x1,y1}:{x0:W*.35,y0:H*.3,x1:W*.65,y1:H*.7};
+}
+function drawNotes(){
+  const on=performance.now()>labelsAt&&Math.abs(dragAz)<.12; $("labels").classList.toggle("on",on);
+  const fb=focusBox(), cx=(fb.x0+fb.x1)/2, gap=26, pad=16, rows={"-1":[],"1":[]}, below=[];
+  for(const L of labels){
+    const [ax,ay]=toScreen(L.at()); L.ax=ax; L.ay=ay;
+    if(!isFinite(ax)||!isFinite(ay)){ L.el.style.transform="translate(-999px,0)"; L.skip=true; continue; } L.skip=false;
+    if(L.under){ L.el.style.transform=`translate(${(ax-L.w/2).toFixed(1)}px,${(ay+18).toFixed(1)}px)`; continue; }
+    /* things on the floor are named underneath, in a staggered row */
+    if(L.side==="b"){ L.s=0; L.lx=ax-L.w/2; L.ly=fb.y1+gap+L.h/2; below.push(L); continue; }
+    let side=L.side||(ax<cx?-1:1);
+    const fitsL=fb.x0-gap-L.w>=pad, fitsR=fb.x1+gap+L.w<=W-pad;
+    /* no room either side: it goes underneath instead of on the drawing */
+    if(!fitsL&&!fitsR){ L.s=0; L.lx=ax-L.w/2; L.ly=fb.y1+gap+L.h/2; below.push(L); continue; }
+    if(side<0&&!fitsL) side=1; else if(side>0&&!fitsR) side=-1;
+    L.s=side; L.lx=side<0?Math.max(pad,fb.x0-gap-L.w):Math.min(W-pad-L.w,fb.x1+gap); L.ly=ay;
+    rows[side].push(L);
+  }
+  /* on each side, push labels apart so no two share a line */
+  for(const k in rows){
+    const r=rows[k].sort((a,b)=>a.ly-b.ly);
+    for(let i=1;i<r.length;i++){ const min=r[i-1].ly+(r[i-1].h+r[i].h)/2+10; if(r[i].ly<min) r[i].ly=min; }
+    r.forEach(L=>{ L.ly=Math.max(pad+L.h/2,Math.min(H-pad-L.h/2,L.ly)); });
+  }
+  below.sort((a,b)=>a.lx-b.lx).forEach((L,i,r)=>{
+    L.ly+=(i%2)*(L.h+8);
+    const prev=r[i-2]; if(prev&&L.lx<prev.lx+prev.w+14) L.lx=prev.lx+prev.w+14;
+    L.lx=Math.max(pad,Math.min(W-pad-L.w,L.lx)); L.ly=Math.min(H-pad-L.h/2,L.ly);
+  });
+  let d="";
+  for(const L of labels){
+    if(L.under||L.skip) continue;
+    L.el.style.transform=`translate(${L.lx.toFixed(1)}px,${(L.ly-L.h/2).toFixed(1)}px)`;
+    if(L.s===0){ const mx=L.lx+L.w/2, ty=L.ly-L.h/2-5;
+      d+=Ink.line([[L.ax,L.ay+3],[mx+(L.ax-mx)*.2,ty-12],[mx,ty]],.8,Ink.rng(L.seed))+" "; continue; }
+    const ex=L.s<0?L.lx+L.w+6:L.lx-6, elbow=ex-L.s*20;
+    d+=Ink.line([[L.ax,L.ay],[elbow,L.ly],[ex,L.ly]],.8,Ink.rng(L.seed))+" ";
+  }
+  $("leaders").setAttribute("d",on?d:"");
+  $("dashes").setAttribute("d",on&&dashes?dashes():"");
+}
+const seg=(a,b)=>{ const [x1,y1]=toScreen(a),[x2,y2]=toScreen(b); return `M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`; };
+function ring(c,r,y){ let d=""; for(let i=0;i<=32;i++){ const a=i/32*Math.PI*2, [x,yy]=toScreen(new THREE.Vector3(c.x+Math.sin(a)*r,y,c.z+Math.cos(a)*r)); d+=(i?"L":"M")+x.toFixed(1)+" "+yy.toFixed(1); } return d; }
+
+/* ---------- the steps ---------- */
+function reset(){ parts.forEach(p=>Object.assign(p.tgt,p.base)); sway=0; }
+function look(o){ Object.assign(aim,o); }
+const STEPS={
+  table(){ reset(); look({az:.65,el:.52,tx:0,ty:34,tz:0,h:160,w:320});
+    setLabels([{at:V(T.top,-72,3.4,34),t:"wood top",side:-1},{at:V(T.apron,70,0,41),t:"aluminium apron",side:1},
+               {at:V(T.legs.FL,-9,22,0),t:"four columns",side:-1}],null,[T.g]); },
+  problem(){ reset(); carry(FLOOR); look({az:.35,el:.48,tx:0,ty:28,tz:18,h:160,w:310});
+    setLabels([{at:V(bag,0,0,4.5),t:"a bag",side:"b"},{at:V(bottle,0,0,3.3),t:"a bottle",side:"b"},{at:V(keys,0,0,0),t:"keys",side:"b"},{at:V(cable,0,3.6,0),t:"a charger",side:"b"}],
+      null,[T.g,bag,bottle,keys,cable]); },
+  apart(){ reset(); carry(FLOOR); P.top.tgt.y+=46; P.apron.tgt.y+=22; look({az:.6,el:.42,tx:0,ty:56,tz:0,h:210,w:330});
+    setLabels([{at:V(T.top,-76,3.4,30),t:"wood top",side:-1},{at:V(T.apron,80,.6,-34),t:"aluminium apron",side:1},
+               {at:V(T.legs.FL,-9,30,0),t:"three solid columns",side:-1},{at:V(T.legs.FR,0,44,9),t:"one open column",side:1}],
+      ()=>Object.values(T.legs).map(l=>{ const x=l.position.x, z=l.position.z;
+        return seg(new THREE.Vector3(x,T.legH,z),new THREE.Vector3(x,P.apron.cur.y,z))+seg(new THREE.Vector3(x,P.apron.cur.y+1.2,z),new THREE.Vector3(x,P.top.cur.y,z)); }).join(""),
+      [T.g,bag,bottle,keys,cable]); },
+  leg(){ reset(); const c=FR0.clone().add(new THREE.Vector3(0,0,80)); Object.assign(P.fr.tgt,{z:c.z});
+    carry(inside(c)); look({az:.3,el:.42,tx:c.x,ty:35,tz:c.z,h:100,w:124});
+    setLabels([{at:V(T.legs.FR,0,FU.hook+1.6,-8.2),t:"hook: keys",side:1},{at:V(T.legs.FR,8.6,FU.shelf,2),t:"shelf: bottle, charger",side:1},
+               {at:V(T.legs.FR,8.6,8,2),t:"well: bag",side:1}],
+      ()=>ring(FR0,9,0)+seg(FR0.clone().add(new THREE.Vector3(0,0,9)),P.fr.obj.position.clone().add(new THREE.Vector3(0,0,-9))),
+      [T.legs.FR]); },
+  users(){ reset(); P.table.tgt.vis=false; P.lineup.tgt.vis=true; look({az:.14,el:.4,tx:0,ty:34,tz:0,h:100,w:192});
+    setLabels(KINDS.map(([,t],i)=>({at:V(cols[i],0,0,9),t,under:true}))); },
+  outside(){ reset(); carry(outside()); look({az:-1.05,el:.36,tx:-62,ty:32,tz:0,h:108,w:174});
+    const fl=T.legs.FL, bl=T.legs.BL, U=fl.userData, B=bl.userData;
+    setLabels([{at:V(fl,U.hook.x,U.hook.y,0),t:"bag hook"},{at:V(fl,U.ledge.x-2,U.ledge.y,3),t:"ledge"},
+               {at:V(bl,B.tab.x,B.tab.y+1.7,0),t:"key tab"},{at:V(fl,U.foot.x,.6,6),t:"foot plate"}],null,[fl,bl,T.legs.FR]); },
+  rooms(){ reset(); P.kid.tgt.vis=true; carry(outside()); look({az:.55,el:.46,tx:86,ty:30,tz:0,h:190,w:520});
+    setLabels([{at:V(T.top,-80,3.4,20),t:"the table",side:-1},{at:V(KID.top,52,3.4,30),t:"scaled for children",side:1}],null,[T.g,KID.g]); },
+  studio(){ reset(); look({az:.65,el:.52,tx:0,ty:34,tz:0,h:160,w:300}); setLabels([]); }
+};
+
+/* the step on show is the last one whose top has passed the reading line */
+const nodes=[...document.querySelectorAll(".node")];
+let now=-1;
+function pick(){
+  const line=innerHeight*(innerWidth<=900?.82:.6); let k=0;
+  nodes.forEach((n,i)=>{ if(n.getBoundingClientRect().top<line) k=i; });
+  if(k===now) return;
+  now=k; nodes.forEach((n,i)=>n.classList.toggle("on",i===k));
+  STEPS[nodes[k].dataset.step]();
+}
+
+/* ---------- turning it by hand ---------- */
+let down=null;
+stage.addEventListener("pointerdown",e=>{ down={x:e.clientX,az:dragAz}; stage.classList.add("drag"); try{stage.setPointerCapture(e.pointerId);}catch{} });
+/* turns about forty degrees either way from each step's view, and no
+   further: past that the open column is seen edge-on and stops reading */
+stage.addEventListener("pointermove",e=>{ if(down) dragAz=Math.max(-.7,Math.min(.7,down.az-(e.clientX-down.x)*.008)); });
+const up=()=>{ down=null; stage.classList.remove("drag"); };
+stage.addEventListener("pointerup",up); stage.addEventListener("pointercancel",up);
+
+/* registration crosses at the corners of the sheet */
+function marks(){ const m=26, s=7, pts=[[m,m],[W-m,m],[m,H-m],[W-m,H-m]];
+  $("marks").innerHTML=`<path d="${pts.map(([x,y])=>`M${x-s} ${y}H${x+s}M${x} ${y-s}V${y+s}`).join("")}" stroke="#b9b9b5" stroke-width="1"/>`; }
+
+/* ---------- the loop: setInterval, since the app's pane never fires rAF ---------- */
+function tick(){
+  if(document.hidden) return;
+  t+=.02;
+  const k=.085;
+  for(const p of parts){
+    const c=p.cur, g=p.tgt;
+    for(const key of ["x","y","z","rx","ry"]) c[key]+=(g[key]-c[key])*k;
+    c.vis=g.vis;
+    p.obj.position.set(c.x,c.y,c.z); p.obj.rotation.x=c.rx; p.obj.rotation.y=c.ry; p.obj.visible=c.vis;
+  }
+  for(const key in aim) cam[key]+=(aim[key]-cam[key])*k;
+  if(!down) dragAz*=.985;
+  placeCamera(); scene.updateMatrixWorld(); render(); drawNotes();
+}
+function boot(){
+  size(); marks(); pick();
+  for(const p of parts){ Object.assign(p.cur,p.tgt); }
+  Object.assign(cam,aim);
+  setInterval(tick,20);
+}
+addEventListener("resize",()=>{ size(); marks(); labels.forEach(L=>{ L.w=L.el.offsetWidth; L.h=L.el.offsetHeight; }); });
+addEventListener("scroll",pick,{passive:true});
+setInterval(pick,300);
+document.fonts.ready.then(boot);
+</script>
+</body>
+</html>

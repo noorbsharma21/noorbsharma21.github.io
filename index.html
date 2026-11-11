@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noor Badal Sharma</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sankofa+Display&family=Silkscreen:wght@400;700&family=Azeret+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ink:#0e0e0d; --line:#0e0e0d; --mute:#8b8b86; --paper:#ffffff;
+    --accent:#0e0e0d;
+    /* three roles, chosen separately: the name, the labels, the prose.
+       --mono is the label face and is deliberately a bitmap, so it is
+       never used for anything longer than a few words. */
+    --display:'Sankofa Display',Didot,Georgia,serif;
+    --mono:Silkscreen,ui-monospace,SFMono-Regular,Menlo,monospace;
+    --body:'Azeret Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:var(--body);
+    --mono-vf:normal;
+    --frame:3.0vw;
+    --fs:clamp(30px,5.0vw,72px);     /* the name, and what the cloud is measured against */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);
+            font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+
+  /* ---- the instrument frame ---- */
+  /* Soft paper pads sitting between the pictures and the copy. The
+     pictures drift freely and fade into white as they approach text,
+     which makes "never covering the text" true by construction rather
+     than by nine objects shoving each other around. */
+  #holes{position:fixed;inset:0;z-index:2;pointer-events:none}
+  #holes div{position:absolute;background:var(--paper);border-radius:12px}
+
+  #frame{position:fixed;inset:var(--frame);border:1px solid var(--line);z-index:4;
+         pointer-events:none}
+  #frame::before,#frame::after{content:"";position:absolute;background:var(--line)}
+  #frame::before{left:-1px;top:34%;width:7px;height:1px}
+  #frame::after{right:-1px;top:34%;width:7px;height:1px}
+
+  /* a variable mono picked in /type.html carries its axis settings here */
+  .hud,.panel,.anno,#bio .links a{font-variation-settings:var(--mono-vf)}
+
+  /* Silkscreen is a bitmap face. Anti-aliasing it turns hard pixels
+     into grey mush, and a half-pixel size does the same, so every
+     label is on a whole pixel and smoothing is off. */
+  .hud,.panel h3,.anno,#threads ol,#bio .links a{
+    -webkit-font-smoothing:none;font-smooth:never}
+
+  .hud{position:fixed;z-index:5;font-family:var(--mono);font-size:8px;
+       letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
+  #clock{right:calc(var(--frame) + 14px);top:calc(var(--frame) + 11px);text-align:right;
+         line-height:1.7;color:var(--mute)}
+  #clock b{display:block;color:var(--ink);font-weight:500}
+
+
+  /* ---- display type, anchoring the top left ---- */
+  /* The cloud hangs above the name and is sized off the width of the
+     word, so its height tracks the font size: about 2.18 em all in.
+     Offsetting the title by that much from the frame tucks the cloud
+     just inside the top border at every window width, instead of
+     guessing a percentage that only holds at one height. */
+  #title{position:fixed;left:0;right:0;z-index:5;text-align:center;
+         font-size:var(--fs);top:calc(var(--frame) + 2.18 * var(--fs) + 4px);
+         font-family:var(--display);font-weight:400;
+         line-height:1.02;letter-spacing:-.012em;
+         pointer-events:none;white-space:nowrap}
+  #title .l{display:inline}
+  #titleInner{display:inline-block}
+  /* badal means cloud, so a real one sits over the word. Sized off the
+     width of the word itself rather than in em, so it stays the same
+     cloud-to-word proportion at every window width. */
+  #badalWrap{position:relative;display:inline-block}
+  #cloudimg{position:absolute;left:50%;bottom:86%;
+            transform:translateX(-50%);
+            width:195%;height:auto;pointer-events:none;
+            filter:drop-shadow(0 .10em .22em rgba(90,120,150,.13))}
+
+  /* ---- annotations: hairline leaders with a square at the joint ---- */
+  #leaders{position:fixed;inset:0;z-index:3;pointer-events:none}
+  #leaders path{stroke:var(--line);stroke-width:1;fill:none;vector-effect:non-scaling-stroke}
+  #leaders .sq{fill:var(--line);stroke:none}
+  /* the line breaks are written into the copy, so nothing may wrap */
+  .anno{position:fixed;z-index:5;font-family:var(--mono);font-size:8px;letter-spacing:.14em;
+        text-transform:uppercase;line-height:1.8;color:var(--ink);
+        white-space:nowrap;pointer-events:none}
+
+  /* ---- corner panels ---- */
+  .panel{position:fixed;z-index:5;border:1px solid var(--line);background:var(--paper);
+         font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase}
+  /* Silkscreen sets wider than the mono this was spaced for, so the
+     tracking comes down and the heading is held on one line */
+  .panel h3{margin:0;padding:6px 9px;font-size:8px;font-weight:400;letter-spacing:.09em;
+            border-bottom:1px solid var(--line);white-space:nowrap}
+  /* Top left, opposite the clock. It used to sit bottom right, where
+     it crowded the work; the whole lower half now belongs to the four
+     aspects and nothing of theirs has to hide behind a panel. */
+  #bio{left:calc(var(--frame) + 14px);top:calc(var(--frame) + 8px);width:min(272px,30vw)}
+  /* the only run of prose on the page, so it gets the readable face
+     rather than the bitmap one */
+  #bio p{margin:0;padding:8px 10px 10px;font-family:var(--body);font-size:9px;line-height:1.95;
+         letter-spacing:.01em;text-transform:none;color:#2a2a27}
+  #bio .links{display:flex;gap:5px;padding:0 10px 10px}
+  #bio .links a{font-family:var(--mono);font-size:8px;letter-spacing:.14em;
+                text-transform:uppercase;color:var(--ink);text-decoration:none;
+                border:1px solid var(--line);border-radius:999px;padding:3px 8px;
+                transition:background .2s ease,color .2s ease}
+  #bio .links a:hover{background:var(--ink);color:var(--paper)}
+
+  /* ---- the drawer: a course folded open ---- */
+  /* It used to cover the page as a sheet, which hid the very plates
+     you were choosing between. It is a drawer under the row now, so
+     the menu stays on screen and you can move course to course. */
+  #dossier{position:fixed;z-index:7;left:calc(var(--frame) + 14px);
+           right:calc(var(--frame) + 14px);bottom:calc(var(--frame) + 14px);
+           height:min(430px,48vh);
+           background:var(--paper);border:1px solid var(--line);
+           display:flex;flex-direction:column;
+           transform:translateY(14px);opacity:0;pointer-events:none;
+           transition:opacity .3s ease,transform .3s ease}
+  #dossier.on{opacity:1;transform:none;pointer-events:auto}
+  /* With a course open there is not room for both the plates and the
+     drawer, and lifting the row pushed it off the top of the page. So
+     the menu folds: the china goes and the five courses stay as a row
+     of labels, which is what a menu is when you have chosen. */
+  #aspects{transition:top .3s ease}
+  #aspects.compact .stage{display:none}
+  #aspects.compact .cap{margin-top:0}
+  #aspects.compact .aspect{opacity:.52;transition:opacity .2s ease}
+  #aspects.compact .aspect:hover{opacity:.85}
+  #aspects.compact .aspect.now{opacity:1}
+  #aspects.compact .aspect.now .cap b{text-decoration:underline;text-underline-offset:3px}
+
+  #dossier header{display:flex;justify-content:space-between;align-items:center;gap:14px;
+                  padding:7px 10px;border-bottom:1px solid var(--line);
+                  font-family:var(--mono);font-size:8px;letter-spacing:.09em;
+                  text-transform:uppercase;-webkit-font-smoothing:none;font-smooth:never}
+  #dossier header button{font:inherit;letter-spacing:.09em;background:none;cursor:pointer;
+                         border:1px solid var(--line);border-radius:999px;padding:3px 9px;
+                         color:var(--ink);-webkit-font-smoothing:none}
+  #dossier header button:hover{background:var(--ink);color:var(--paper)}
+  /* the threads panel is underneath the sheet once it is open, so the
+     other three threads are reachable from the header instead */
+  #dossier header .nav{display:flex;align-items:center;gap:5px}
+  #dossierNav{display:flex;gap:3px;margin-right:4px}
+  #dossierNav b{font-weight:400;cursor:pointer;padding:3px 5px;color:var(--mute);
+                border:1px solid transparent}
+  #dossierNav b:hover{color:var(--ink);border-color:var(--line)}
+  #dossierNav b.now{color:var(--paper);background:var(--ink);border-color:var(--ink);cursor:default}
+
+  /* Two columns: the record on the left, the work itself on the right.
+     A drawer this short would otherwise be all scrolling. */
+  /* The work column carries a room now, so it takes the wider share.
+     Below 760px it stacks, because two columns there leaves the text
+     in about 140px and nothing in either one can be read. */
+  #dossierBody{overflow:hidden;flex:1;display:grid;
+               grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);
+               font-family:var(--body);font-size:10px;line-height:1.9;color:#2a2a27}
+  #dossierBody .col{overflow-y:auto;padding:13px 16px 20px;scrollbar-width:thin}
+  #dossierBody .col+.col{border-left:1px solid var(--line)}
+  @media (max-width:760px){
+    #dossierBody{grid-template-columns:minmax(0,1fr);overflow-y:auto}
+    #dossierBody .col{overflow-y:visible}
+    #dossierBody .col+.col{border-left:0;border-top:1px solid var(--line)}
+  }
+  #dossierBody .lede{font-size:11.5px;line-height:1.7;color:var(--ink);margin:0 0 14px}
+
+  /* ---- the numbers, as a strip of tiles ---- */
+  #dossierBody .stats{display:flex;flex-wrap:wrap;gap:0;margin:0 0 16px;
+                      border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  #dossierBody .stat{flex:1 1 92px;padding:9px 10px 10px}
+  #dossierBody .stat+.stat{border-left:1px solid #e6e4de}
+  /* Not the display face. Sankofa's numerals are drawn as shapes, so
+     25 reads as ZS and $1M as $1W, which is the opposite of what a
+     number on a CV is for. The body mono has one unambiguous glyph
+     per digit. */
+  #dossierBody .stat b{display:block;font-family:var(--body);font-weight:500;
+                       font-size:19px;line-height:1.1;letter-spacing:-.02em;color:var(--ink);
+                       -webkit-font-smoothing:antialiased}
+  #dossierBody .stat span{display:block;margin-top:5px;font-family:var(--mono);font-size:7.5px;
+                          letter-spacing:.08em;text-transform:uppercase;color:var(--mute);
+                          line-height:1.75;-webkit-font-smoothing:none}
+
+  /* ---- the room ----
+     A course is hung rather than listed: one-point perspective, the
+     near edges of the side walls on the frame's own corners, the back
+     wall a rectangle at the vanishing depth, and the work on all
+     three. The line drawing and the 3D placement are computed from
+     the same perspective and depth, so the walls land exactly on the
+     diagonals instead of nearly on them. */
+  /* Wide and shallow, because the drawer is short: a square room is
+     taller than the column shows and the near pieces then fill the
+     whole of it. */
+  #dossierBody .room{position:relative;width:100%;aspect-ratio:16/9;margin:0 0 4px;
+    overflow:hidden;perspective:var(--P);perspective-origin:50% 50%}
+  #dossierBody .room .lines{position:absolute;inset:0;width:100%;height:100%;
+    pointer-events:none;z-index:3}
+  #dossierBody .room .lines *{stroke:var(--ink);stroke-width:1;fill:none;
+    vector-effect:non-scaling-stroke}
+  #dossierBody .room .w{position:absolute;display:flex;align-items:center;
+    transform-style:preserve-3d}
+  /* Both ends of a side wall are kept clear. A piece at zero depth
+     projects at full size and swallows the frame; a piece at the far
+     end is so foreshortened it reads as a sliver. So the work hangs in
+     the front two thirds, between 8% and 38% of the way back. */
+  #dossierBody .room .left{left:0;top:0;height:100%;width:var(--D);
+    transform-origin:left center;transform:rotateY(90deg);
+    justify-content:space-evenly;padding:0 30% 0 8%}
+  #dossierBody .room .right{right:0;top:0;height:100%;width:var(--D);
+    transform-origin:right center;transform:rotateY(-90deg);
+    flex-direction:row-reverse;justify-content:space-evenly;padding:0 8% 0 30%}
+  #dossierBody .room .back{left:0;top:0;width:100%;height:100%;
+    transform:translateZ(calc(var(--D) * -1));justify-content:center;gap:5%}
+  /* The size lives on the figure, not on the picture. A percentage
+     height on the picture resolves against the figure, which has no
+     height of its own, so it is ignored and every piece renders at its
+     natural pixel size. The figure is a flex child of a wall that is
+     100% of the room, so its percentage does resolve. */
+  #dossierBody .room figure{margin:0;position:relative;flex:none;
+    display:flex;align-items:center;justify-content:center}
+  #dossierBody .room .piece{display:block;max-height:100%;max-width:100%;
+    width:auto;height:auto;box-shadow:0 0 0 1px rgba(20,19,15,.16)}
+  /* The back wall shrinks to s of the frame, so its pieces take a
+     larger share of their wall to come out the same size on screen as
+     the ones on the sides. */
+  /* The back wall is the only one facing the reader square on, so it
+     gets the largest share: at s of the frame it still lands about the
+     size of a near piece on a side wall. */
+  #dossierBody .room .back figure{height:85%;max-width:var(--bw)}
+  #dossierBody .room .w:not(.back) figure{height:52%;max-width:var(--sw)}
+  /* Captions stay flat to the reader rather than lying on the wall,
+     because a label skewed into perspective cannot be read. */
+  #dossierBody .room figcaption{position:absolute;top:100%;left:50%;
+    transform:translateX(-50%);margin-top:5px;width:11em;text-align:center;
+    font-family:var(--mono);font-size:6px;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--mute);line-height:1.6;-webkit-font-smoothing:none;
+    opacity:0;transition:opacity .18s}
+  #dossierBody .room figure:hover figcaption{opacity:1}
+
+  /* ---- work, in sets ----
+     Pieces are not clubbed together. Each set is named and ruled off,
+     and inside a set the pieces are chained left to right with a
+     hairline, a filled square where it leaves and a chevron where it
+     arrives, the same joint the leader lines on the page use. Three to
+     a row: a chain reads across, and a row break reads as a line break
+     does, so the sequence carries on underneath. */
+  #dossierBody .setlist{display:flex;flex-direction:column;gap:15px;margin:0}
+  #dossierBody .set h4{display:flex;align-items:center;gap:7px;margin:0 0 7px;
+    font-family:var(--mono);font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:400;color:var(--ink);-webkit-font-smoothing:none}
+  #dossierBody .set h4 i{flex:1;height:0;border-top:1px solid var(--line)}
+  #dossierBody .set h4 u{text-decoration:none;color:var(--mute);letter-spacing:.1em}
+  #dossierBody .chain{display:flex;align-items:flex-start;margin:0 0 7px}
+  #dossierBody .chain:last-child{margin-bottom:0}
+  #dossierBody .chain figure{flex:1 1 0;min-width:0;margin:0}
+  #dossierBody .chain .piece{width:100%;height:96px;object-fit:contain;display:block;
+    border:1px solid var(--line);background:#fff;padding:3px;box-shadow:none;
+    max-width:100%;max-height:none}
+  #dossierBody .chain figcaption{position:static;transform:none;opacity:1;width:auto;
+    margin-top:4px;text-align:left;font-family:var(--mono);font-size:6.5px;
+    letter-spacing:.05em;text-transform:uppercase;color:var(--mute);line-height:1.6;
+    -webkit-font-smoothing:none}
+  /* the arrow: ■———▸ */
+  #dossierBody .chain .link{flex:none;width:22px;margin:47px 6px 0;height:1px;
+    background:var(--ink);position:relative}
+  #dossierBody .chain .link::before{content:"";position:absolute;left:-1px;top:-1.5px;
+    width:4px;height:4px;background:var(--ink)}
+  #dossierBody .chain .link::after{content:"";position:absolute;right:0;top:-2.5px;
+    width:6px;height:6px;border-top:1px solid var(--ink);border-right:1px solid var(--ink);
+    transform:rotate(45deg)}
+  /* a set of one has nothing to connect, so it is left alone */
+  #dossierBody .chain.single{max-width:46%}
+
+  /* ---- work samples ---- */
+  #dossierBody .samples{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+                        gap:10px;margin:0}
+  #dossierBody .samples figure{margin:0}
+  /* Contained, not cropped. These are slides and screenshots: cutting
+     a 16 by 9 deck page into a tall box takes the title off it, and a
+     sample you cannot read is not a sample. */
+  #dossierBody .samples .film{width:100%;aspect-ratio:1/1;object-fit:contain;display:block;
+    background:#f2f2f0;border:1px solid var(--line)}
+  #dossierBody .samples img{width:100%;aspect-ratio:1/1;object-fit:contain;display:block;
+                            border:1px solid var(--line);background:#fff;padding:3px;
+                            box-shadow:none;max-height:none;max-width:100%}
+  #dossierBody .samples figcaption{position:static;transform:none;width:auto;
+                                   opacity:1;text-align:left}
+  #dossierBody .samples figcaption{margin-top:4px;font-family:var(--mono);font-size:7px;
+                                   letter-spacing:.06em;text-transform:uppercase;
+                                   color:var(--mute);line-height:1.6;
+                                   -webkit-font-smoothing:none}
+  #dossierBody .eyebrow{font-family:var(--mono);font-size:7.5px;letter-spacing:.17em;
+                        text-transform:uppercase;color:var(--mute);margin:0 0 9px;
+                        -webkit-font-smoothing:none}
+  #dossierBody .out{display:inline-block;margin:7px 5px 0 0;font-family:var(--mono);font-size:7.5px;
+                    letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
+                    border:1px solid var(--line);border-radius:999px;padding:3px 9px;
+                    color:var(--ink);-webkit-font-smoothing:none}
+  #dossierBody .out:hover{background:var(--ink);color:var(--paper)}
+  /* the bill of fare */
+  #dossierBody .menu{list-style:none;margin:0 0 22px;padding:0 0 16px;
+                     border-bottom:1px solid var(--line)}
+  #dossierBody .menu li{display:flex;align-items:baseline;gap:0;padding:5px 0}
+  #dossierBody .menu .logo{width:18px;height:18px;object-fit:contain;
+                           align-self:center;margin-right:9px;flex:none}
+  #dossierBody .menu b{font-family:var(--mono);font-size:8px;font-weight:400;
+                       letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+                       -webkit-font-smoothing:none;font-smooth:never}
+  #dossierBody .menu .rule{flex:1;border-bottom:1px dotted #c3c1bb;margin:0 8px 3px}
+  #dossierBody .menu u{text-decoration:none;font-family:var(--mono);font-size:8px;
+                       letter-spacing:.08em;color:var(--mute);
+                       -webkit-font-smoothing:none;white-space:nowrap}
+
+  /* Every place folds open on its own. A drawer that showed all five
+     at once was a wall of bullets nobody reads. */
+  #dossierBody .job{margin:0;border-top:1px solid #e6e4de;padding:9px 0}
+  #dossierBody .job:first-of-type{border-top:0}
+  #dossierBody .job summary{list-style:none;cursor:pointer;display:flex;
+                  justify-content:space-between;align-items:baseline;gap:12px;
+                  font-family:var(--mono);font-size:8px;letter-spacing:.09em;
+                  text-transform:uppercase;color:var(--ink);
+                  -webkit-font-smoothing:none;font-smooth:never}
+  #dossierBody .job summary::-webkit-details-marker{display:none}
+  #dossierBody .job summary .org::before{content:"+ ";color:var(--mute)}
+  #dossierBody .job[open] summary .org::before{content:"\\2212 "}
+  #dossierBody .job summary:hover .org{text-decoration:underline;text-underline-offset:3px}
+  #dossierBody .job summary i{font-style:normal;color:var(--mute);white-space:nowrap}
+  #dossierBody .job .role{margin-top:7px}
+  #dossierBody .role{margin:0 0 7px;color:#56564f}
+  #dossierBody ul{margin:0;padding:0;list-style:none}
+  #dossierBody li{position:relative;padding-left:14px;margin-bottom:4px}
+  #dossierBody li::before{content:"";position:absolute;left:0;top:.72em;
+                          width:5px;height:1px;background:var(--line)}
+  #dossierBody a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+  #dossierBody b{font-weight:500;color:var(--ink)}
+
+  @media (max-width:880px){
+    #dossier{width:auto;right:calc(var(--frame) + 14px)}
+  }
+
+  /* ---- the four aspects ---- */
+  /* One slot per thread. Each holds a run of pictures from its own
+     folder and moves through them, so an aspect is shown by the work
+     that belongs to it rather than named in a list. */
+  #aspects{position:fixed;z-index:5;left:0;right:0;margin:0 auto;
+           display:flex;flex-wrap:wrap;justify-content:center;
+           align-items:flex-start;pointer-events:none}
+  /* flex:none, or a row that is a few pixels too wide quietly squeezes
+     every slot instead of being laid out properly */
+  .aspect{pointer-events:auto;cursor:pointer;display:flex;flex-direction:column;
+          align-items:center;flex:none}
+  /* A course, plated. The work is served on a dish drawn as two thin
+     ellipses, and sits on the rim line rather than floating above it,
+     so the plate reads as a plate and the piece as the thing on it. */
+  .aspect .stage{position:relative}
+  .aspect .food{position:absolute;left:0;top:0;right:0}
+  /* one deck per picture, two on screen through a dissolve */
+  .aspect .food .deck{position:absolute;left:0;top:0;right:0;bottom:0;opacity:1;
+                      transition:opacity 1s ease}
+  .aspect .food canvas{position:absolute;display:none}
+  .aspect .food canvas.f{display:block}
+  /* Steel, built from conic gradients rather than drawn as outlines.
+     What makes metal look like metal is anisotropy: a turned surface
+     reflects the room in bands that sweep around the disc, bright and
+     dark alternating hard. A linear ramp can only ever look like
+     plastic, however many stops it has. The conic sweep is squashed
+     by the ellipse, which is exactly what foreshortening does to it. */
+  .aspect .dish{position:absolute;left:0;bottom:0;pointer-events:none}
+  .aspect .dish span{position:absolute;display:block;border-radius:50%}
+
+  .aspect .dish .cast{left:4%;right:4%;top:34%;bottom:-26%;filter:blur(4px);
+    background:radial-gradient(closest-side,rgba(14,14,13,.30),rgba(14,14,13,0))}
+
+  /* the same disc nudged down behind the face, so the plate shows its
+     own thickness at the near edge instead of reading as a flat disc */
+  .aspect .dish .edge{inset:0;transform:translateY(7%);
+    background:linear-gradient(#9099a1,#5d656d)}
+
+  /* The outer rim. Steel is read by how far it swings between its
+     lightest and darkest, so the sweep runs from near white to a grey
+     dark enough to look like metal rather than paper. The linear pass
+     on top is the room: dark along the near edge where it reflects the
+     table, light along the far edge where it reflects the ceiling. */
+  .aspect .dish .face{inset:0;
+    background:
+      linear-gradient(176deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.15) 18%,
+                      rgba(12,18,26,.06) 46%,rgba(12,18,26,.34) 86%,
+                      rgba(255,255,255,.75) 99%),
+      conic-gradient(from 196deg,
+        #8c949d 0%,  #ffffff 5%,  #a9b2bb 11%, #fdfefe 17%, #848d96 25%,
+        #e7ecf1 33%, #9ba4ad 41%, #ffffff 50%, #8f98a1 58%, #eff3f6 66%,
+        #a2abb4 75%, #ffffff 84%, #8c949d 93%, #8c949d 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95),
+               inset 0 -2px 3px rgba(12,18,26,.30),
+               0 0 0 1px rgba(92,100,109,.75)}
+
+  /* the step down from rim to well: a thin dark ring, which is what
+     actually tells you the middle is lower than the edge */
+  .aspect .dish .bevel{left:13%;right:13%;top:15%;bottom:15%;
+    background:linear-gradient(rgba(12,18,26,.30),rgba(255,255,255,.55));
+    box-shadow:0 0 2px rgba(12,18,26,.25)}
+
+  /* The well, turned the other way so the two sweeps do not line up.
+     Its far wall is in shadow and its near wall catches the light,
+     which is the difference between a dish and a printed circle. */
+  .aspect .dish .well{left:15%;right:15%;top:18%;bottom:17%;
+    background:
+      linear-gradient(174deg,rgba(12,18,26,.34) 0%,rgba(12,18,26,.04) 34%,
+                      rgba(255,255,255,.55) 78%,rgba(255,255,255,.18) 100%),
+      conic-gradient(from 22deg,
+        #9aa3ac 0%,  #f4f7f9 9%,  #aeb7c0 18%, #ffffff 26%, #8f98a1 37%,
+        #e4e9ee 47%, #a6afb8 57%, #fbfcfd 68%, #939ca5 80%, #eaeff3 91%,
+        #9aa3ac 100%);
+    box-shadow:inset 0 3px 5px rgba(12,18,26,.38),
+               inset 0 -2px 2px rgba(255,255,255,.85),
+               0 0 0 1px rgba(120,128,137,.6)}
+
+  /* one hot spot where the light actually hits, up on the left rim */
+  .aspect .dish .spec{left:9%;top:10%;width:34%;height:34%;filter:blur(2px);
+    background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,0))}
+  /* where the food meets the china */
+  .aspect .shade{position:absolute;pointer-events:none;border-radius:50%;
+                 background:radial-gradient(closest-side,rgba(14,14,13,.17),rgba(14,14,13,0))}
+
+  /* empty until its folder has something in it, and says so */
+  .aspect .none{position:absolute;left:0;right:0;top:0;overflow:hidden;
+                display:flex;align-items:center;justify-content:center;text-align:center;
+                font-family:var(--mono);font-size:7.5px;letter-spacing:.09em;color:#bcbab4;
+                text-transform:uppercase;line-height:1.9;padding:0 4px;
+                -webkit-font-smoothing:none}
+  /* a course whose work is real but has no picture yet still speaks at
+     full volume, rather than apologising for a missing file */
+  .aspect .none.says{color:var(--ink);font-size:8.5px;letter-spacing:.13em;line-height:2.1}
+
+  .aspect .cap{width:100%;margin-top:11px;text-align:center;font-family:var(--mono);font-size:8px;
+               letter-spacing:.11em;text-transform:uppercase;color:var(--ink);
+               -webkit-font-smoothing:none;font-smooth:never;line-height:1.85}
+  .aspect .course{display:block;color:var(--mute);letter-spacing:.2em;margin-bottom:2px}
+  .aspect .cap i{font-style:normal;color:var(--mute);margin-right:5px}
+  .aspect .cap b{font-weight:400}
+  .aspect:hover .cap b{text-decoration:underline;text-underline-offset:3px}
+  /* Five of these, each wrapping to three lines under a hundred pixel
+     slot, turned the row into a wall of small print. Below the width
+     where they fit on one line they come off the plate entirely; the
+     same text is still the first thing in the drawer. */
+  .aspect .now{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+               overflow:hidden;font-family:var(--body);font-size:8.5px;letter-spacing:.01em;
+               text-transform:none;color:#56564f;-webkit-font-smoothing:antialiased;
+               margin-top:5px;min-height:1.4em;line-height:1.55}
+  /* after the rule it overrides, or the later declaration wins and the
+     note stays put */
+  @media (max-width:980px){ .aspect .now{display:none} }
+
+  /* Narrow, the panel at top left runs into the centred name, so it
+     goes to the foot of the page across the full width instead. The
+     slots are told where it is and stop above it. */
+  @media (max-width:860px){
+    #bio{left:calc(var(--frame) + 14px);right:calc(var(--frame) + 14px);
+         top:auto;bottom:calc(var(--frame) + 14px);width:auto}
+    #bio p{font-size:8.5px;line-height:1.9}
+    /* down here the panel and the drawer are anchored to the same
+       edge and sit on top of each other, so it steps aside while a
+       course is open. Up at full width it stays, top left, clear. */
+    body.reading #bio{opacity:0;pointer-events:none}
+  }
+  #bio{transition:opacity .25s ease}
+  @media (max-width:560px){
+    :root{--fs:clamp(26px,9vw,44px)}
+    .aspect .cap{font-size:7.5px;letter-spacing:.08em}
+  }
+  /* Narrow, a course name is wider than its plate and ran into the next
+     one: the number takes its own line, and the one long word may break */
+  @media (max-width:700px){
+    .aspect .cap i{display:block;margin:0}
+    .aspect .cap b{display:block;hyphens:manual;-webkit-hyphens:manual}
+  }
+  /* ===============================================================
+     Opening sequence.
+
+     Her paintings gather out of the margins into a turning circle.
+     The circle collapses to one point and she comes up out of it:
+     her own face, in a ring that bounces red, yellow and blue. She
+     says what she is, the three open out around her, and she is left
+     sitting in the overlap, which is the whole claim. The three then
+     flatten onto the plates and hand over to the page.
+
+     All of it is CSS keyframes rather than script on purpose. This
+     page runs as a background page inside the desktop app, where
+     requestAnimationFrame never fires and transitions freeze
+     mid-flight. Keyframes still run.
+
+     The clock, in seconds:
+       0.00  tiles fly in, staggered
+       2.49  circle formed, turning
+       2.70  circle contracts to a point
+       3.35  her face rises out of it
+       4.15  "Hello, I'm Noor."
+       4.75  the ring bounces red, then yellow, then blue
+       6.70  "I sit at the intersection of three things."
+       7.50  one dark disc arrives behind her: all three, stacked
+       7.95  they slide apart, a ninth of a second between them,
+             and she tucks down into the overlap
+       8.45  the three are named
+       9.80  the three flatten and spread onto the plates
+      10.05  overture fades out
+  =============================================================== */
+  /* Every delay below is written against --seek, so ?intro=4550 holds
+     the whole sequence at 4.55s with a negative delay and a paused
+     play state. A beat can then be looked at instead of guessed at. */
+  #intro{position:fixed;inset:0;z-index:200;background:#fff;overflow:hidden;cursor:pointer;
+    --rd:#D7352A;--yl:#EFC02A;--bl:#1B2FD6;--seek:0s}
+  #intro.gone{display:none}
+  #intro.freeze,#intro.freeze *{animation-play-state:paused!important}
+  body.intro-on{overflow:hidden}
+  #intro .mid{position:absolute;left:50%;top:50%;width:0;height:0}
+
+  /* ---- the circle of work ---- */
+  #intro .ring{position:absolute;left:0;top:0;
+    animation:introShrink .85s cubic-bezier(.6,0,.35,1) calc(2.7s - var(--seek)) forwards}
+  @keyframes introShrink{to{transform:scale(.02);opacity:0}}
+  #intro .spin{position:absolute;left:0;top:0;
+    animation:introTurn 40s linear calc(0s - var(--seek)) infinite}
+  @keyframes introTurn{to{transform:rotate(360deg)}}
+  /* rotate out to the rim, then rotate back by the same angle, so the
+     tile sits on the circle without being tipped over by it */
+  #intro .c{position:absolute;left:0;top:0;width:var(--t);height:var(--t);
+    margin:calc(var(--t) / -2) 0 0 calc(var(--t) / -2);
+    transform:rotate(calc(var(--a) * 1deg)) translateY(calc(var(--r) * -1))
+              rotate(calc(var(--a) * -1deg))}
+  #intro .cc{width:100%;height:100%;
+    animation:introTurnBack 40s linear calc(0s - var(--seek)) infinite}
+  @keyframes introTurnBack{to{transform:rotate(-360deg)}}
+  #intro .fly{display:block;width:100%;height:100%;opacity:0;
+    transform:translate(var(--x),var(--y)) rotate(var(--rr)) scale(.35);
+    animation:introFly 1.6s cubic-bezier(.22,.7,.26,1) calc(var(--d) - var(--seek)) forwards}
+  @keyframes introFly{
+    0%{opacity:0}
+    25%{opacity:1}
+    100%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1)}
+  }
+  #intro .fly img{width:100%;height:100%;object-fit:cover;display:block}
+
+  /* ---- her ----
+     She rises out of the point the circle collapsed to, and stays
+     through the rest of it: the ring around her carries the three
+     colours one at a time, and when they open out she tucks down
+     into the overlap and sits there. Above the paint, so the dark
+     middle passes behind her rather than over her. */
+  #intro .face{position:absolute;left:0;top:0;z-index:2;
+    width:var(--fs);height:var(--fs);
+    margin:calc(var(--fs) / -2) 0 0 calc(var(--fs) / -2);
+    --r1:calc(var(--fs) * .042);                /* white gap */
+    --r2:calc(var(--fs) * .096);                /* colour ring */
+    border-radius:50%;overflow:hidden;background:#fff;opacity:0;
+    box-shadow:0 0 0 var(--r1) #fff, 0 0 0 var(--r2) var(--rd);
+    animation:introFace .8s cubic-bezier(.2,.9,.3,1) calc(3.35s - var(--seek)) forwards,
+              introBounce 1.8s ease calc(4.75s - var(--seek)) forwards,
+              introTuck 1.05s cubic-bezier(.3,0,.2,1) calc(7.95s - var(--seek)) forwards,
+              introOut .7s ease calc(9.95s - var(--seek)) forwards}
+  #intro .face img{width:100%;height:100%;object-fit:cover;display:block}
+  @keyframes introFace{
+    0%{opacity:0;transform:scale(.1)}
+    35%{opacity:1}
+    100%{opacity:1;transform:scale(1)}
+  }
+  /* The colour changes at the bottom of each bounce, in one frame, not
+     across it. Fading red into yellow into blue runs the ring through
+     the greys in between, which is what mixing all three paints gets
+     you and is not what a bounce looks like. */
+  @keyframes introBounce{
+    0%{transform:scale(1);box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--rd)}
+    16%{transform:scale(1.28)}
+    32%{transform:scale(1);box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--rd)}
+    32.5%{box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--yl)}
+    49%{transform:scale(1.28);box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--yl)}
+    65%{transform:scale(1);box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--yl)}
+    65.5%{box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--bl)}
+    82%{transform:scale(1.28);box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--bl)}
+    100%{transform:scale(1);box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--bl)}
+  }
+  /* down to the size of the triple overlap, and the coloured ring
+     goes white, because by now the colours are around her */
+  @keyframes introTuck{
+    0%{transform:scale(1);box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r2) var(--bl)}
+    100%{transform:scale(.56);box-shadow:0 0 0 var(--r1) #fff,0 0 0 var(--r1) #fff}
+  }
+
+  /* The body face, not the display one. Sankofa is for her name and
+     nothing else; a sentence set in it has to be deciphered. */
+  #intro .hello,#intro .claim{position:absolute;left:0;top:0;margin:0;
+    white-space:nowrap;color:#14130F;opacity:0;
+    font-family:var(--body);font-weight:500;letter-spacing:-.01em;
+    font-size:clamp(15px,1.9vw,23px)}
+  #intro .hello{animation:introIn .55s ease calc(4.15s - var(--seek)) forwards,
+                          introOut .4s ease calc(6.45s - var(--seek)) forwards}
+  #intro .claim{animation:introIn .55s ease calc(6.7s - var(--seek)) forwards,
+                          introOut .4s ease calc(9.6s - var(--seek)) forwards}
+  @keyframes introIn{to{opacity:1}}
+  @keyframes introOut{to{opacity:0}}
+
+  /* ---- the three threads ---- */
+  /* multiply, so where they overlap the inks darken the way paint
+     does: the intersection is drawn rather than labelled */
+  #intro .b{position:absolute;left:0;top:0;width:var(--bs);height:var(--bs);
+    margin:calc(var(--bs) / -2) 0 0 calc(var(--bs) / -2);border-radius:50%;
+    background:var(--c);mix-blend-mode:multiply;opacity:0;
+    animation:introStack .45s ease calc(7.5s - var(--seek)) forwards,
+              introOpen 1s cubic-bezier(.22,.85,.25,1)
+                        calc(7.95s + var(--bd) - var(--seek)) forwards,
+              introPlate .85s cubic-bezier(.5,0,.3,1) calc(9.8s - var(--seek)) forwards}
+  /* One disc, then three. All three arrive stacked exactly on top of
+     each other at full size, which multiplies down to near black
+     behind her, and then slide apart, so the colours are uncovered
+     rather than grown. Growing them from nothing while they travelled
+     read as a zoom rather than as something opening. They leave a
+     ninth of a second apart, which unfolds instead of snapping. */
+  @keyframes introStack{
+    0%{opacity:0;transform:translate(0,0)}
+    100%{opacity:1;transform:translate(0,0)}
+  }
+  @keyframes introOpen{
+    0%{transform:translate(0,0)}
+    100%{transform:translate(var(--bx),var(--by))}
+  }
+  /* They stay round on the way out. Flattening them into plate-shaped
+     ellipses read as three circles being squashed rather than three
+     things being set down, so they keep their shape, travel to the
+     plates and close to a small disc as they fade. */
+  @keyframes introPlate{
+    0%{transform:translate(var(--bx),var(--by)) scale(1);opacity:1}
+    100%{transform:translate(var(--px),var(--py)) scale(.4);opacity:0}
+  }
+  /* --ax anchors each name away from its own circle: the top one is
+     centred, the lower two hang off their outer edge, or they land on
+     the paint */
+  #intro .lbl{position:absolute;left:0;top:0;
+    transform:translate(var(--lx),var(--ly)) translate(var(--ax),-50%);
+    font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+    color:#14130F;white-space:nowrap;opacity:0;
+    animation:introIn .45s ease calc(8.45s - var(--seek)) forwards,
+              introOut .4s ease calc(9.6s - var(--seek)) forwards}
+
+  #intro .skip{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);
+    margin:0;font-family:var(--mono);font-size:7px;letter-spacing:.2em;
+    text-transform:uppercase;color:#aaa;opacity:0;
+    animation:introIn .6s ease calc(1.5s - var(--seek)) forwards,
+              introOut .4s ease calc(9.5s - var(--seek)) forwards}
+
+  /* On a phone the two lower names run off both edges of the screen,
+     so they come out of the ring and stack under it as a key, each
+     against a square of its own colour. */
+  @media (max-width:640px){
+    /* one width for all three, so the squares line up down a single
+       edge instead of each line centring on its own length */
+    #intro .lbl{width:170px;text-align:left;
+      transform:translate(-50%,calc(var(--sy) + var(--i) * 17px))}
+    #intro .lbl::before{content:"";display:inline-block;width:7px;height:7px;
+      margin-right:7px;vertical-align:1px;background:var(--lc)}
+    /* Azeret is a good deal wider than the display face it replaced, so
+       the claim no longer fits a phone on one line. It wraps rather
+       than shrinking to something nobody can read. */
+    #intro .hello,#intro .claim{white-space:normal;width:min(300px,84vw);
+      text-align:center;line-height:1.45}
+  }
+
+  #intro.run{animation:introBye .75s ease calc(10.05s - var(--seek)) forwards}
+  @keyframes introBye{to{opacity:0;visibility:hidden}}
+  @media (prefers-reduced-motion:reduce){#intro{display:none}}
+
+  /* the door into a gallery: the page goes to the gallery's wall colour */
+  body.entering::after{content:"";position:fixed;inset:0;z-index:300;background:#E9E5DC;
+    animation:doorway .42s ease forwards}
+  @keyframes doorway{from{opacity:0}to{opacity:1}}
+
+  .stranded{position:fixed;inset:0;display:flex;flex-direction:column;
+    justify-content:center;gap:12px;padding:0 max(28px,8vw);
+    font-family:var(--body);font-size:12px;line-height:1.9;color:var(--ink);
+    background:var(--paper);max-width:62ch}
+  .stranded p{margin:0}
+  .stranded code{font-family:var(--body);border:1px solid var(--line);padding:1px 5px}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="intro"><div class="mid" id="introMid"></div>
+  <p class="skip">click anywhere to skip</p></div>
+
+<div id="aspects"></div>
+
+<div id="holes"></div>
+<svg id="leaders"></svg>
+
+<div id="frame"></div>
+
+<div class="hud" id="clock"><span>Local time</span><b id="t">..</b><span id="z">New York</span></div>
+
+<h1 id="title">
+  <span id="titleInner"><span class="l">Noor <span id="badalWrap">Badal<img id="cloudimg" alt="" hidden></span> Sharma</span></span>
+</h1>
+
+<section id="dossier" aria-hidden="true">
+  <header><span id="dossierTitle"></span>
+    <span class="nav"><span id="dossierNav"></span>
+      <button id="dossierClose" type="button">Close</button></span></header>
+  <div id="dossierBody"></div>
+</section>
+
+<div class="panel" id="bio">
+  <p>I&rsquo;m Noor. Founding growth hire twice: Wispr&nbsp;Flow, $1M+ ARR as first growth
+     hire, and Jimini&nbsp;Health, where I took a podcast from 79 subscriptions
+     to 14,000 in a single month. It now sits at 50,000+. Behavioural science at Penn. A curatorial debut in
+     Venice. Painting since 2017. Based in New York.</p>
+  <div class="links">
+    <a href="https://www.linkedin.com/in/noor-badal-sharma/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.instagram.com/rooneytunes21/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:noor.sharma.2111@gmail.com">Email</a>
+  </div>
+</div>
+
+<!-- Baked folder listing. A script tag loads from file:// where fetch
+     will not, so the page still has its pictures with no server. -->
+<script src="assets/manifest.js"></script>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+
+/* ===============================================================
+   Type, set from the address bar.
+
+   /type.html lists the candidates and links here with ?type= and
+   ?mono=, plus ?vf= and ?monovf= carrying variable-axis settings.
+   Keeping the choice in the URL means a version can be sent to
+   someone, and nothing is written into this file until one wins.
+
+   Both pages read the same fonts.json, so adding a face is one edit
+   in one place rather than two tables drifting apart.
+=============================================================== */
+const slugOf=f=>f.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+
+/* Only ever "AXIS" 123, built from our own numbers, so a tampered URL
+   cannot push anything else into the style. */
+function variationsFrom(raw){
+  if(!raw) return "";
+  return raw.split(",").map(p=>{
+    const m=/^([A-Za-z]{4}):(-?\d+(?:\.\d+)?)$/.exec(p.trim());
+    return m?`"${m[1]}" ${m[2]}`:null;
+  }).filter(Boolean).join(",");
+}
+
+async function applyType(){
+  const q=new URLSearchParams(location.search);
+  if(!q.get("type")&&!q.get("mono")) return;
+
+  let data;
+  try{ data=await (await fetch("fonts.json")).json(); }catch{ return; }
+
+  const want=[];
+  for(const [param,list,cssVar,fallback,vfParam,target] of [
+      ["type",data.display,"--display","Didot, Georgia, serif","vf","#title"],
+      ["mono",data.mono,"--mono","ui-monospace, Menlo, monospace","monovf",null]]){
+    const asked=(q.get(param)||"").toLowerCase();
+    const hit=list.find(f=>slugOf(f.name)===asked);
+    if(!hit) continue;
+    want.push(hit.spec);
+    document.documentElement.style.setProperty(cssVar,`"${hit.name}", ${fallback}`);
+    const vs=variationsFrom(q.get(vfParam));
+    if(vs){
+      if(target) document.querySelector(target).style.fontVariationSettings=vs;
+      else document.documentElement.style.setProperty("--mono-vf",vs);
+    }
+  }
+  if(!want.length) return;
+  const link=document.createElement("link");
+  link.rel="stylesheet";
+  link.href="https://fonts.googleapis.com/css2?family="+want.join("&family=")+"&display=swap";
+  document.head.appendChild(link);
+}
+applyType();
+
+/* ===============================================================
+   Erosion.
+
+   The thing both reference images do is not a clean cut-out. The
+   photograph is chewed away at its edges in blocks and speckles so it
+   dissolves into the paper rather than ending on a line.
+
+   Done by hand on the pixels: build a blocky value-noise field, build
+   a ramp that is 1 deep inside the frame and 0 at its edges, and kill
+   any pixel where the noise beats the ramp. Quantising the noise
+   coordinates is what produces the square chunks rather than a soft
+   vignette.
+=============================================================== */
+function valueNoise(seed){
+  const P=new Uint8Array(512);
+  let s=seed>>>0||1;
+  const rnd=()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};
+  for(let i=0;i<256;i++)P[i]=i;
+  for(let i=255;i>0;i--){const j=(rnd()*(i+1))|0;const t=P[i];P[i]=P[j];P[j]=t;}
+  for(let i=0;i<256;i++)P[256+i]=P[i];
+  const fade=t=>t*t*(3-2*t);
+  const grad=(h,x,y)=>((h&1)?-x:x)+((h&2)?-y:y);
+  return (x,y)=>{
+    const X=Math.floor(x)&255, Y=Math.floor(y)&255;
+    x-=Math.floor(x); y-=Math.floor(y);
+    const u=fade(x), v=fade(y);
+    const a=P[X]+Y, b=P[X+1]+Y;
+    const n=(1-v)*((1-u)*grad(P[a],x,y)+u*grad(P[b],x-1,y))
+          +     v*((1-u)*grad(P[a+1],x,y-1)+u*grad(P[b+1],x-1,y-1));
+    return n*0.5+0.5;
+  };
+}
+
+/* The cloud render has a flat blue behind it and no alpha. Key it by
+   distance from the colour sampled at a corner, with a soft band so
+   the fluffy edges stay fluffy instead of turning into a cut-out. */
+function keyOut(img){
+  const c=document.createElement("canvas");
+  c.width=img.naturalWidth; c.height=img.naturalHeight;
+  const x=c.getContext("2d");
+  x.drawImage(img,0,0);
+  const d=x.getImageData(0,0,c.width,c.height), px=d.data;
+  const br=px[0],bg=px[1],bb=px[2];
+  const NEAR=42, FAR=132;
+  for(let i=0;i<px.length;i+=4){
+    const dr=px[i]-br, dg=px[i+1]-bg, db=px[i+2]-bb;
+    const dist=Math.sqrt(dr*dr+dg*dg+db*db);
+    let a=(dist-NEAR)/(FAR-NEAR);
+    a=a<0?0:a>1?1:a;
+    px[i+3]=Math.round(px[i+3]*a);
+  }
+  x.putImageData(d,0,0);
+  return c;
+}
+
+/* `variant` reseeds the noise, so the same picture chews differently
+   every time. That is the whole mechanism behind the boiling edge:
+   several variants of one piece, shown one at a time. */
+function erode(img,W,H,variant,crop){
+  const c=document.createElement("canvas");
+  /* a decode can fail and still fire onload, leaving a zero-sized
+     image; getImageData throws on that rather than returning empty */
+  if(!(W>0&&H>0)){ c.width=1; c.height=1; return c; }
+  c.width=W; c.height=H;
+  const x=c.getContext("2d");
+  /* a crop takes the middle of the picture at the serving's own shape,
+     instead of squeezing a tall photograph into a column */
+  if(crop) x.drawImage(img,crop.x,crop.y,crop.w,crop.h,0,0,W,H);
+  else     x.drawImage(img,0,0,W,H);
+  const d=x.getImageData(0,0,W,H), px=d.data;
+
+  const v=(variant|0)*7919;
+  const n1=valueNoise(1337+v), n2=valueNoise(99173+v*3), n3=valueNoise(4242+v*11);
+  const BLK=3;                       /* pixel chunk size: the blockiness */
+
+  for(let j=0;j<H;j++){
+    for(let i=0;i<W;i++){
+      const o=(j*W+i)*4;
+      if(px[o+3]===0) continue;
+
+      /* How far inside the frame this pixel is, 0 at the edge, 1 deep
+         in. The bottom used to trail away over half the height, which
+         was right when the pictures floated; now they are served on a
+         plate and have to keep their mass down to the base, or the
+         food hovers above the china. All four reaches are short. */
+      const u=i/W, v=j/H;
+      const edgeX=Math.min(u,1-u)/0.32;
+      const edgeTop=v/0.28;
+      const edgeBot=(1-v)/0.13;
+      let keep=Math.min(1,edgeX)*Math.min(1,edgeTop)*Math.min(1,edgeBot);
+      keep=Math.pow(keep,0.60);
+
+      /* blocky noise, two scales, plus a fine speckle */
+      const bx=Math.floor(i/BLK), by=Math.floor(j/BLK);
+      const coarse=n1(bx/34,by/34);
+      const medium=n2(bx/11,by/11);
+      const fine  =n3(bx/3.1,by/3.1);
+      const noise=coarse*0.52+medium*0.33+fine*0.15;
+
+      if(noise>keep*0.97+0.015){ px[o+3]=0; }
+      else if(noise>keep*0.88){ px[o+3]=Math.round(px[o+3]*0.45); }
+    }
+  }
+  x.putImageData(d,0,0);
+  return c;
+}
+
+/* A rule under the row, the length of the four courses, the way a
+   menu underlines its listing. The leaders that used to run from each
+   picture to its caption went when the pictures got plates: a line
+   into the rim of a dish reads as a mistake, not a callout. */
+function drawLeaders(){
+  const svg=$("leaders"),W=innerWidth,H=innerHeight;
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  svg.setAttribute("width",W); svg.setAttribute("height",H);
+  if(!slots.length){ svg.innerHTML=""; return; }
+  const rs=slots.map(s=>s.el.getBoundingClientRect());
+  const l=Math.min(...rs.map(r=>r.left)), r=Math.max(...rs.map(r=>r.right));
+  /* Measured off the captions rather than the slot boxes. A caption
+     that wraps to a second line hangs below its slot, and the rule was
+     being ruled straight through it. */
+  const caps=slots.map(s=>s.el.querySelector(".cap").getBoundingClientRect().bottom);
+  const y=Math.round(Math.max(...rs.map(b=>b.bottom),...caps))+18.5;
+  svg.innerHTML=`<path d="M ${l.toFixed(1)} ${y} L ${r.toFixed(1)} ${y}"/>`
+   +`<path class="sq" d="M ${(l-3).toFixed(1)} ${y-3} h6 v6 h-6 z `
+   +`M ${(r-3).toFixed(1)} ${y-3} h6 v6 h-6 z"/>`;
+}
+
+/* ===============================================================
+   The four threads, opened out.
+
+   This is the part that has to work as a CV. Written from Noor's own
+   record rather than paraphrased, so the numbers are the numbers.
+=============================================================== */
+const a=(t,h)=>`<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+
+/* Order matters twice over: these line up with ASPECTS by index, so
+   the plate you click opens the thread beneath it. */
+const THREADS=[
+{ n:"02", name:"Growth",
+  lede:"I think in systems, not just campaigns.",
+  menu:true,
+  stats:[{n:"$1M+",    l:"ARR at Wispr, as first growth hire"},
+         {n:"14,000",  l:"subscriptions in one month, from 79"},
+         {n:"50,000+", l:"on Neural Compass"},
+         {n:"+30%",    l:"conversion on the podcast funnel"},
+         {n:"25",      l:"cities live on Disco"},
+         {n:"+8%",     l:"comprehension lift in the TRESemm\u00e9 stylist trials"}],                       /* list the places first, as a bill of fare */
+  jobs:[
+  { org:"Wispr Flow", when:"2024&ndash;2025", logo:"wispr-flow",
+    links:[{label:"wisprflow.ai", href:"https://wisprflow.ai"},
+           {label:"case studies", href:"https://wisprflow.ai/case-studies"},
+           {label:"the work, in full", href:"growth.html#wispr"}],
+    role:"Founding growth hire. Joined before the CMO, before the product launched. Brand, community and lifecycle marketing.",
+    points:[
+      "First growth hire, through to <b>$1M+ ARR</b>. Community-led growth.",
+      "Built the brand from nothing: guidelines, brand language, a behavioural audit of the site, user case studies.",
+      "Community growth loops across Reddit, word of mouth and Slack.",
+      "Lifecycle marketing: <b>Flow State</b>, the monthly usage rewind, end to end. Words spoken, days dictated, rank in cohort, words per minute, apps used, sent every month.",
+      "Three product launches, including the first market launch."],},
+  { org:"Jimini Health", when:"2025", logo:"jimini-health",
+    links:[{label:"jiminihealth.com", href:"https://jiminihealth.com"},
+           {label:"Neural Compass on YouTube", href:"https://www.youtube.com/@ListenNeuralCompass"},
+           {label:"Spotify", href:"https://open.spotify.com/show/5hPTisLCGPq0oN6LGydQ4s"},
+           {label:"Apple Podcasts", href:"https://podcasts.apple.com/us/podcast/neural-compass/id1815965099"},
+           {label:"iHeartRadio", href:"https://www.iheart.com/podcast/1333-neural-compass-284733945"},
+           {label:"the work, in full", href:"growth.html#jimini"}],
+    role:"First growth hire. Consumer growth end to end, across the podcast app and B2B onboarding.",
+    points:[
+      "Grew subscriptions from <b>79 to 14,000 in a single month</b> by rebuilding the podcast acquisition funnel: friction audits at every stage, messaging tested systematically. Conversion up 30%.",
+      "Overhauled the emails for clinicians and for patients, lifting conversion <b>13%</b>.",
+      "Designed the Neural Compass logo in Flora. The podcast now sits at 50,000+."]},
+  { org:"Disco", when:"2025&ndash;", logo:"disco",
+    links:[{label:"discoverdisco.com", href:"https://discoverdisco.com"},
+           {label:"@discoverwithdisco", href:"https://www.instagram.com/discoverwithdisco/"},
+           {label:"the gallery walk", href:"https://discoverdisco.com/gallery-walk"}],
+    role:"Marketing lead at Disco, city recommendations built on taste rather than ratings. Live in <b>25 cities</b>, <b>600 weekly actives</b>, <b>42,000+ Instagram impressions</b>.",
+    points:[
+      "A rating tells you how popular a place is. Disco runs on taste instead: lists written by people who go, for people who are particular about where they end up. The line on the Instagram profile is <i>places for the particular</i>, and everything is made to earn it.",
+      "Creative production end to end. The brand marks, the campaign posters, the product walkthrough, the weekly drops. Written and designed place by place rather than filled into a template.",
+      "<b>Live events.</b> The Disco &times; Defence Colony Art Walk, Delhi, Saturday 10 October: a six-gallery route through Gallery&nbsp;XXL, Photoink, Pristine, Shrine&nbsp;Empire, Akar&nbsp;Prakar and Method, led by an art writer, with a card written for every stop and sign-ups taken on the site.",
+      "Weekly city drops as a WhatsApp list and Instagram stories, written place by place. Highlights run by city: Philadelphia, New York, Mumbai, Goa.",
+      "Philadelphia launch campaign, built on lists rather than categories: <i>Music in unlikely places</i>, <i>Nobody drinks on the ground floor</i>, <i>Where to go with a grindset</i>."],},
+  { org:"Unilever, TRESemm&eacute;", when:"2022&ndash;2023", logo:"unilever",
+    role:"Product and packaging. User research, brand audit.",
+    points:[
+      "Led the launch of the at-home Botox hair treatment.",
+      "Prototyped five packaging variations and ran usability testing.",
+      "Qualitative trials with stylists lifted comprehension 8%.",
+      "Selected the brand ambassador from Kantar trend data."],},
+  { org:"Fractal", when:"2021", logo:"fractal", role:"Behavioural architect. Client: Google.",
+    points:[
+      "Optimised the user journey for the Google Business Profile chatbot.",
+      "Built the trend database.",
+      "Generated landing pages across four quarters for the Google SMB marketing insights team."]}]},
+
+{ n:"01", name:"Behavioural design",
+  lede:"Research that ends in a decision, not a deck.",
+  menu:true,
+  stats:[{n:"80+", l:"members led at ABIT"},
+         {n:"3",   l:"anti-smoking interventions for the Railway Ministry"}],
+  jobs:[
+  { org:"ABIT, Ashoka Behavioral Insights Team", when:"2022&ndash;2024", links:[{label:"the work, in full", href:"behaviour.html#abit"}],
+    role:"Started as Creative Head of the Nudgelet, the club&rsquo;s publication, and rose to President. India&rsquo;s first student-run behavioural insights team, the largest club on campus: 80+ members, funded by the Gates Foundation.",
+    points:["On-campus nudge interventions, Nudgeathons, and <i>The Nudgelet</i>: zines, blogs and workshops that made behavioural science shareable.",
+            "A partnership with the Centre for Social and Behaviour Change.",
+            "Launched the first data visualisation project at the Trivedi Centre for Political Data."]},
+  { org:"Centre for Social and Behaviour Change", when:"Spring 2024", links:[{label:"the work, in full", href:"behaviour.html#csbc"}],
+    role:"Research Assistant, for the Railway Ministry of India and the Gates Foundation.",
+    points:["Designed interventions to reduce smoking on the Intercity Express 14315: a two-frame sign, a ripple-effect poster and a comic for train toilets."]},
+  { org:"Flourish Science", when:"2025&ndash;2026", links:[{label:"the work, in full", href:"behaviour.html#flourish"}],
+    role:"Strategy and Design Lead. Flourish was the client on Penn&rsquo;s capstone in consulting for behavioural science.",
+    points:["Led the first deck for the client, built the competitive landscape and designed the team&rsquo;s posters."]}]},
+
+{ n:"03", name:"AI",
+  lede:"Machine taste, and the part of taste a machine still cannot reach.",
+  menu:true,
+  stats:[{n:"1",  l:"taste layer, built end to end"},
+         {n:"2",  l:"years inside behavioural research"}],
+  jobs:[
+  { org:"Wharton Generative AI Labs", when:"2025&ndash;2026",
+    links:[{label:"Litmus", href:"https://noorbsharma21.github.io/litmus/"},
+           {label:"the Litmus engine", href:"https://noorbsharma21.github.io/litmus/engine/"}],
+    role:"Fellow, Gen AI Studio.",
+    points:[
+      "<b>Litmus</b>, a taste layer for AI: one person&rsquo;s judgment, written down, so a model can use it. Designed and built end to end.",
+      "A slop detector: the sum of every small decision, written down. Refusals first, because a model will do anything you have not forbidden.",
+      "Front end, copy and the engine behind it, all mine."]}]},
+
+{ n:"04", name:"Art",
+  lede:"Painting since 2017. The work moving through the third slot above is the work itself.",
+  jobs:[
+  { org:"Studio practice", when:"2017&ndash;",
+    role:"Oils, charcoal, ink, digital, photography, cyanotype, furniture.",
+    points:[
+      "<i>Eat my feelings (and you let me)</i>, 2025, acrylic on canvas.",
+      "Traditional: oils and charcoal, 2017 onward.",
+      "Scribbles: ink, 2019 onward.",
+      "Digital illustration, 2020 onward."],},
+  { org:"Emeco", when:"2026", links:[{label:"the table, in 3D", href:"emeco.html"}], role:"Furniture design, with a team of two. A table for shared rooms, exhibited at Rarify, Philadelphia, 2026.",
+    points:[
+      "The leg is the brief. It is a hollow aluminium column that holds what the person at the table is carrying, and it is specified differently for each of them: a mug, markers and a lunch tin for an office worker; books, a pencil case and a cable for a student; brushes, a palette and sketchbooks for an artist; a tote, sunglasses and an umbrella for everyone else.",
+      "Keys hang on the outside of the column. A bottle sits in the lower well. A bag hooks off the foot, which is the thing people actually do with a table leg and the thing no table is built for."]}]},
+
+{ n:"05", name:"Curation",
+  lede:"Putting other people&rsquo;s work in an order that argues something.",
+  jobs:[
+  { org:"time:lapse", when:"2025",
+    role:"Curatorial debut. A plus A Gallery, San Marco, Venice.",
+    points:[
+      "Curatorial statement and structure.",
+      "Personally sourced <i>Willie Pete is running wild</i> (2024, 138&times;86&times;70 cm) by Giovanni Borga.",
+      "Covered by "+a("Artribune","https://www.artribune.com/?p=1182030")+", "+
+        a("exibart","https://www.exibart.com/mostre/timelapse-estetiche-del-tempo-disgregato-alla-plus-a-gallery-di-venezia/")+", "+
+        a("ArtsLife","https://artslife.com/2025/10/01/timelapse-una-lezione-sul-tempo-tra-immagini-e-discontinuita")+", "+
+        a("Ville&amp;Giardini","https://www.villegiardini.it/timelapse-a-cura-di-school-for-curatorial-studies-venice/")+" and "+
+        a("art a part of cult(ure)","https://www.artapartofculture.net/2025/08/28/timelapse-a-plus-a-gallery-venezia/")+".",
+      "Exhibition views photographed by Clelia Cadamuro."]},
+  { org:"Edible Taboos", when:"Spring 2024",
+    role:"Curator. Ashoka University, India.",
+    points:[
+      "An exhibition on abject art and what the body does with food. Julia Kristeva&rsquo;s "+
+        "abjection applied to eating: the revulsion certain foods and certain ways of eating "+
+        "provoke, which is never only about the food and always about the identity and the "+
+        "social order underneath it.",
+      "Three sections, in the order the body takes them. <b>Menu</b>, on choosing and "+
+        "consuming, where the body is both the eater and the thing eaten, hung with "+
+        "<i>Meat Joy</i> and <i>Heartfelt Delicacies</i>. <b>Digestion</b>, on absorbing and "+
+        "altering what you take in, hung with <i>The Starving Artist</i> and "+
+        "<i>Women and Food</i>. <b>Egestion</b>, on expulsion, decay and the end of a cycle, "+
+        "hung with <i>Tail</i> and <i>Untitled&nbsp;#175</i> from the <i>Disasters</i> series.",
+      "The room is built as the argument. A clay-walled corridor shaped like a gut, one entry "+
+        "and one exit, curtained between sections, with the food held at nine inches and the "+
+        "viewing slot cut at ten, so a visitor walks the three stages in sequence and cannot "+
+        "take them in any other order."]},
+  { org:"C plus C", when:"2025&ndash;", role:"Staff writer. Art magazine.",
+    points:["Interviewed Annalisa Rosso, Editorial Director and Cultural Events Advisor at "+
+            "Salone del Mobile.Milano. "+a("Maps are for the lost","https://cplusc.xyz")+"."]},
+  { org:"Current inquiries", when:"",
+    role:"Furniture. Graphic memoirs. Cities at night.", points:[]}]}
+];
+/* Sorted by number rather than kept in order by hand, so reordering
+   the courses above cannot quietly open the wrong thread. */
+THREADS.sort((x,y)=>x.n.localeCompare(y.n));
+
+$("dossierNav").innerHTML=THREADS.map((t,i)=>`<b data-i="${i}">${t.n}</b>`).join("");
+$("dossierNav").addEventListener("click",e=>{
+  const b=e.target.closest("b"); if(b) openThread(+b.dataset.i);});
+
+/* Art and Curation are rooms you walk into rather than drawers that
+   open. Both the plate and the number row come through openThread, so
+   the routing lives here and nowhere else. The page fades to the
+   gallery's own wall colour before it goes, so arriving reads as
+   stepping through a door rather than a page loading. */
+const GALLERY=new Set(["art","curation","behaviour"]);
+const PAGES={curation:"curation.html", art:"art.html", behaviour:"behaviour.html"};
+function enterGallery(dir){
+  if(document.body.classList.contains("entering")) return;
+  document.body.classList.add("entering");
+  /* Curation opens on its two doors, Art on the floating field,
+     Behavioural design on its own page of ABIT, CSBC and Flourish */
+  setTimeout(()=>{ location.href=PAGES[dir]||"gallery.html?course="+dir; },430);
+}
+
+function openThread(i){
+  const asp=ASPECTS[i];
+  if(asp && GALLERY.has(asp.dir)){ enterGallery(asp.dir); return; }
+  const t=THREADS[i];
+  $("dossierTitle").textContent=`${t.n} / ${t.name}`;
+  [...$("dossierNav").children].forEach((b,j)=>b.classList.toggle("now",j===i));
+  /* A bill of fare before the detail: every place, in order, with the
+     years ranged right on a dotted leader. The logo slot stays empty
+     until a file lands in assets/logos, and an empty one takes no
+     room, so the list never waits on artwork to read properly. */
+  const bill=!t.menu?"":`<ul class="menu">`+t.jobs.filter(j=>j.when).map(j=>
+      `<li>${j.logo?`<img class="logo" alt="" src="assets/logos/${j.logo}.png">`:`<i class="logo"></i>`}`
+      +`<b>${j.org}</b><i class="rule"></i><u>${j.when}</u></li>`).join("")+`</ul>`;
+
+  /* the numbers first, as tiles, because they are what a growth role
+     is reading for and they should not be buried in a bullet */
+  const stats=!(t.stats&&t.stats.length)?"":`<div class="stats">`+
+    t.stats.map(s=>`<div class="stat"><b>${s.n}</b><span>${s.l}</span></div>`).join("")+`</div>`;
+
+  /* every place folds open on its own; the first is open to start */
+  const jobs=t.jobs.map((j,k)=>`<details class="job"${k===0?" open":""}>
+      <summary><span class="org">${j.org}</span><i>${j.when}</i></summary>
+      <p class="role">${j.role}</p>
+      ${j.points.length?`<ul>${j.points.map(p=>`<li>${p}</li>`).join("")}</ul>`:""}
+      ${(j.links||(j.link?[j.link]:[])).filter(l=>l&&l.href)
+         .map(l=>`<a class="out" href="${l.href}" ${/^https?:/.test(l.href)?'target="_blank" rel="noopener"':""}>${l.label}</a>`).join("")}
+    </details>`).join("");
+
+  const slot=slots[i];
+  const files=(slot&&slot.files)||[];
+  /* The gallery room is still here behind ?room=1, for comparing, but
+     the sets are what the courses use: the room looked well and said
+     nothing about which piece follows which. */
+  const dir=slot?slot.aspect.dir:"";
+  const asRoom=new URLSearchParams(location.search).get("room")==="1";
+  const work=!files.length?`<p class="eyebrow">no samples in assets / ${dir}</p>`
+    :`<p class="eyebrow">work</p>`+(asRoom&&innerWidth>=900
+        ? room(files,dir)
+        : sets(files,dir));
+
+  $("dossierBody").innerHTML=
+    `<div class="col"><p class="lede">${t.lede}</p>${stats}${bill}${jobs}</div>`+
+    `<div class="col">${work}</div>`;
+
+  /* Hidden, not removed. Removing it collapsed the slot, so the two
+     places with no logo file started their names a logo's width to
+     the left of the three that have one, and the column stopped
+     being a column. */
+  $("dossierBody").querySelectorAll("img.logo").forEach(img=>{
+    const hide=()=>{img.style.visibility="hidden";};
+    img.addEventListener("error",hide);
+    /* innerHTML starts the request at once and a 404 from a local
+       server can come back before this line runs, so the listener
+       never fires and a broken image mark is left in the row */
+    if(img.complete&&img.naturalWidth===0) hide();
+  });
+  $("dossierBody").querySelectorAll(".col").forEach(c=>c.scrollTop=0);
+  $("dossier").classList.add("on"); $("dossier").setAttribute("aria-hidden","false");
+  document.body.classList.add("reading");
+  foldMenu(i);
+}
+
+/* Folds the row down to its labels and parks it under the name. */
+function foldMenu(i){
+  const host=$("aspects");
+  host.classList.add("compact");
+  slots.forEach((s,k)=>s.el.classList.toggle("now",k===i));
+  /* Sized from offsetHeight and the drawer's own css, not from
+     getBoundingClientRect: both are mid-transition at this moment and
+     would be measured sliding, giving a row that sits on the drawer. */
+  const drawer=$("dossier");
+  const gap=parseFloat(getComputedStyle(drawer).bottom)||0;
+  const drawerTop=innerHeight-drawer.offsetHeight-gap;
+  const capH=Math.max(...slots.map(s=>s.el.querySelector(".cap").offsetHeight));
+  const tb=$("titleInner").getBoundingClientRect();
+  host.style.top=Math.round(Math.min(tb.bottom+innerHeight*0.04,
+                                     drawerTop-14-capH))+"px";
+}
+
+function closeThread(){
+  $("dossier").classList.remove("on"); $("dossier").setAttribute("aria-hidden","true");
+  document.body.classList.remove("reading");
+  const host=$("aspects");
+  host.classList.remove("compact");
+  slots.forEach(s=>s.el.classList.remove("now"));
+  sizeAspects();                   /* puts the plates back where they were */
+}
+$("dossierClose").addEventListener("click",closeThread);
+addEventListener("keydown",e=>{if(e.key==="Escape")closeThread();});
+
+/* ---------- live local time ---------- */
+function tickClock(){
+  const now=new Date();
+  const f=new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",
+    hour12:false,timeZone:"America/New_York"});
+  $("t").textContent=f.format(now);
+}
+tickClock(); setInterval(tickClock,20000);
+
+/* ---------- boot ---------- */
+async function loadFirst(dir){
+  try{const r=await fetch("api/"+dir); if(!r.ok)return null;
+    const l=await r.json(); return l.length?l[0]:null;}catch{return null;}
+}
+function fitHero(img){
+  const maxW=Math.min(innerWidth*0.56,760);
+  const maxH=innerHeight*0.90;
+  let w=maxW, h=w*img.naturalHeight/img.naturalWidth;
+  if(h>maxH){h=maxH; w=h*img.naturalWidth/img.naturalHeight;}
+  return [Math.round(w),Math.round(h)];
+}
+/* ===============================================================
+   The four aspects.
+
+   Not a scatter of pictures any more. Four slots, one per thread,
+   each showing the work that belongs to that thread and moving
+   through it. An aspect is demonstrated by its own evidence rather
+   than named in a list, so the list is gone and these are the way
+   into the dossier.
+
+   Each slot reads its own folder, so a new Wispr screenshot dropped
+   into assets/growth joins the rotation with no code change.
+=============================================================== */
+/* `note` is the fixed line under each course, naming the real work in
+   it. It used to show the title of whichever picture was up, which
+   meant a reader got "Friction wordcloud and the goose": a filename,
+   meaningful only to the person who named it. `standing` is what a
+   course says on the plate when its folder is empty but the work is
+   real, rather than an apology for a missing file. */
+const ASPECTS=[
+  {n:"01", name:"Behavioural design", course:"Antipasti", dir:"behaviour",
+   note:"ABIT, CSBC, Flourish Science",
+   empty:"not plated<br>assets / behaviour"},
+  {n:"02", name:"Growth",             course:"Primo",     dir:"growth",
+   live:"juggle",                  /* drawn every frame, not a picture */
+   standing:"2&times; founding<br>growth hire",
+   note:"2&times; founding growth hire<br>Wispr, Jimini, Disco",
+   empty:"not plated<br>assets / growth"},
+  {n:"03", name:"AI",                 course:"Secondo",   dir:"ai",
+   note:"Litmus, at Wharton Generative AI Labs",
+   empty:"not plated<br>assets / ai"},
+  {n:"04", name:"Art",                course:"Contorno",  dir:"art",
+   note:"Oils, ink, cyanotype, photography",
+   empty:"not plated<br>assets / art"},
+  {n:"05", name:"Curation",           course:"Dolce",     dir:"curation",
+   note:"time:lapse at A plus A, Venice",
+   empty:"not plated<br>assets / curation"}
+];
+
+const FRAMES=4;                  /* chewed copies of the picture on show */
+const BOIL_MS=320;               /* about three a second */
+const HOLD_MS=6400;              /* how long a picture stays before the next */
+const FADE_MS=1000;               /* matches the css transition on .stage */
+const SLOT_AR=1.38;              /* slot shape, taller than wide */
+const SPREAD=0.88;               /* share of the page width the row may use */
+const GAPX=40, GAPY=26;          /* spaced out, so a course can fold open */
+
+let slots=[];
+
+/* Recordings sit in the same folders as the stills. A plate cannot use
+   one, because a plate erodes a still into the china, so the rotation
+   filters them out and only the dossier plays them. */
+const MOVING=/\.(mp4|webm)$/i;
+
+/* ===============================================================
+   The room.
+
+   A course is hung in one-point perspective: the two side walls run
+   back from the frame's own edges, the back wall sits at the far end,
+   and the work goes on all three.
+
+   PERSP and DEPTH are the only two numbers. Everything projects from
+   them, the drawn lines included, so the walls meet the diagonals
+   rather than almost meeting them. The back wall lands at
+   PERSP / (PERSP + DEPTH) of the frame, which at these values is a
+   little under half, the proportion the reference room uses.
+
+   The back wall takes the first few pieces, because it is the only
+   wall facing the reader square on and the work there stays readable.
+   The rest alternate left and right so the two sides fill evenly.
+=============================================================== */
+const PERSP=760, DEPTH=930;
+
+/* One piece of work. `withMedium` puts the material in the caption,
+   which is wanted where the set heading no longer carries it. */
+function sample(f,dir,withMedium){
+  const src=`assets/${dir}/${encodeURIComponent(f)}`;
+  const m=fileMeta(f);
+  const media=MOVING.test(f)
+    ? `<video class="piece film" src="${src}" muted loop playsinline
+         preload="metadata" controls></video>`
+    : `<img class="piece" loading="lazy" alt="" src="${src}">`;
+  const cap=withMedium&&m.medium?`${m.title} &middot; ${m.medium}`:m.title;
+  return `<figure>${media}<figcaption>${cap}</figcaption></figure>`;
+}
+
+/* ===============================================================
+   Work, in sets.
+
+   Nothing is clubbed together. The filename already says which set a
+   piece belongs to: everything after the double dash is the medium,
+   and files that share one are the same body of work. So the three
+   panels of the Flow State email are one set, the three art walk
+   cards are another, and they are never mixed into a single grid.
+
+   Inside a set the pieces are chained in filename order, which is why
+   the numbers in the names matter: g13, g14, g15 is the order the art
+   walk reads in. A set of one is left unchained, because there is
+   nothing to connect it to.
+=============================================================== */
+const PER_ROW=3;
+
+function sets(files,dir){
+  /* grouped in the order the files arrive, so a set keeps its place in
+     the folder rather than being alphabetised away from its neighbours */
+  const groups=new Map();
+  for(const f of files){
+    const key=fileMeta(f).medium||"other";
+    if(!groups.has(key)) groups.set(key,[]);
+    groups.get(key).push(f);
+  }
+
+  const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+  return `<div class="setlist">`+[...groups].map(([key,list])=>{
+    const rows=[];
+    for(let i=0;i<list.length;i+=PER_ROW) rows.push(list.slice(i,i+PER_ROW));
+    const chains=rows.map(r=>{
+      const single=list.length===1;
+      /* a link between each pair, none after the last of a row */
+      const inner=r.map((f,i)=>sample(f,dir)+(i<r.length-1?`<i class="link"></i>`:"")).join("");
+      /* a short row is padded so its pieces stay the width of a full
+         row's, instead of stretching to fill the line */
+      const pad=Array(PER_ROW-r.length).fill(`<span style="flex:1 1 0"></span>`).join("");
+      return `<div class="chain${single?" single":""}">${inner}${pad}</div>`;
+    }).join("");
+    return `<section class="set"><h4>${cap(key)}<i></i>`+
+      `<u>${list.length}</u></h4>${chains}</section>`;
+  }).join("")+`</div>`;
+}
+
+function room(files,dir){
+  const s=PERSP/(PERSP+DEPTH);                /* how much the back wall shrinks */
+
+  /* Nine is what a room this size holds and still reads. Past that the
+     side walls fill up, each piece narrows, and the far ones compress
+     into slivers. So nine are hung and the remainder goes in a strip
+     under the room, where nothing is lost and nothing is squeezed. */
+  const hung=files.slice(0,9), rest=files.slice(9);
+  const nBack=Math.min(3,Math.max(1,hung.length-2));
+  const walls={back:[],left:[],right:[]};
+  hung.forEach((f,i)=>{
+    if(i<nBack) walls.back.push(f);
+    else ((i-nBack)%2 ? walls.right : walls.left).push(f);
+  });
+
+  const perSide=Math.max(walls.left.length,walls.right.length,1);
+  const sw=Math.min(19,62/perSide-2);          /* share of the wall's depth */
+  const bw=Math.min(30,(100-8)/Math.max(1,nBack));
+
+  const piece=f=>sample(f,dir);
+
+  /* Drawn in a 100 by 100 box and stretched, so the geometry is written
+     once in fractions rather than recomputed against a pixel size. */
+  const m=(100-100*s)/2, far=100-m;
+  const lines=`<svg class="lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <rect x="${m}" y="${m}" width="${100*s}" height="${100*s}"></rect>
+      <line x1="0" y1="0" x2="${m}" y2="${m}"></line>
+      <line x1="100" y1="0" x2="${far}" y2="${m}"></line>
+      <line x1="0" y1="100" x2="${m}" y2="${far}"></line>
+      <line x1="100" y1="100" x2="${far}" y2="${far}"></line>
+    </svg>`;
+
+  const strip=!rest.length?"":
+    `<p class="eyebrow">and ${rest.length} more</p>`+
+    `<div class="samples">`+rest.map(piece).join("")+`</div>`;
+
+  return `<div class="room" style="--P:${PERSP}px;--D:${DEPTH}px;
+        --sw:${sw.toFixed(1)}%;--bw:${bw.toFixed(1)}%">
+      <div class="w left">${walls.left.map(piece).join("")}</div>
+      <div class="w right">${walls.right.map(piece).join("")}</div>
+      <div class="w back">${walls.back.map(piece).join("")}</div>
+      ${lines}
+    </div>`+strip;
+}
+
+/* title and medium read straight out of the filename, so naming a file
+   "a01-the-eye--oil.jpg" is all it takes to caption it */
+function fileMeta(f){
+  const base=f.replace(/\.[^.]+$/,"").replace(/^[a-z]?\d+[\s._-]*/i,"");
+  const [t,m]=base.split("--");
+  const clean=x=>(x||"").replace(/[-_]+/g," ").trim();
+  const title=clean(t);
+  return {title:title.charAt(0).toUpperCase()+title.slice(1), medium:clean(m)};
+}
+
+/* Builds the four slots and sizes the row. Slot boxes are fixed, and
+   each picture is fitted inside its box rather than filling it, so a
+   square and a tall photograph can follow each other in the same slot
+   without the row changing shape underneath them. */
+function layoutAspects(capH){
+  const W=innerWidth,H=innerHeight;
+  const tb=$("titleInner").getBoundingClientRect();
+
+  let top0=tb.bottom+H*0.055;
+  let bot0=H-(H*0.03+20);
+  /* The panel is read rather than assumed, because it moves to the
+     foot of the page on a narrow window. Whichever half it is in, the
+     slots stop short of it. */
+  const bio=$("bio").getBoundingClientRect();
+  if(bio.height){
+    if(bio.bottom<H*0.5) top0=Math.max(top0,bio.bottom+18);
+    else                 bot0=Math.min(bot0,bio.top-18);
+  }
+
+  /* All of them on one line, always: a menu read in two goes is not a
+     menu. The gap closes up as the window narrows so the slots keep
+     as much of the width as they can. */
+  const cols=ASPECTS.length;
+  const lines=1;
+  const gx=Math.max(13,Math.min(GAPX,W*0.028));
+  const rowW=Math.min(W*SPREAD,1240);
+
+  let sw=Math.floor((rowW-gx*(cols-1))/cols);
+  let sh=Math.round(sw*SLOT_AR);
+  const room=bot0-top0-(lines-1)*GAPY;
+  if(lines*(sh+capH)>room){
+    sh=Math.max(110,Math.floor(room/lines)-capH);
+    sw=Math.round(sh/SLOT_AR);
+  }
+
+  /* Sized by the width it has, so on a wide short window there is
+     height left over. Sitting it against the name left a dead band
+     above the panel; the leftover is split instead, weighted up. */
+  const blockH=lines*(sh+capH)+(lines-1)*GAPY;
+  const slack=Math.max(0,(bot0-top0)-blockH);
+
+  const host=$("aspects");
+  host.style.top=Math.round(top0+slack*0.42)+"px";
+  host.style.width=(cols*sw+gx*(cols-1))+"px";
+  host.style.columnGap=gx+"px";
+  host.style.rowGap=GAPY+"px";
+  return {sw,sh};
+}
+
+/* Applies a size to every slot. The caption can run wider than its
+   picture, and a flex item sized by its content would then push the
+   next slot onto a row of its own, so each one is pinned to the slot
+   width and the caption wraps inside it. How tall the caption ends up
+   is only known once it has wrapped, so this runs twice: a guess, a
+   measurement, then the real thing. */
+function sizeAspects(){
+  let size=layoutAspects(58);
+  const apply=()=>slots.forEach(s=>{
+    const {sw,sh}=size;
+    /* the dish seen at a low angle, and the food standing on its
+       centre line rather than on the front rim */
+    const plateH=Math.max(16,Math.round(sw*0.30));
+    const foodH=sh-Math.round(plateH*0.48);   /* base lands in the well */
+    s.el.style.width=sw+"px";
+    s.stage.style.width=sw+"px"; s.stage.style.height=sh+"px";
+    s.food.style.height=foodH+"px";
+    s.sw=sw; s.sh=sh; s.foodH=foodH; s.plateH=plateH;
+
+    /* The dish is laid out in css now, so there is nothing to compute
+       beyond the box it fills: the discs are elliptical because the
+       box is wider than it is tall. */
+    s.dish.style.width=sw+"px"; s.dish.style.height=plateH+"px";
+
+    const shw=Math.round(sw*0.46), shh=Math.round(plateH*0.46);
+    s.shade.style.width=shw+"px"; s.shade.style.height=shh+"px";
+    s.shade.style.left=Math.round((sw-shw)/2)+"px";
+    s.shade.style.top=Math.round(foodH-shh/2)+"px";
+
+    const none=s.stage.querySelector(".none");
+    if(none) none.style.height=foodH+"px";
+  });
+  apply();
+  const capH=Math.max(...slots.map(s=>s.el.querySelector(".cap").offsetHeight))+14;
+  if(Math.abs(capH-58)>4){ size=layoutAspects(capH); apply(); }
+  return size;
+}
+
+function buildAspects(){
+  const host=$("aspects"); host.innerHTML=""; slots=[];
+
+  ASPECTS.forEach((a,i)=>{
+    const el=document.createElement("div");
+    el.className="aspect"; el.tabIndex=0; el.setAttribute("role","button");
+    el.innerHTML=
+      /* Order is the stacking: the china is laid first, then the mark
+         it casts on the glaze, then the food on top of both. With the
+         plate last it painted over the serving and everything looked
+         tucked in behind the rim. */
+      `<div class="stage">
+         <div class="dish">
+           <span class="cast"></span><span class="edge"></span>
+           <span class="face"></span><span class="bevel"></span>
+           <span class="well"></span><span class="spec"></span>
+         </div>
+         <div class="shade"></div>
+         <div class="food"></div>
+       </div>
+       <div class="cap"><span class="course">${a.course}</span>
+         <i>${a.n}</i><b>${a.name.replace("Behavioural","Behav&shy;ioural")}</b>
+         <span class="now">${a.note||""}</span></div>`;
+    host.appendChild(el);
+
+    slots.push({aspect:a, el, stage:el.querySelector(".stage"),
+                food:el.querySelector(".food"), dish:el.querySelector(".dish"),
+                shade:el.querySelector(".shade"), now:el.querySelector(".now"),
+                sw:0, sh:0, foodH:0, plateH:0, seed:i*31,
+                shots:[], idx:0, frames:[], fi:0, timers:[]});
+
+    el.addEventListener("click",()=>openThread(i));
+    el.addEventListener("keydown",e=>{
+      if(e.key==="Enter"||e.key===" "){e.preventDefault();openThread(i);}});
+  });
+
+  sizeAspects();
+}
+
+/* ===============================================================
+   The growth course, plated.
+
+   Growth has no single picture to serve, so the places themselves are
+   the dish: the three logos resting on the china like three things
+   arranged on a plate. It was a stick figure juggling them, which was
+   a lot of movement for a page that is mostly still.
+=============================================================== */
+const PLATED=[
+  {slug:"wispr-flow", word:"WISPR"},
+  {slug:"disco",      word:"DISCO"},
+  {slug:"unilever",   word:"UNILEVER"}
+];
+
+/* Deliberately not async: the resize handler calls this without
+   awaiting, and anything that waits on the files before marking the
+   slot leaves the plate empty until they arrive. */
+function mountPlated(slot){
+  const W=slot.sw, H=slot.foodH;
+  const dpr=Math.min(2,devicePixelRatio||1);
+  const c=document.createElement("canvas");
+  c.width=Math.round(W*dpr); c.height=Math.round(H*dpr);
+  c.style.width=W+"px"; c.style.height=H+"px";
+  c.style.left="0px"; c.style.top="0px"; c.className="f";
+  const ctx=c.getContext("2d"); ctx.scale(dpr,dpr);
+
+  slot.food.innerHTML=""; slot.food.appendChild(c);
+  const none=slot.stage.querySelector(".none"); if(none) none.remove();
+  slot.shade.style.display="none";   /* each piece casts its own */
+  slot.deck=null; slot.frames=[]; slot.live={ctx,W,H,imgs:[null,null,null]};
+  drawPlated(slot.live);
+
+  Promise.all(PLATED.map(j=>load("assets/logos/"+j.slug+".png")))
+    .then(imgs=>{ if(slot.live){ slot.live.imgs=imgs; drawPlated(slot.live); } });
+}
+
+function drawCoin(ctx,x,y,r,img,word){
+  /* its own contact shadow, so it sits on the glaze */
+  ctx.save();
+  ctx.beginPath(); ctx.ellipse(x,y+r*0.86,r*0.92,r*0.26,0,0,6.2832);
+  ctx.fillStyle="rgba(14,14,13,.17)"; ctx.filter="blur(2px)"; ctx.fill();
+  ctx.restore();
+
+  ctx.beginPath(); ctx.arc(x,y,r,0,6.2832);
+  ctx.fillStyle="#ffffff"; ctx.fill();
+  ctx.lineWidth=1.2; ctx.strokeStyle="#0e0e0d"; ctx.stroke();
+
+  if(img){
+    const ar=img.naturalHeight/img.naturalWidth;
+    const room=r*1.42;
+    let w=room, h=w*ar;
+    if(h>room){ h=room; w=h/ar; }
+    ctx.save();
+    ctx.beginPath(); ctx.arc(x,y,r-1,0,6.2832); ctx.clip();
+    ctx.drawImage(img,x-w/2,y-h/2,w,h);
+    ctx.restore();
+    return;
+  }
+  ctx.fillStyle="#0e0e0d";
+  ctx.textAlign="center"; ctx.textBaseline="middle";
+  const room=r*1.6;
+  let size=Math.round(r*0.62);
+  for(;size>4;size--){
+    ctx.font=`${size}px Silkscreen, ui-monospace, monospace`;
+    if(ctx.measureText(word).width<=room) break;
+  }
+  ctx.fillText(word,x,y+0.5);
+}
+
+/* Three pieces set out on the plate: two forward, one set back and
+   higher, which is how depth reads on a dish seen at this angle. */
+function drawPlated(L){
+  const {ctx,W,H,imgs}=L;
+  ctx.clearRect(0,0,W,H);
+  /* Sized and seated so the lowest piece stops short of the bottom of
+     the canvas. Any bigger and the front two were cut off by it,
+     which read as them hanging over the rim. */
+  const r=Math.max(11,Math.min(W*0.17,H*0.22));
+  const base=H-r-2;
+  const set=[
+    {i:1, x:W*0.50, y:base-r*0.95},    /* set back, behind the other two */
+    {i:0, x:W*0.25, y:base},
+    {i:2, x:W*0.75, y:base-r*0.10}
+  ];
+  for(const p of set) drawCoin(ctx,p.x,p.y,r,imgs[p.i],PLATED[p.i].word);
+}
+
+/* An empty course still gets its dish, so the row keeps its rhythm
+   and the gap reads as a place not yet served rather than a bug. */
+function emptyPlate(slot){
+  slot.food.innerHTML="";
+  slot.frames=[];
+  slot.shade.style.display="none";
+  const a=slot.aspect;
+  let d=slot.stage.querySelector(".none");
+  if(!d){
+    d=document.createElement("div"); d.className="none";
+    slot.stage.appendChild(d);       /* above the china, like the food */
+  }
+  d.className="none"+(a.standing?" says":"");
+  d.innerHTML=a.standing||a.empty;
+  d.style.height=slot.foodH+"px";
+  slot.now.innerHTML=a.note||"";
+}
+
+/* The middle of the picture, taken at the shape of the serving. Most
+   of these are phone photographs, nearly twice as tall as they are
+   wide, and fitting one whole into the slot gives a narrow column that
+   looks nothing like a portion of food. */
+function centreCrop(img,tw,th){
+  const want=tw/th;
+  let w=img.naturalWidth, h=w/want;
+  if(h>img.naturalHeight){ h=img.naturalHeight; w=h*want; }
+  return {x:(img.naturalWidth-w)/2, y:(img.naturalHeight-h)/2, w, h};
+}
+
+function showShot(slot,k,instant){
+  const shot=slot.shots[k]; if(!shot) return;
+  /* Every serving is the same size, inside the well of the dish, so
+     the four read as four courses rather than four odd shapes. Which
+     means the chewing has to be seeded per slot as well as per frame,
+     or identical boxes would come out with identical silhouettes. */
+  const w=Math.round(slot.sw*0.78);
+  const h=Math.round(Math.min(w*1.12,slot.foodH));
+  const crop=centreCrop(shot.img,w,h);
+  const made=[];
+  for(let v=0;v<FRAMES;v++){
+    const c=erode(shot.img,w,h,v+slot.seed,crop);
+    c.style.left=Math.round((slot.sw-w)/2)+"px";
+    c.style.top=(slot.foodH-h)+"px";   /* resting on the plate, not floating */
+    made.push(c);
+  }
+  made[0].className="f";
+
+  /* A real dissolve, not a blink. It used to fade the whole plate out,
+     swap the canvases while nothing was showing, then fade back in,
+     which reads as the picture going away and a different one
+     arriving. Both decks are on screen at once now and swap opacity,
+     so one picture turns into the next. */
+  const deck=document.createElement("div");
+  deck.className="deck";
+  made.forEach(c=>deck.appendChild(c));
+
+  const none=slot.stage.querySelector(".none"); if(none) none.remove();
+  slot.shade.style.display="";
+
+  const old=slot.deck;
+  if(instant||!old){
+    slot.food.innerHTML="";
+    slot.food.appendChild(deck);
+  }else{
+    deck.style.opacity="0";
+    slot.food.appendChild(deck);
+    /* one tick so the browser has the starting opacity to move from */
+    slot.timers.push(setTimeout(()=>{ deck.style.opacity="1"; old.style.opacity="0"; },24));
+    slot.timers.push(setTimeout(()=>old.remove(),FADE_MS+120));
+  }
+  slot.deck=deck; slot.frames=made; slot.fi=0; slot.idx=k;
+}
+
+/* One picture out, the next in. The chewing for the incoming picture
+   happens while the slot is faded down, so the work never shows. */
+function advance(slot){
+  if(slot.shots.length<2) return;
+  showShot(slot,(slot.idx+1)%slot.shots.length);
+}
+
+let boilTimer=null;
+function startMotion(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  clearInterval(boilTimer);
+  boilTimer=setInterval(()=>{
+    for(const s of slots){
+      if(s.frames.length<2) continue;
+      s.frames[s.fi].classList.remove("f");
+      s.fi=(s.fi+1)%s.frames.length;
+      s.frames[s.fi].classList.add("f");
+    }
+  },BOIL_MS);
+  /* staggered, so the four never turn over together */
+  slots.forEach((s,i)=>{
+    s.timers.push(setInterval(()=>advance(s),HOLD_MS+i*900));
+  });
+}
+
+function stopMotion(){
+  clearInterval(boilTimer); boilTimer=null;
+  for(const s of slots){ s.timers.forEach(t=>{clearTimeout(t);clearInterval(t);}); s.timers=[]; }
+}
+
+/* The slots sit in their own band and the panels sit in the margins,
+   so nothing has to be kept apart by force any more. The pads are
+   gone with the drift that made them necessary. */
+
+/* Live from serve.js first, so a file dropped into a folder shows up
+   with no code change. Opened off disk as file://index.html there is no
+   server to ask, fetch rejects, and every folder used to come back
+   empty: a whole page reporting no samples with a clean console. The
+   baked manifest is the floor under that, and the same list a static
+   deploy ships with. */
+async function listDir(dir){
+  const baked=(window.ASSETS&&window.ASSETS[dir])||[];
+  try{
+    const r=await withTimeout(fetch("api/"+dir),3000);
+    if(!r||!r.ok) return baked;
+    return await r.json();
+  }catch{ return baked; }
+}
+/* A request that never answers fires neither load nor error, so an
+   await on it waits for ever. Everything the boot depends on is raced
+   against a clock: a stalled file costs one picture, not the page. */
+function withTimeout(p,ms){
+  return Promise.race([p,new Promise(r=>setTimeout(()=>r(null),ms))]);
+}
+function load(src){
+  return withTimeout(new Promise(res=>{const i=new Image();
+    i.onload=()=>res(i.naturalWidth>0?i:null); i.onerror=()=>res(null); i.src=src;}),8000);
+}
+
+/* ===============================================================
+   Opening sequence.
+
+   The geometry is built here and every movement is a keyframe in the
+   stylesheet above, which also carries the clock. Positions go in as
+   custom properties so one tile's path is readable in the inspector.
+
+   The three threads are in the order she says them: growth,
+   behavioural science, art and curation. They are placed at 120
+   degrees with their centres close enough together that each pair
+   overlaps, so the middle is where all three fall at once.
+=============================================================== */
+const INTRO=[{label:"Growth",              c:"var(--rd)"},
+             {label:"Behavioural science", c:"var(--yl)"},
+             {label:"Art and curation",    c:"var(--bl)"}];
+
+/* deterministic scatter: the same tile leaves from the same place
+   every load, which makes the overture something you can art-direct
+   rather than something that rolls dice at you */
+const rnd=(i,k)=>{const x=Math.sin((i+1)*12.9898+k*78.233)*43758.5453; return x-Math.floor(x);};
+
+async function mountIntro(){
+  const el=$("intro"), mid=$("introMid");
+  if(!el||!mid) return;
+  /* ?intro=0 skips it while working on the rest of the page;
+     ?intro=4550 holds it at 4.55s so a single beat can be looked at */
+  const q=new URLSearchParams(location.search).get("intro");
+  const hold=/^\d+$/.test(q||"")&&q!=="0"?parseInt(q,10):null;
+  if(q==="0"||matchMedia("(prefers-reduced-motion:reduce)").matches){ el.remove(); return; }
+
+  /* her own paintings make the circle; curation tops it up when art
+     alone is too thin to close one */
+  let files=(await listDir("art")).map(f=>"art/"+f);
+  if(files.length<9) files=files.concat((await listDir("curation")).map(f=>"curation/"+f));
+  if(!files.length){ el.remove(); return; }   /* nothing to gather, no overture */
+
+  const W=innerWidth, H=innerHeight;
+  const R=Math.max(104,Math.min(W*0.26,H*0.32));   /* radius of the circle */
+  const n=Math.min(files.length,14);
+  /* the chord between two neighbours is 2R sin(180/n), so a tile that
+     wide closes the ring into one wheel instead of a dotted line */
+  const T=Math.round(2*R*Math.sin(Math.PI/n)*1.04);
+  const BS=Math.round(Math.max(150,Math.min(W,H)*0.26));   /* one of the three */
+  /* Three circles read as a Venn when neighbouring centres sit about
+     one radius apart, which puts each centre 0.577 radii off middle.
+     What is left over in the middle, where all three fall at once, is
+     a disc of (R - D) radius, and that is the size she tucks down to. */
+  const D=(BS/2)*0.577;
+  const FS=Math.round(BS*0.67);                    /* her, before the tuck */
+  const L=D+BS/2+34;                               /* where a name sits */
+
+  const tiles=[];
+  for(let i=0;i<n;i++){
+    const a=(360/n)*i;
+    const th=rnd(i,1)*Math.PI*2;                   /* flies in from out of frame */
+    const far=R*(1.7+rnd(i,2)*0.9);
+    tiles.push(`<span class="c" style="--a:${a.toFixed(2)};--r:${R}px;--t:${T}px">
+      <span class="cc"><span class="fly" style="
+        --x:${(Math.cos(th)*far).toFixed(0)}px;
+        --y:${(Math.sin(th)*far).toFixed(0)}px;
+        --rr:${((rnd(i,3)-0.5)*80).toFixed(0)}deg;
+        --d:${(i*0.07).toFixed(3)}s">
+        <img alt="" src="assets/${files[i].replace(/[^/]+$/,m=>encodeURIComponent(m))}"></span></span></span>`);
+  }
+
+  const balls=INTRO.map((t,i)=>{
+    const deg=-90+i*120, rad=deg*Math.PI/180;
+    const bx=Math.cos(rad)*D, by=Math.sin(rad)*D;
+    return {...t,
+      bx:bx.toFixed(1), by:by.toFixed(1),
+      lx:(Math.cos(rad)*L).toFixed(1), ly:(Math.sin(rad)*L).toFixed(1),
+      ax:["-50%","0%","-100%"][i],
+      px:((i-1)*W*0.23).toFixed(0), py:(H*0.07).toFixed(0)};
+  });
+
+  /* "Hello" belongs to her face, so it sits under it. The claim belongs
+     to the three, so it goes above the cluster they open into, clear of
+     the top circle and of the name above it. A <p> hangs below the point
+     it is translated to, so the claim is placed by its own bottom edge
+     and pulled up by its height. */
+  const helloY=Math.round(FS*0.95);
+  const claimY=-Math.round(L+30);
+
+  mid.innerHTML=
+    `<div class="ring"><div class="spin">${tiles.join("")}</div></div>`+
+    `<i class="face" style="--fs:${FS}px">`+
+      `<img alt="Noor Badal Sharma" src="assets/portrait/noor.jpg"></i>`+
+    `<p class="hello" style="transform:translate(-50%,${helloY}px)">Hello, I&rsquo;m Noor.</p>`+
+    `<p class="claim" style="transform:translate(-50%,${claimY}px) translate(0,-100%)">`+
+      `I sit at the intersection of three things.</p>`+
+    balls.map((b,i)=>`<i class="b" style="--bs:${BS}px;--c:${b.c};--bd:${i*0.11}s;
+        --bx:${b.bx}px;--by:${b.by}px;--px:${b.px}px;--py:${b.py}px"></i>`).join("")+
+    balls.map((b,i)=>`<span class="lbl" style="--lx:${b.lx}px;--ly:${b.ly}px;--ax:${b.ax};
+        --i:${i};--lc:${b.c};--sy:${Math.round(BS*0.5+D*0.5+24)}px">${b.label}</span>`).join("");
+
+  document.body.classList.add("intro-on");
+  el.classList.add("run");                         /* starts the clock */
+
+  const end=()=>{ el.classList.add("gone"); document.body.classList.remove("intro-on"); };
+  if(hold!==null){
+    el.style.setProperty("--seek",(hold/1000)+"s");
+    el.classList.add("freeze");
+    return;                                        /* held, so no click out and no timer */
+  }
+  el.addEventListener("click",end);
+  setTimeout(end,11100);
+}
+
+/* The three balls flatten into plates on the way out. Where the plates
+   actually are is not known while the overture is being built, because
+   the row is laid out after the cloud has loaded, so the targets start
+   as a sensible guess and get corrected here once the row exists. The
+   correction only has to beat 5.5s, which is when they start moving. */
+function aimIntro(){
+  const mid=$("introMid"); if(!mid) return;
+  const balls=mid.querySelectorAll(".b");
+  if(balls.length!==3||!slots.length) return;
+  /* first, middle and last course, so the three open out across the
+     whole row rather than crowding its centre */
+  const pick=[0,Math.floor(slots.length/2),slots.length-1];
+  const cx=innerWidth/2, cy=innerHeight/2;
+  balls.forEach((b,i)=>{
+    const s=slots[pick[i]]; if(!s||!s.stage) return;
+    const r=s.stage.getBoundingClientRect();
+    if(!r.width) return;                /* not laid out yet: keep the guess */
+    b.style.setProperty("--px",Math.round(r.left+r.width/2-cx)+"px");
+    b.style.setProperty("--py",Math.round(r.bottom-r.height*0.18-cy)+"px");
+  });
+}
+
+/* When neither the folder listing nor the baked manifest can be
+   reached there is no way to know what is in assets/, and the page
+   would otherwise boot into empty plates and courses that report no
+   samples, with a clean console and no clue why. This happens when
+   index.html is opened as a saved snapshot: the desktop app serves it
+   as a data: URL, where even the manifest's own script tag cannot
+   resolve. Say so instead of looking broken. */
+async function stranded(){
+  if(window.ASSETS) return false;
+  try{ const r=await withTimeout(fetch("api/cloud"),3000); if(r&&r.ok) return false; }
+  catch{}
+  document.body.innerHTML=
+    `<div class="stranded"><p class="eyebrow">nothing to serve the page from</p>
+      <p>This copy cannot reach <b>assets/</b>. Nothing is broken: it is being
+         viewed as a saved snapshot rather than being served.</p>
+      <p>Run <code>node serve.js</code> in the project and open
+         <b>http://localhost:4178</b>.</p></div>`;
+  return true;
+}
+
+/* Each slot fills from its own folder, in parallel, and starts showing
+   as soon as it has something. An empty folder says what belongs in it
+   rather than leaving a hole. Called at boot and again for any slot a
+   resize caught before it was filled. */
+async function fill(list){
+  await Promise.all(list.map(async s=>{
+    const files=await listDir(s.aspect.dir);
+    /* A live course draws its own plate, but its folder is still where
+       the work samples come from, so the list is read either way. */
+    if(s.aspect.live){ s.files=files; mountPlated(s); return; }
+    /* The list goes on the slot before the pictures are fetched. The
+       dossier only needs the names, and a click in the first seconds
+       used to open a thread that said it had no samples while they
+       were still arriving. */
+    s.files=files;
+    const stills=files.filter(f=>!MOVING.test(f));
+    const imgs=await Promise.all(
+      stills.map(f=>load("assets/"+s.aspect.dir+"/"+encodeURIComponent(f))));
+    s.shots=stills.map((f,i)=>imgs[i]?{img:imgs[i],meta:fileMeta(f)}:null).filter(Boolean);
+    if(s.shots.length) showShot(s,0,true);
+    else emptyPlate(s);
+  }));
+}
+
+async function start(){
+  if(await stranded()) return;
+  mountIntro();   /* runs alongside the boot, never gates it */
+
+  /* A file ending "-cut" has already had its sky keyed out and baked to
+     real alpha, which is both cleaner and free. Anything else in the
+     folder still gets keyed here, so dropping in a new cloud on a flat
+     colour keeps working. */
+  const clouds=await listDir("cloud");
+  const cut=clouds.find(f=>/-cut\.(png|webp)$/i.test(f));
+  const pick=cut||clouds[0];
+  if(pick){
+    const raw=await load("assets/cloud/"+encodeURIComponent(pick));
+    if(raw){
+      const c=$("cloudimg");
+      c.src=cut?raw.src:keyOut(raw).toDataURL("image/png");
+      c.hidden=false;
+      /* wait for it to lay out, or the row below is placed against a
+         name whose height is not settled yet */
+      await withTimeout(c.decode().catch(()=>null),2000);
+    }
+  }
+
+  buildAspects();
+
+  await fill(slots);
+
+  drawLeaders();
+  /* again once the captions have wrapped and the webfonts are in, or
+     the rule is placed against a row that has not settled */
+  setTimeout(drawLeaders,400);
+  setTimeout(aimIntro,450);     /* row has settled, point the overture at it */
+  startMotion();
+}
+/* start() is async, so anything it throws becomes an unhandled
+   rejection and the page just sits there empty with a clean console */
+start().catch(e=>console.error("start failed:",e));
+
+/* A display face swapped in from the URL changes how tall the name
+   block is, and the row was placed against the fallback. */
+document.fonts.ready.then(()=>{
+  if(!slots.length) return;
+  sizeAspects();
+  slots.forEach(s=>{ if(s.shots.length) showShot(s,s.idx,true); });
+  drawLeaders();
+});
+
+/* A resize rebuilds the row from scratch, so everything the slots were
+   carrying has to be handed across. Keeping only `shots` left `files`
+   behind, and `files` is what the dossier reads, so after any resize
+   every course reported that it had no samples while the plates went
+   on showing the pictures. A resize that lands mid-boot catches the
+   slots before they are filled at all, so an empty one is refilled
+   rather than left empty for the rest of the session. */
+let rt;
+addEventListener("resize",()=>{clearTimeout(rt);
+  rt=setTimeout(()=>{
+    stopMotion();
+    const keep=slots.map(s=>({shots:s.shots,files:s.files,idx:s.idx}));
+    buildAspects();
+    const refill=[];
+    slots.forEach((s,i)=>{
+      const had=keep[i];
+      s.files=had?had.files||[]:[];
+      if(s.aspect.live){ mountPlated(s); return; }
+      s.shots=had?had.shots:[];
+      if(s.shots.length) showShot(s,had.idx,true);
+      else { emptyPlate(s); refill.push(s); }
+    });
+    drawLeaders();
+    startMotion();
+    if(refill.length) fill(refill).then(()=>{ drawLeaders(); startMotion(); });
+  },200);});
+})();
+</script>
+</body>
+</html>
