@@ -50,6 +50,16 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
 </head>
 <body>
 <nav id="hud"><a href="index.html?intro=0">&larr; Menu</a></nav>
+<!-- Pencil, not ink: the line is roughened at the edge and broken up by
+     a paper grain, so it reads as graphite dragged across a sheet -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="pencil" x="-6%" y="-6%" width="112%" height="112%">
+    <feTurbulence type="fractalNoise" baseFrequency="1.35" numOctaves="2" seed="7" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.3" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.6 0 0 0 -.46" result="grain"/>
+    <feComposite in="rough" in2="grain" operator="in"/>
+  </filter>
+</svg>
 <main>
   <p class="lede">Curatorial projects</p>
     <a class="door" id="tl" href="timelapse.html">
@@ -74,7 +84,7 @@ let tick=0, spin=0, hover=null;
 /* time:lapse: the globe of cards, drawn as it turns */
 function globe(seed){
   const r=Ink.rng(seed), R=78, cx=100, cy=100;
-  let d=`<path d="${Ink.loop(cx,cy,R,R,r,1.1,.04)}" stroke="var(--blue)" stroke-width="1.6"/>`;
+  let d=`<path d="${Ink.loop(cx,cy,R,R,r,1.1,.04)}" stroke="var(--blue)" stroke-width="1.55"/>`;
   const n=22;
   for(let i=0;i<n;i++){
     const lat=Math.asin(1-(i+.5)/n*2)*.82, lon=i*2.39996+spin;
@@ -89,7 +99,7 @@ function globe(seed){
     const c=[[px-w/2+j(),py-h/2+j()],[px+w/2+j(),py-h/2+j()],[px+w/2+j(),py+h/2+j()],[px-w/2+j(),py+h/2+j()]];
     const over=[c[0][0]+(c[1][0]-c[0][0])*.12+j()*.5, c[0][1]+(c[1][1]-c[0][1])*.12-.6];
     let p=`M${c[0][0].toFixed(1)} ${c[0][1].toFixed(1)}`+c.slice(1).map(q=>` L${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join("")+` L${c[0][0].toFixed(1)} ${c[0][1].toFixed(1)} L${over[0].toFixed(1)} ${over[1].toFixed(1)}`;
-    d+=`<path d="${p}" stroke="var(--blue)" stroke-width="${(.7+z*.7).toFixed(2)}"/>`;
+    d+=`<path d="${p}" stroke="var(--blue)" stroke-width="${(.75+z*.6).toFixed(2)}"/>`;
   }
   return d;
 }
@@ -104,7 +114,7 @@ function gutDrawing(seed){
       const half=15+2.6*Math.sin(y/9-tick*.5);
       pts.push([mid(y)+side*half,y]);
     }
-    out.push(`<path d="${Ink.line(pts,.8,r)}" stroke="var(--red)" stroke-width="1.6"/>`);
+    out.push(`<path d="${Ink.line(pts,.8,r)}" stroke="var(--red)" stroke-width="1.55"/>`);
   });
   [top+(bot-top)*.36, top+(bot-top)*.7].forEach(y=>{
     for(let k=-12;k<=12;k+=4.5){
@@ -112,9 +122,37 @@ function gutDrawing(seed){
       out.push(`<path d="${Ink.line([[x,y-6],[x+(r()-.5)*1.5,y],[x,y+6]],.5,r)}" stroke="var(--graphite)" stroke-width=".8"/>`);
     }
   });
-  out.push(`<path d="${Ink.arrow(100,2,100,top-4,4,r,8)}" stroke="var(--red)" stroke-width="1.4"/>`);
-  out.push(`<path d="${Ink.arrow(100,bot+6,100,198,-4,r,8)}" stroke="var(--red)" stroke-width="1.4"/>`);
+  out.push(`<path d="${Ink.arrow(100,2,100,top-4,4,r,8)}" stroke="var(--red)" stroke-width="1.3"/>`);
+  out.push(`<path d="${Ink.arrow(100,bot+6,100,198,-4,r,8)}" stroke="var(--red)" stroke-width="1.3"/>`);
   return out.join("");
+}
+
+/* Graphite shading, the way a pencil sketch gives a form its weight:
+   parallel strokes on the shadow side, never a filled tone */
+function globeShade(seed){
+  const r=Ink.rng(seed), R=78, cx=100, cy=100; let d="";
+  for(let a=8;a<=118;a+=6.5){
+    const t=a*Math.PI/180, x=cx+Math.cos(t)*R*.95, y=cy+Math.sin(t)*R*.95;
+    const L=7+9*Math.sin((a-8)/110*Math.PI)+r()*3;
+    d+=`<path d="${Ink.line([[x,y],[x-L*.62,y-L*.78]],.35,r)}" stroke="var(--graphite)" stroke-width=".75" opacity=".7"/>`;
+  }
+  return d;
+}
+function gutShade(seed){
+  const r=Ink.rng(seed), top=34, bot=170; let d="";
+  const mid=y=>100+44*Math.sin((y-top)/(bot-top)*Math.PI*2.5);
+  for(let y=top+4;y<=bot-4;y+=5.2){
+    const half=15+2.6*Math.sin(y/9-tick*.5), x=mid(y)+half;
+    d+=`<path d="${Ink.line([[x-1,y],[x-6-r()*2,y+3.5]],.3,r)}" stroke="var(--graphite)" stroke-width=".7" opacity=".65"/>`;
+  }
+  return d;
+}
+
+/* every line goes down twice, lightly and a hair out of register, the
+   way a pencil goes back over a line it is finding */
+function sketch(main,again,shade){
+  return `<g filter="url(#pencil)"><g opacity=".95">${main}</g>`+
+         `<g opacity=".5" transform="translate(.45 .3)">${again}</g>${shade}</g>`;
 }
 
 function size(){
@@ -124,8 +162,8 @@ function size(){
 }
 function draw(){
   const seed=tick%3;
-  $("tl").querySelector("svg").innerHTML=globe(10+seed);
-  $("et").querySelector("svg").innerHTML=gutDrawing(20+seed);
+  $("tl").querySelector("svg").innerHTML=sketch(globe(10+seed),globe(40+seed),globeShade(60+seed));
+  $("et").querySelector("svg").innerHTML=sketch(gutDrawing(20+seed),gutDrawing(50+seed),gutShade(70+seed));
 }
 function step(){
   tick++;
