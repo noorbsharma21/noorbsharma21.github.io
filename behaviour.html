@@ -60,6 +60,18 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   .moves b::before{content:counter(m) "  ";color:var(--yellow)}
   .moves span{display:block;font-size:15px;line-height:1.55;color:var(--soft);margin-top:.45em;max-width:40ch}
   #csbc,#flourish{padding-top:14vh}
+  #csbc{padding-top:10vh}
+  /* what is on the page, before you scroll */
+  .index{display:grid;gap:1.05em;margin:5.5vh 0 0;max-width:40em}
+  .index a{display:block;text-decoration:none}
+  .index b{display:block;font-weight:500;font-size:17px;line-height:1.3}
+  .index span{display:block;font-size:14px;color:var(--soft);margin-top:.15em}
+  .index a:hover b{color:var(--yellow)}
+  .strip.narrow{max-width:620px}
+  #also{padding-top:12vh}
+  #also .links{display:flex;flex-direction:column;gap:.6em;margin-top:.9em}
+  #also .links a:hover{color:var(--yellow)}
+
   /* A row of photographs at one height. Each figure carries its own shape
      as --a (width over height) and grows in proportion to it, so the
      widths follow the pictures and nothing is cropped. */
@@ -106,7 +118,52 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   <svg class="ink" id="headInk" aria-hidden="true"></svg>
   <h1>Behavioural design</h1>
   <p>Research that ends in a decision, not a deck.</p>
+  <nav class="index" aria-label="On this page">
+    <a href="#csbc"><b>Centre for Social and Behaviour Change</b><span>Smoking on the Intercity Express 14315, 2024</span></a>
+    <a href="#flourish"><b>Flourish Science</b><span>Penn capstone, 2025 to 2026</span></a>
+    <a href="#abit"><b>Ashoka Behavioural Insights Team</b><span>President, 2022 to 2024</span></a>
+  </nav>
 </header>
+
+<!-- CSBC: smoking on trains -->
+<section class="co" id="csbc">
+  <div>
+    <h2>Centre for Social and Behaviour Change</h2>
+    <p class="role">Spring 2024. Research Assistant, for the Railway Ministry of India and the Gates Foundation. The brief: reduce smoking among passengers on the Intercity Express 14315.</p>
+  </div>
+  <div class="proof">
+    <ol class="moves">
+      <li><b>&ldquo;Why Not to Smoke&rdquo;</b><span>A two-frame sign: a passenger lighting a cigarette, then the train on fire. It turns a prohibition into cause and effect, and gives a reason instead of a rule.</span></li>
+      <li><b>The Ripple Effect</b><span>The fire reaches the smoker&rsquo;s family. Smokers are numb to their own health risk; harm to the people they love lands harder.</span></li>
+      <li><b>The Casual Spark</b><span>A comic in which one discarded cigarette stub becomes a fire. Made for train toilets, where people have time to read a story through.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- Flourish Science: the Penn capstone client -->
+<section class="co" id="flourish">
+  <div>
+    <h2>Flourish Science</h2>
+    <p class="role">Fall 2025 to Spring 2026. Strategy and Design Lead for Flourish Science, the client on Penn&rsquo;s capstone in consulting for behavioural science. Flourish makes a science-based wellness app with a companion called Sunnie, for journaling, focus and tiny habits.</p>
+    <ul class="did">
+      <li>Led the first deck for the client.</li>
+      <li>Built the competitive landscape.</li>
+      <li>Designed the team&rsquo;s posters.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="row" id="flourish-app">
+  <h3>The client&rsquo;s app</h3>
+  <div class="strip narrow">
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-1-home.jpg" alt="Flourish home screen: Sunnie, with Journal, Focus and Relax"></figure>
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-2-insights.jpg" alt="Flourish insights screen"></figure>
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-3-tiny-habits.jpg" alt="Flourish tiny habits screen"></figure>
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-4-chat.jpg" alt="Flourish chat with Sunnie"></figure>
+    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-5-memory.jpg" alt="Flourish memory screen"></figure>
+  </div>
+  <p class="cap">Flourish Science&rsquo;s own app, the product the work was for.</p>
+</section>
 
 <!-- ABIT -->
 <section class="co" id="abit">
@@ -131,11 +188,6 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
         <a href="https://www.linkedin.com/company/ashoka-behavioural-insights-team" target="_blank" rel="noopener">ABIT on LinkedIn &nearr;</a>
         <a href="https://www.instagram.com/abit.ashoka/" target="_blank" rel="noopener">@abit.ashoka on Instagram &nearr;</a>
       </p>
-    </div>
-    <div>
-      <h3>Data through art</h3>
-      <p>Launched the first data visualisation project at the Trivedi Centre for Political Data.</p>
-      <p class="links"><a href="https://tcpd.ashoka.edu.in/data-through-art/" target="_blank" rel="noopener">Data Through Art, TCPD &nearr;</a></p>
     </div>
   </div>
 </section>
@@ -181,44 +233,13 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   </div>
 </section>
 
-<!-- CSBC: smoking on trains -->
-<section class="co" id="csbc">
+<!-- also -->
+<section class="co" id="also">
   <div>
-    <h2>Centre for Social and Behaviour Change</h2>
-    <p class="role">Spring 2024. Research Assistant, for the Railway Ministry of India and the Gates Foundation. The brief: reduce smoking among passengers on the Intercity Express 14315.</p>
+    <h2>Data Through Art</h2>
+    <p class="role">Trivedi Centre for Political Data, Ashoka University. Launched the centre&rsquo;s first data visualisation project.</p>
+    <p class="links"><a href="https://tcpd.ashoka.edu.in/data-through-art/" target="_blank" rel="noopener">Data Through Art, TCPD &nearr;</a></p>
   </div>
-  <div class="proof">
-    <ol class="moves">
-      <li><b>&ldquo;Why Not to Smoke&rdquo;</b><span>A two-frame sign: a passenger lighting a cigarette, then the train on fire. It turns a prohibition into cause and effect, and gives a reason instead of a rule.</span></li>
-      <li><b>The Ripple Effect</b><span>The fire reaches the smoker&rsquo;s family. Smokers are numb to their own health risk; harm to the people they love lands harder.</span></li>
-      <li><b>The Casual Spark</b><span>A comic in which one discarded cigarette stub becomes a fire. Made for train toilets, where people have time to read a story through.</span></li>
-    </ol>
-  </div>
-</section>
-
-<!-- Flourish Science: the Penn capstone client -->
-<section class="co" id="flourish">
-  <div>
-    <h2>Flourish Science</h2>
-    <p class="role">Fall 2025 to Spring 2026. Strategy and Design Lead for Flourish Science, the client on Penn&rsquo;s capstone in consulting for behavioural science. Flourish makes a science-based wellness app with a companion called Sunnie, for journaling, focus and tiny habits.</p>
-    <ul class="did">
-      <li>Led the first deck for the client.</li>
-      <li>Built the competitive landscape.</li>
-      <li>Designed the team&rsquo;s posters.</li>
-    </ul>
-  </div>
-</section>
-
-<section class="row" id="flourish-app">
-  <h3>The app</h3>
-  <div class="strip">
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-1-home.jpg" alt="Flourish home screen: Sunnie, with Journal, Focus and Relax"></figure>
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-2-insights.jpg" alt="Flourish insights screen"></figure>
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-3-tiny-habits.jpg" alt="Flourish tiny habits screen"></figure>
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-4-chat.jpg" alt="Flourish chat with Sunnie"></figure>
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-5-memory.jpg" alt="Flourish memory screen"></figure>
-  </div>
-  <p class="cap">Flourish Science&rsquo;s own app, the product the work was for.</p>
 </section>
 
 <nav id="next"><a href="index.html?intro=0">&larr; Menu</a><a href="growth.html">Growth &rarr;</a></nav>
