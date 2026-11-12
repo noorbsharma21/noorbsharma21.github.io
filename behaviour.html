@@ -48,6 +48,11 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   .did li{font-size:16px;line-height:1.55}
   .did a{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
   .did a:hover{color:var(--yellow)}
+  /* what ABIT ran: each thing named, then one line on what it was */
+  .co .what-h{font-weight:500;font-size:17px;margin:5vh 0 1.1em}
+  .what{margin:0;display:grid;gap:1.15em;max-width:46ch}
+  .what dt{font-weight:500;font-size:16px}
+  .what dd{margin:.2em 0 0;font-size:15px;line-height:1.55;color:var(--soft)}
   .proof{display:grid;gap:6vh;align-content:start;padding-top:.4em}
   .proof h3,.row h3{font-weight:500;font-size:17px;color:var(--ink);margin:0 0 1.1em}
   .proof p{font-size:15px;line-height:1.55;color:var(--soft);margin:0;max-width:40ch}
@@ -258,15 +263,16 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   <div>
     <img class="co-logo" src="assets/behaviour-page/abit-logo.jpg" alt="ABIT logo">
     <h2>Ashoka Behavioural Insights Team</h2>
-    <p class="role">2022 to 2024. Started as Creative Head of the Nudgelet, the club&rsquo;s publication, and rose to President of India&rsquo;s first student-run behavioural insights team, the largest club on campus. Funded by the Gates Foundation.</p>
-    <div class="figure"><b>80+</b><span>members</span></div>
-    <ul class="did">
-      <li>On-campus nudge interventions: behavioural experiments designed to help students adopt healthier habits.</li>
-      <li>Nudgeathons.</li>
-      <li>The Nudgelet: behavioural science research opened up through zines, blogs and workshops on beauty standards, crypto and tax compliance, with infographics that made it shareable.</li>
-      <li>A partnership with the Centre for Social and Behaviour Change.</li>
-      <li>Grew it into something people actually wanted to join. Not just an academic club, a creative one.</li>
-    </ul>
+    <p class="role">2022 to 2024. Started as Creative Head of the Nudgelet, the club&rsquo;s publication, and rose to President. ABIT is India&rsquo;s first student-run behavioural insights team, funded by the Gates Foundation.</p>
+    <div class="figure"><b>80+</b><span>members, the largest club on campus</span></div>
+    <h3 class="what-h">What we ran</h3>
+    <dl class="what">
+      <div><dt>Nudge experiments</dt><dd>On-campus experiments that nudged students towards healthier habits.</dd></div>
+      <div><dt>Nudgeathons</dt><dd>Hackathons where students designed nudges for problems on campus.</dd></div>
+      <div><dt>The Nudgelet</dt><dd>The club&rsquo;s publication: zines, blogs and workshops on beauty standards, crypto and tax compliance, with infographics that made the research shareable.</dd></div>
+      <div><dt>CSBC</dt><dd>A partnership with the Centre for Social and Behaviour Change at Ashoka University.</dd></div>
+      <div><dt>The club</dt><dd>Grown into one people wanted to join, as creative as it was academic.</dd></div>
+    </dl>
   </div>
   <div class="proof">
     <div>
