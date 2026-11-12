@@ -1971,6 +1971,13 @@ async function start(){
    rejection and the page just sits there empty with a clean console */
 start().catch(e=>console.error("start failed:",e));
 
+/* The row glides to its place (a .3s transition on its top), and a rule
+   measured mid-glide lands too high, through the bottom line of a
+   caption. So it is measured again whenever the row finishes moving or
+   changes size, which is also when a webfont has rewrapped a caption. */
+$("aspects").addEventListener("transitionend",e=>{ if(e.target===$("aspects")) drawLeaders(); });
+if(window.ResizeObserver) new ResizeObserver(()=>drawLeaders()).observe($("aspects"));
+
 /* A display face swapped in from the URL changes how tall the name
    block is, and the row was placed against the fallback. */
 document.fonts.ready.then(()=>{
