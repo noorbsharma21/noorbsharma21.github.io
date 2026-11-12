@@ -72,19 +72,28 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
 
   /* Disco: the art walk stories, then the brand pieces at one shared height */
   .brand figure{margin:0}
-  .reel figcaption,.brand figcaption{font-size:14px;line-height:1.5;color:var(--soft);margin-top:.7em}
-  /* the stories as a strip you swipe, the last one cut by the edge so it reads as more to come */
-  .reelhead{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
-  .reelnav{display:flex;gap:6px}
-  .reelnav button{font:inherit;font-size:18px;line-height:1;background:none;border:0;padding:4px 8px;cursor:pointer;color:var(--ink)}
-  .reelnav button:hover{color:var(--red)}
-  .reel{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;cursor:grab;outline:none;
-        overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
-  .reel::-webkit-scrollbar{display:none}
-  .reel.dragging{cursor:grabbing;scroll-snap-type:none}
-  .reel figure{flex:0 0 auto;margin:0;scroll-snap-align:start}
-  .reel img{display:block;height:min(580px,74vh);width:auto;max-width:none;user-select:none;-webkit-user-drag:none}
-  @media (max-width:800px){ .reel img{height:auto;width:76vw} }
+  .brand figcaption{font-size:14px;line-height:1.5;color:var(--soft);margin-top:.7em}
+  /* The art walk: words on the left, the stories as one card on the right
+     that you swipe through, one story at a time, like the post itself. */
+  .walk{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:6vw;align-items:start}
+  .walk .note{margin:0 0 2em}
+  .carousel{margin:0}
+  .slides{display:flex;aspect-ratio:4/5;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;cursor:grab;outline:none;
+          overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;background:#1d2a8a}
+  .slides::-webkit-scrollbar{display:none}
+  .slides.dragging{cursor:grabbing;scroll-snap-type:none}
+  .slides img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start;scroll-snap-stop:always;
+              display:block;user-select:none;-webkit-user-drag:none}
+  .carousel .ctl{display:flex;align-items:center;justify-content:space-between;margin-top:.8em}
+  .dots{display:flex;gap:7px}
+  .dots button{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#cfcfca;cursor:pointer}
+  .dots button.now{background:var(--red)}
+  .arrows{display:flex;gap:4px}
+  .arrows button{font:inherit;font-size:18px;line-height:1;background:none;border:0;padding:4px 8px;cursor:pointer;color:var(--ink)}
+  .arrows button:hover{color:var(--red)}
+  .arrows button:disabled{color:#cfcfca;cursor:default}
+  .carousel figcaption{font-size:14px;line-height:1.5;color:var(--soft);margin-top:.3em}
+  @media (max-width:800px){ .walk{grid-template-columns:minmax(0,1fr);gap:3vh} }
   .brand{display:grid;grid-template-columns:1.778fr 1fr 1fr .5625fr;gap:18px;align-items:start}
   .brand img,.brand video{display:block;width:100%;height:auto}
   .brand video{aspect-ratio:9/16;background:#f2f2f0}
@@ -348,21 +357,27 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   </div>
 </section>
 
-<section class="row" id="disco-walk">
-  <div class="reelhead">
+<section class="row walk" id="disco-walk">
+  <div>
     <h3>The Defence Colony art walk</h3>
-    <div class="reelnav"><button type="button" data-d="-1" aria-label="Back">&larr;</button><button type="button" data-d="1" aria-label="Forward">&rarr;</button></div>
+    <p class="note">Delhi, Saturday 10 October. Six galleries in one afternoon, Gallery&nbsp;XXL, Photoink, Pristine, Shrine&nbsp;Empire, Akar&nbsp;Prakar and Method, led by an art writer, with a card written for every stop and sign-ups taken on the site. These are the Instagram stories that announced it.</p>
+    <p class="links">
+      <a href="https://discoverdisco.com/gallery-walk" target="_blank" rel="noopener">The walk on discoverdisco.com &nearr;</a>
+      <a href="https://www.instagram.com/discoverwithdisco/" target="_blank" rel="noopener">@discoverwithdisco &nearr;</a>
+    </p>
   </div>
-  <p class="note">Delhi, Saturday 10 October. Six galleries in one afternoon, Gallery&nbsp;XXL, Photoink, Pristine, Shrine&nbsp;Empire, Akar&nbsp;Prakar and Method, led by an art writer, with a card written for every stop and sign-ups taken on the site. The Instagram stories that announced it:</p>
-  <div class="reel" id="walkReel" tabindex="0" aria-label="The art walk's Instagram stories. Swipe or drag to move through.">
-    <figure><img src="assets/growth/g13-disco-x-defence-colony-art-walk--live-event.jpg" alt="Disco &times; Defence Colony Art Walk: the route map over a gallery photo, with the six participating galleries listed" draggable="false"><figcaption>The route, six galleries</figcaption></figure>
-    <figure><img src="assets/growth/g14-meet-ichcha-the-walk-guide--live-event.jpg" alt="Meet Ichcha, the walk guide" draggable="false"><figcaption>Meet Ichcha, the walk guide</figcaption></figure>
-    <figure><img src="assets/growth/g15-stop-one-gallery-xxl--live-event.jpg" alt="Stop one: Gallery XXL" draggable="false"><figcaption>Stop one, Gallery XXL</figcaption></figure>
-  </div>
-  <p class="links">
-    <a href="https://discoverdisco.com/gallery-walk" target="_blank" rel="noopener">The walk on discoverdisco.com &nearr;</a>
-    <a href="https://www.instagram.com/discoverwithdisco/" target="_blank" rel="noopener">@discoverwithdisco &nearr;</a>
-  </p>
+  <figure class="carousel">
+    <div class="slides" id="walkSlides" tabindex="0" aria-roledescription="carousel" aria-label="The art walk's Instagram stories. Swipe, drag or use the arrows.">
+      <img src="assets/growth/g13-disco-x-defence-colony-art-walk--live-event.jpg" data-cap="The route, six galleries" alt="Disco &times; Defence Colony Art Walk: the route map over a gallery photo, with the six participating galleries listed" draggable="false">
+      <img src="assets/growth/g14-meet-ichcha-the-walk-guide--live-event.jpg" data-cap="Meet Ichcha, the walk guide" alt="Meet Ichcha, the walk guide" draggable="false">
+      <img src="assets/growth/g15-stop-one-gallery-xxl--live-event.jpg" data-cap="Stop one, Gallery XXL" alt="Stop one: Gallery XXL" draggable="false">
+    </div>
+    <div class="ctl">
+      <div class="dots" id="walkDots"></div>
+      <div class="arrows"><button type="button" data-d="-1" aria-label="Previous story">&larr;</button><button type="button" data-d="1" aria-label="Next story">&rarr;</button></div>
+    </div>
+    <figcaption id="walkCap" aria-live="polite">The route, six galleries</figcaption>
+  </figure>
 </section>
 
 <section class="row" id="disco-brand">
@@ -469,18 +484,32 @@ $("closeMail").addEventListener("click",closeLetter);
 $("letter").addEventListener("click",e=>{ if(e.target.id==="letter") closeLetter(); });
 addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("letter").hidden) closeLetter(); });
 
-/* the art walk strip: arrows step it along, a mouse can drag it, touch swipes natively */
+/* the art walk card: one story at a time. Touch swipes natively, a mouse
+   drags, the arrows, dots and arrow keys step it. */
 (function(){
-  const reel=$("walkReel"); if(!reel) return;
-  document.querySelectorAll("#disco-walk .reelnav button").forEach(b=>b.addEventListener("click",()=>{
-    reel.scrollBy({left:(+b.dataset.d)*reel.clientWidth*.8,behavior:"smooth"}); }));
+  const s=$("walkSlides"); if(!s) return;
+  const imgs=[...s.querySelectorAll("img")], n=imgs.length;
+  const dots=imgs.map((im,i)=>{ const d=document.createElement("button"); d.type="button";
+    d.setAttribute("aria-label",`Story ${i+1} of ${n}: ${im.dataset.cap}`); d.addEventListener("click",()=>go(i));
+    $("walkDots").appendChild(d); return d; });
+  const arrows=[...document.querySelectorAll("#disco-walk .arrows button")];
+  let at=-1;
+  function show(i){ if(i===at) return; at=i;
+    dots.forEach((d,j)=>d.classList.toggle("now",j===i));
+    $("walkCap").textContent=imgs[i].dataset.cap;
+    arrows[0].disabled=i===0; arrows[1].disabled=i===n-1; }
+  function go(i){ i=Math.max(0,Math.min(n-1,i)); s.scrollTo({left:i*s.clientWidth,behavior:"smooth"}); show(i); }
+  s.addEventListener("scroll",()=>show(Math.round(s.scrollLeft/s.clientWidth)),{passive:true});
+  arrows.forEach(b=>b.addEventListener("click",()=>go(at+(+b.dataset.d))));
+  s.addEventListener("keydown",e=>{ if(e.key==="ArrowRight"||e.key==="ArrowLeft"){ e.preventDefault(); go(at+(e.key==="ArrowRight"?1:-1)); } });
+  /* a mouse drag past a small threshold turns the page, like a swipe */
   let down=null;
-  reel.addEventListener("pointerdown",e=>{ if(e.pointerType!=="mouse") return; down={x:e.clientX,left:reel.scrollLeft}; });
+  s.addEventListener("pointerdown",e=>{ if(e.pointerType!=="mouse") return; down={x:e.clientX,left:s.scrollLeft,from:at}; });
   addEventListener("pointermove",e=>{ if(!down) return; const dx=e.clientX-down.x;
-    if(Math.abs(dx)>4) reel.classList.add("dragging"); reel.scrollLeft=down.left-dx; });
-  addEventListener("pointerup",()=>{ if(!down) return; down=null; reel.classList.remove("dragging"); });
-  reel.addEventListener("keydown",e=>{ if(e.key==="ArrowRight"||e.key==="ArrowLeft"){ e.preventDefault();
-    reel.scrollBy({left:(e.key==="ArrowRight"?1:-1)*reel.clientWidth*.6,behavior:"smooth"}); } });
+    if(Math.abs(dx)>4) s.classList.add("dragging"); s.scrollLeft=down.left-dx; });
+  addEventListener("pointerup",e=>{ if(!down) return; const dx=e.clientX-down.x, from=down.from; down=null;
+    s.classList.remove("dragging"); go(Math.abs(dx)>40 ? from+(dx<0?1:-1) : from); });
+  show(0);
 })();
 
 function drawHead(){
