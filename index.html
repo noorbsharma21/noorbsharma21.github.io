@@ -861,6 +861,30 @@ function keyOut(img){
 /* `variant` reseeds the noise, so the same picture chews differently
    every time. That is the whole mechanism behind the boiling edge:
    several variants of one piece, shown one at a time. */
+
+/* ---------- previews of other ways to serve the work ----------
+   ?serve=scoop  each picture cut to a clean dome, flat on the plate
+   ?serve=card   the whole picture standing upright, uncropped
+   Sharp edges and no chewing, drawn at the screen's own resolution.
+   Without the flag the plates are served as they always were. */
+const SERVE=(()=>{ const v=(new URLSearchParams(location.search).get("serve")||"").toLowerCase();
+  return v==="scoop"||v==="card"?v:""; })();
+function serveClean(img,W,H,crop,mode){
+  const c=document.createElement("canvas");
+  if(!(W>0&&H>0)){ c.width=1; c.height=1; return c; }
+  const dpr=Math.min(devicePixelRatio||1,2);
+  c.width=Math.round(W*dpr); c.height=Math.round(H*dpr);
+  c.style.width=W+"px"; c.style.height=H+"px";
+  const x=c.getContext("2d"); x.scale(dpr,dpr);
+  if(mode==="scoop"){
+    const r=W/2;
+    x.beginPath(); x.moveTo(0,H); x.lineTo(0,Math.min(r,H)); x.arc(r,Math.min(r,H),r,Math.PI,0); x.lineTo(W,H); x.closePath(); x.clip();
+  }
+  if(crop) x.drawImage(img,crop.x,crop.y,crop.w,crop.h,0,0,W,H);
+  else     x.drawImage(img,0,0,W,H);
+  return c;
+}
+
 function erode(img,W,H,variant,crop){
   const c=document.createElement("canvas");
   /* a decode can fail and still fire onload, leaving a zero-sized
@@ -1660,12 +1684,18 @@ function showShot(slot,k,instant){
      the four read as four courses rather than four odd shapes. Which
      means the chewing has to be seeded per slot as well as per frame,
      or identical boxes would come out with identical silhouettes. */
-  const w=Math.round(slot.sw*0.9);
-  const h=Math.round(Math.min(w*1.12,slot.foodH));
-  const crop=centreCrop(shot.img,w,h);
+  let w=Math.round(slot.sw*0.9);
+  let h=Math.round(Math.min(w*1.12,slot.foodH));
+  let crop=centreCrop(shot.img,w,h);
+  /* the place card stands the whole picture up, uncropped, at its own shape */
+  if(SERVE==="card"){
+    const ar=shot.img.naturalWidth/shot.img.naturalHeight;
+    if(w/h>ar) w=Math.round(h*ar); else h=Math.round(w/ar);
+    crop=null;
+  }
   const made=[];
   for(let v=0;v<FRAMES;v++){
-    const c=erode(shot.img,w,h,v+slot.seed,crop);
+    const c=SERVE?serveClean(shot.img,w,h,crop,SERVE):erode(shot.img,w,h,v+slot.seed,crop);
     c.style.left=Math.round((slot.sw-w)/2)+"px";
     c.style.top=(slot.foodH-h)+"px";   /* resting on the plate, not floating */
     made.push(c);
