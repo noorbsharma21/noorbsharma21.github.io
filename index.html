@@ -926,12 +926,16 @@ function drawLeaders(){
      being ruled straight through it. */
   const caps=slots.map(s=>s.el.querySelector(".cap").getBoundingClientRect().bottom);
   const y=Math.round(Math.max(...rs.map(b=>b.bottom),...caps))+18.5;
-  const hint=$("tapHint");
+  const hint=$("tapHint"), cx=(l+r)/2;
+  let gap=0;
   if(hint){
     hint.textContent=(matchMedia("(hover: none)").matches?"Tap":"Click")+" to read, see, learn more.";
-    hint.style.left=((l+r)/2).toFixed(1)+"px"; hint.style.top=(y+14)+"px"; hint.classList.add("on");
+    hint.style.left=cx.toFixed(1)+"px"; hint.style.top=(y-hint.offsetHeight/2).toFixed(1)+"px"; hint.classList.add("on");
+    gap=hint.offsetWidth/2+16;
   }
-  svg.innerHTML=`<path d="M ${l.toFixed(1)} ${y} L ${r.toFixed(1)} ${y}"/>`
+  svg.innerHTML=(gap
+      ? `<path d="M ${l.toFixed(1)} ${y} L ${(cx-gap).toFixed(1)} ${y} M ${(cx+gap).toFixed(1)} ${y} L ${r.toFixed(1)} ${y}"/>`
+      : `<path d="M ${l.toFixed(1)} ${y} L ${r.toFixed(1)} ${y}"/>`)
    +`<path class="sq" d="M ${(l-3).toFixed(1)} ${y-3} h6 v6 h-6 z `
    +`M ${(r-3).toFixed(1)} ${y-3} h6 v6 h-6 z"/>`;
 }
@@ -1266,7 +1270,7 @@ const BOIL_MS=320;               /* about three a second */
 const HOLD_MS=6400;              /* how long a picture stays before the next */
 const FADE_MS=1000;               /* matches the css transition on .stage */
 const SLOT_AR=1.38;              /* slot shape, taller than wide */
-const SPREAD=0.88;               /* share of the page width the row may use */
+const SPREAD=0.92;               /* share of the page width the row may use */
 const GAPX=40, GAPY=26;          /* spaced out, so a course can fold open */
 
 let slots=[];
@@ -1433,7 +1437,7 @@ function layoutAspects(capH){
   const cols=ASPECTS.length;
   const lines=1;
   const gx=Math.max(13,Math.min(GAPX,W*0.028));
-  const rowW=Math.min(W*SPREAD,1240);
+  const rowW=Math.min(W*SPREAD,1360);
 
   let sw=Math.floor((rowW-gx*(cols-1))/cols);
   let sh=Math.round(sw*SLOT_AR);
@@ -1656,7 +1660,7 @@ function showShot(slot,k,instant){
      the four read as four courses rather than four odd shapes. Which
      means the chewing has to be seeded per slot as well as per frame,
      or identical boxes would come out with identical silhouettes. */
-  const w=Math.round(slot.sw*0.78);
+  const w=Math.round(slot.sw*0.9);
   const h=Math.round(Math.min(w*1.12,slot.foodH));
   const crop=centreCrop(shot.img,w,h);
   const made=[];
