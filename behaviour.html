@@ -115,6 +115,25 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   .poster figcaption a{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
   .poster figcaption a:hover{color:var(--yellow)}
   @media (max-width:800px){ .journey{grid-template-columns:minmax(0,1fr);gap:46px} }
+  /* ABIT in one swipeable strip: every picture at one compact height,
+     printed in one colour so they read as a set; hover for the real colours */
+  .reelhead{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+  .reelhead h3 a{text-decoration:none}
+  .reelhead h3 a:hover{color:var(--yellow)}
+  .reelnav{display:flex;gap:6px}
+  .reelnav button{font:inherit;font-size:18px;line-height:1;background:none;border:0;padding:4px 8px;cursor:pointer;color:var(--ink)}
+  .reelnav button:hover{color:var(--yellow)}
+  .reel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;cursor:grab;outline:none;
+        overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .reel::-webkit-scrollbar{display:none}
+  .reel.dragging{cursor:grabbing;scroll-snap-type:none}
+  #abit-pictures .reel figure{flex:0 0 auto;margin:0;height:230px;scroll-snap-align:start;background:#F3DA79;isolation:isolate}
+  #abit-pictures .reel img{display:block;height:100%;width:auto;max-width:none;filter:grayscale(1) contrast(1.08);mix-blend-mode:multiply;transition:filter .35s;user-select:none;-webkit-user-drag:none}
+  #abit-pictures .reel figure:hover img{filter:none;mix-blend-mode:normal}
+  #abit-pictures .cap{margin-top:.8em}
+  /* the logo goes to the same ink, so it belongs with the pictures */
+  #abit .co-logo{filter:grayscale(1) contrast(1.15)}
+  @media (max-width:800px){ #abit-pictures .reel figure{height:190px} }
   /* what is on the page, before you scroll */
   .index{display:grid;gap:1.05em;margin:5.5vh 0 0;max-width:40em}
   .index a{display:block;text-decoration:none}
@@ -286,46 +305,33 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   </div>
 </section>
 
-<section class="row" id="abit-instagram">
-  <h3>ABIT on Instagram</h3>
-  <div class="squares">
-    <figure><img src="assets/behaviour-page/abit-ig-1-introduction.jpg" alt="Introduction card: Ashoka Behavioural Insights Team, India's pioneer student-led behavioural insights unit, affiliated with CSBC"></figure>
-    <figure><img src="assets/behaviour-page/abit-ig-2-why-abit-exists.jpg" alt="Why does ABIT exist? To bridge the gap between behavioural science and real-world impact"></figure>
-    <figure><img src="assets/behaviour-page/abit-ig-3-what-abit-does.jpg" alt="What does ABIT do? The departments: the Nudgelet, strategy and insights, events, social media, research labs"></figure>
-    <figure><img src="assets/behaviour-page/abit-ig-4-what-we-offer.jpg" alt="What value do we offer? Updates on the work, toolkits, events and publications"></figure>
+<section class="row" id="abit-pictures">
+  <div class="reelhead">
+    <h3><a href="https://www.instagram.com/abit.ashoka/" target="_blank" rel="noopener">ABIT on Instagram &nearr;</a></h3>
+    <div class="reelnav"><button type="button" data-d="-1" aria-label="Back">&larr;</button><button type="button" data-d="1" aria-label="Forward">&rarr;</button></div>
   </div>
+  <div class="reel" id="abitReel" tabindex="0" aria-label="ABIT pictures: the Instagram cards, the Nudgelet, the team and the merch. Swipe or drag to move through.">
+      <figure><img src="assets/behaviour-page/abit-ig-1-introduction.jpg" alt="Introduction card: Ashoka Behavioural Insights Team, India's pioneer student-led behavioural insights unit, affiliated with CSBC" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-ig-2-why-abit-exists.jpg" alt="Why does ABIT exist? To bridge the gap between behavioural science and real-world impact" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-ig-3-what-abit-does.jpg" alt="What does ABIT do? The departments: the Nudgelet, strategy and insights, events, social media, research labs" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-ig-4-what-we-offer.jpg" alt="What value do we offer? Updates on the work, toolkits, events and publications" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/nudgelet-1-behavioural-science-in-food-marketing.jpg" alt="Nudgelet post: the role of behavioural science in food marketing" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/nudgelet-2-shared-culinary-practices.jpg" alt="Nudgelet post: the impact of shared culinary practices on collective memories" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/nudgelet-3-food-and-the-senses.jpg" alt="Nudgelet post: food as a source of sensory stimulation, and the act of eating and cooking together" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-team.jpg" alt="The ABIT team, twelve people in matching white ABIT tees on campus" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-tees-1.jpg" alt="Two ABIT members in the ABIT tee, in front of a wall of leaves" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-tees-2.jpg" alt="The same two ABIT members in the tee, against the leaves" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-merch-4-the-totes.jpg" alt="A stack of ABIT totes, the star print on each" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-merch-1-the-print.jpg" alt="Close-up of the ABIT tote print: hand-drawn stars with faces and lettering" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-merch-2-the-tote.jpg" alt="The ABIT tote on the grass, packed with a laptop, headphones and a phone" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-merch-3-on-the-lawn.jpg" alt="The ABIT tote on the lawn beside two people sitting on the grass" draggable="false"></figure>
+      <figure><img src="assets/behaviour-page/abit-merch-5-the-tees-from-behind.jpg" alt="ABIT members on the lawn, seen from behind, the print on the back of the tees" draggable="false"></figure>
+  </div>
+  <p class="cap">The Instagram cards, the Nudgelet, the team and the merch.</p>
 </section>
 
-<section class="row" id="nudgelet">
-  <h3>The Nudgelet, Spring 2023</h3>
-  <div class="squares">
-    <figure><img src="assets/behaviour-page/nudgelet-1-behavioural-science-in-food-marketing.jpg" alt="Nudgelet post: the role of behavioural science in food marketing"></figure>
-    <figure><img src="assets/behaviour-page/nudgelet-2-shared-culinary-practices.jpg" alt="Nudgelet post: the impact of shared culinary practices on collective memories"></figure>
-    <figure><img src="assets/behaviour-page/nudgelet-3-food-and-the-senses.jpg" alt="Nudgelet post: food as a source of sensory stimulation, and the act of eating and cooking together"></figure>
-  </div>
-</section>
 
-<section class="row" id="abit-team">
-  <h3>The team</h3>
-  <div class="strip">
-    <figure style="--a:1.058"><img src="assets/behaviour-page/abit-team.jpg" alt="The ABIT team, twelve people in matching white ABIT tees on campus"></figure>
-    <figure style="--a:1.499"><img src="assets/behaviour-page/abit-tees-1.jpg" alt="Two ABIT members in the ABIT tee, in front of a wall of leaves"></figure>
-    <figure style="--a:.667"><img src="assets/behaviour-page/abit-tees-2.jpg" alt="The same two ABIT members in the tee, against the leaves"></figure>
-  </div>
-</section>
 
-<section class="row" id="abit-merch">
-  <h3>ABIT merch</h3>
-  <div class="strip">
-    <figure style="--a:.75"><img src="assets/behaviour-page/abit-merch-4-the-totes.jpg" alt="A stack of ABIT totes, the star print on each"></figure>
-    <figure style="--a:1.333"><img src="assets/behaviour-page/abit-merch-1-the-print.jpg" alt="Close-up of the ABIT tote print: hand-drawn stars with faces and lettering"></figure>
-    <figure style="--a:.75"><img src="assets/behaviour-page/abit-merch-2-the-tote.jpg" alt="The ABIT tote on the grass, packed with a laptop, headphones and a phone"></figure>
-  </div>
-  <div class="strip">
-    <figure style="--a:1.333"><img src="assets/behaviour-page/abit-merch-3-on-the-lawn.jpg" alt="The ABIT tote on the lawn beside two people sitting on the grass"></figure>
-    <figure style="--a:1.333"><img src="assets/behaviour-page/abit-merch-5-the-tees-from-behind.jpg" alt="ABIT members on the lawn, seen from behind, the print on the back of the tees"></figure>
-  </div>
-</section>
 
 <!-- also -->
 <section class="co" id="also">
@@ -390,6 +396,20 @@ document.fonts.ready.then(()=>{ drawJourney(); setTimeout(drawJourney,600); });
 addEventListener("load",drawJourney);
 addEventListener("resize",()=>setTimeout(drawJourney,140));
 document.querySelectorAll("#flourishFlow img").forEach(im=>im.addEventListener("load",drawJourney));
+/* the ABIT strip: arrows step it along, a mouse can drag it, touch swipes natively */
+(function(){
+  const reel=$("abitReel"); if(!reel) return;
+  document.querySelectorAll(".reelnav button").forEach(b=>b.addEventListener("click",()=>{
+    reel.scrollBy({left:(+b.dataset.d)*reel.clientWidth*.8,behavior:"smooth"}); }));
+  let down=null;
+  reel.addEventListener("pointerdown",e=>{ if(e.pointerType!=="mouse") return; down={x:e.clientX,left:reel.scrollLeft,moved:false}; });
+  addEventListener("pointermove",e=>{ if(!down) return; const dx=e.clientX-down.x;
+    if(Math.abs(dx)>4){ down.moved=true; reel.classList.add("dragging"); } reel.scrollLeft=down.left-dx; });
+  addEventListener("pointerup",()=>{ if(!down) return; down=null; reel.classList.remove("dragging"); });
+  reel.addEventListener("keydown",e=>{ if(e.key==="ArrowRight"||e.key==="ArrowLeft"){ e.preventDefault();
+    reel.scrollBy({left:(e.key==="ArrowRight"?1:-1)*reel.clientWidth*.6,behavior:"smooth"}); } });
+})();
+
 
 
 </script>
