@@ -1130,8 +1130,8 @@ $("dossierNav").addEventListener("click",e=>{
    the routing lives here and nowhere else. The page fades to the
    gallery's own wall colour before it goes, so arriving reads as
    stepping through a door rather than a page loading. */
-const GALLERY=new Set(["art","curation","behaviour"]);
-const PAGES={curation:"curation.html", art:"art.html", behaviour:"behaviour.html"};
+const GALLERY=new Set(["art","curation","behaviour","growth"]);
+const PAGES={curation:"curation.html", art:"art.html", behaviour:"behaviour.html", growth:"growth.html"};
 function enterGallery(dir){
   if(document.body.classList.contains("entering")) return;
   document.body.classList.add("entering");

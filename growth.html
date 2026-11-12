@@ -62,6 +62,36 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   .mail span{display:block;font-size:14px;line-height:1.5;color:var(--soft);margin-top:.35em}
   .mail em{display:inline-block;font-style:normal;font-size:14px;margin-top:.6em;color:var(--ink)}
   .mail:hover em{color:var(--red)}
+  .mails{display:grid;gap:4.5vh}
+
+  /* what's on the page, under the title */
+  .index{display:grid;gap:1.05em;margin:5.5vh 0 0;max-width:40em}
+  .index a{display:block;text-decoration:none}
+  .index b{display:block;font-weight:500;font-size:17px;line-height:1.3}
+  .index span{display:block;font-size:14px;color:var(--soft);margin-top:.15em}
+  .index a:hover b{color:var(--red)}
+
+  /* Disco: the art walk stories, then the brand pieces at one shared height */
+  .stories figure,.brand figure{margin:0}
+  .stories img{display:block;width:100%;height:auto}
+  .stories figcaption,.brand figcaption{font-size:14px;line-height:1.5;color:var(--soft);margin-top:.7em}
+  .brand{display:grid;grid-template-columns:1.778fr 1fr 1fr .5625fr;gap:18px;align-items:start}
+  .brand img,.brand video{display:block;width:100%;height:auto}
+  .brand video{aspect-ratio:9/16;background:#f2f2f0}
+  .row .links{display:flex;flex-wrap:wrap;gap:.5em 1.6em;margin-top:3vh;font-size:14px}
+  .row .links a:hover{color:var(--red)}
+  @media (max-width:800px){
+    .brand{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .brand .wide{grid-column:1/-1}
+  }
+
+  /* the two places before these, kept short */
+  .earlier{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6vw}
+  .earlier .slot{display:block;height:30px;width:auto;margin:0 0 1.4em}
+  .earlier h4{font-weight:500;font-size:clamp(24px,2.4vw,32px);line-height:1;margin:0;letter-spacing:-.01em}
+  .earlier .when{font-size:15px;line-height:1.55;color:var(--soft);margin:.9em 0 0;max-width:40ch}
+  .earlier .did{margin-top:3vh}
+  @media (max-width:800px){ .earlier{grid-template-columns:minmax(0,1fr);gap:7vh} }
 
   .launches{list-style:none;margin:0;padding:0;display:grid;gap:1.4em}
   .launches b{font-weight:500;font-size:17px}
@@ -95,11 +125,14 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   .news a:hover b{color:var(--red)}
 
   /* a second company starts with room above it */
-  #jimini{padding-top:16vh}
+  #jimini,#disco{padding-top:16vh}
+  #earlier{padding-top:14vh}
   .pod{display:grid;grid-template-columns:150px minmax(0,1fr);gap:22px;align-items:start}
   .pod img{display:block;width:150px;height:150px;object-fit:cover}
   .pod .credit{display:block;font-size:12px;color:var(--mute);margin-top:.5em}
   .co-logo{display:block;height:30px;width:auto;margin:0 0 1.4em}
+  /* Disco's mark is a ribbon of map, square with room around it, so it needs more height to read */
+  #disco .co-logo{height:60px;margin:-12px 0 .9em -6px}
   .note{font-size:15px;line-height:1.55;color:var(--soft);margin:-.6em 0 2em;max-width:52ch}
   .cards4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
   .cards4 img{display:block;width:100%;height:auto}
@@ -136,6 +169,12 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   <svg class="ink" id="headInk" aria-hidden="true"></svg>
   <h1>Growth</h1>
   <p>I think in systems, not just campaigns.</p>
+  <nav class="index" aria-label="On this page">
+    <a href="#wispr"><b>Wispr Flow</b><span>First growth hire, 2024 to 2025</span></a>
+    <a href="#jimini"><b>Jimini Health</b><span>First growth hire, 2025</span></a>
+    <a href="#disco"><b>Disco</b><span>Marketing lead, 2025 to now</span></a>
+    <a href="#earlier"><b>Unilever and Fractal</b><span>2021 to 2023</span></a>
+  </nav>
 </header>
 
 <section class="co" id="wispr">
@@ -158,8 +197,8 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   <div class="proof">
     <div>
       <h3>Lifecycle</h3>
-      <button class="mail" id="openMail" aria-haspopup="dialog">
-        <svg viewBox="0 0 96 70" aria-hidden="true"><path id="envelope"/></svg>
+      <button class="mail" data-src="assets/growth/flow-state-june-2025.html" data-title="Flow State, June 2025" aria-haspopup="dialog">
+        <svg viewBox="0 0 96 70" aria-hidden="true"><path class="env"/></svg>
         <div><b>Flow State</b>
           <span>The monthly usage email: words spoken, days dictated, rank in cohort, words per minute, apps used.</span>
           <em>Open the June 2025 edition &rarr;</em></div>
@@ -271,37 +310,131 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   </div>
 </section>
 
+<section class="co" id="disco">
+  <div>
+    <img class="co-logo" src="assets/logos/disco.png" alt="Disco logo">
+    <h2><a href="https://discoverdisco.com" target="_blank" rel="noopener">Disco</a></h2>
+    <a class="site" href="https://discoverdisco.com" target="_blank" rel="noopener">discoverdisco.com &nearr;</a>
+    <p class="role">2025 to now. Marketing lead. Disco recommends places by taste rather than ratings: lists written by people who go, for people who are particular about where they end up.</p>
+    <div class="figure"><b>600</b><span>weekly actives, across 25 cities</span></div>
+    <ul class="did">
+      <li>Creative production end to end: the brand marks, the campaign posters, the product walkthrough, the weekly drops.</li>
+      <li>The emails, from the welcome to the event confirmations, written in Disco's voice and set on its parchment palette.</li>
+      <li>Live events, starting with the Defence Colony art walk in Delhi.</li>
+      <li>Weekly city drops as a WhatsApp list and Instagram stories, written place by place. 42,000+ Instagram impressions.</li>
+      <li>The Philadelphia launch, built on lists rather than categories: <i>Music in unlikely places</i>, <i>Nobody drinks on the ground floor</i>, <i>Where to go with a grindset</i>.</li>
+    </ul>
+  </div>
+
+  <div class="proof">
+    <div>
+      <h3>Emails</h3>
+      <div class="mails">
+        <button class="mail" data-src="assets/growth/disco-its-time-to-disco.html" data-title="It's time to Disco" aria-haspopup="dialog">
+          <svg viewBox="0 0 96 70" aria-hidden="true"><path class="env"/></svg>
+          <div><b>It's time to Disco</b>
+            <span>The welcome email. Two steps to set up, then five invites to spend carefully.</span>
+            <em>Open the welcome email &rarr;</em></div>
+        </button>
+        <button class="mail" data-src="assets/growth/disco-gallery-walk-going.html" data-title="You're in for Saturday" aria-haspopup="dialog">
+          <svg viewBox="0 0 96 70" aria-hidden="true"><path class="env"/></svg>
+          <div><b>You're in for Saturday</b>
+            <span>The art walk confirmation: where we meet, the route through six galleries, and a reason to log in before you come.</span>
+            <em>Open the art walk email &rarr;</em></div>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="row" id="disco-walk">
+  <h3>The Defence Colony art walk</h3>
+  <p class="note">Delhi, Saturday 10 October. Six galleries in one afternoon, Gallery&nbsp;XXL, Photoink, Pristine, Shrine&nbsp;Empire, Akar&nbsp;Prakar and Method, led by an art writer, with a card written for every stop and sign-ups taken on the site. The Instagram stories that announced it:</p>
+  <div class="cases3 stories">
+    <figure><img src="assets/growth/g13-disco-x-defence-colony-art-walk--live-event.jpg" alt="Disco &times; Defence Colony Art Walk: the route map over a gallery photo, with the six participating galleries listed" loading="lazy"><figcaption>The route, six galleries</figcaption></figure>
+    <figure><img src="assets/growth/g14-meet-ichcha-the-walk-guide--live-event.jpg" alt="Meet Ichcha, the walk guide" loading="lazy"><figcaption>Meet Ichcha, the walk guide</figcaption></figure>
+    <figure><img src="assets/growth/g15-stop-one-gallery-xxl--live-event.jpg" alt="Stop one: Gallery XXL" loading="lazy"><figcaption>Stop one, Gallery XXL</figcaption></figure>
+  </div>
+  <p class="links">
+    <a href="https://discoverdisco.com/gallery-walk" target="_blank" rel="noopener">The walk on discoverdisco.com &nearr;</a>
+    <a href="https://www.instagram.com/discoverwithdisco/" target="_blank" rel="noopener">@discoverwithdisco &nearr;</a>
+  </p>
+</section>
+
+<section class="row" id="disco-brand">
+  <h3>Brand and launch</h3>
+  <div class="brand">
+    <figure class="wide"><img src="assets/growth/g16-stop-guessing-where-to-go-in-philly--launch-campaign.jpg" alt="Stop guessing where to go in Philly, the Philadelphia launch poster" loading="lazy"><figcaption>Stop guessing where to go in Philly, the Philadelphia launch</figcaption></figure>
+    <figure><img src="assets/growth/g17-the-map-mark--brand-identity.png" alt="The Disco map mark" loading="lazy"><figcaption>The map mark</figcaption></figure>
+    <figure><img src="assets/growth/g18-the-disco-stamp--brand-identity.webp" alt="The Disco stamp" loading="lazy"><figcaption>The Disco stamp</figcaption></figure>
+    <figure><video src="assets/growth/g19-product-walkthrough--screen-recording.mp4" controls muted playsinline preload="metadata" aria-label="Disco product walkthrough, screen recording"></video><figcaption>Product walkthrough</figcaption></figure>
+  </div>
+</section>
+
+<section class="row" id="earlier">
+  <h3>Before these</h3>
+  <div class="earlier">
+    <div>
+      <img class="slot" src="assets/logos/unilever.png" alt="Unilever logo">
+      <h4>Unilever, TRESemm&eacute;</h4>
+      <p class="when">2022 to 2023. Product and packaging, user research, brand audit.</p>
+      <ul class="did">
+        <li>Led the launch of the at-home Botox hair treatment.</li>
+        <li>Prototyped five packaging variations and ran usability testing.</li>
+        <li>Qualitative trials with stylists lifted comprehension 8%.</li>
+        <li>Selected the brand ambassador from Kantar trend data.</li>
+      </ul>
+    </div>
+    <div>
+      <i class="slot" aria-hidden="true"></i>
+      <h4>Fractal</h4>
+      <p class="when">2021. Behavioural architect. Client: Google.</p>
+      <ul class="did">
+        <li>Optimised the user journey for the Google Business Profile chatbot.</li>
+        <li>Built the trend database.</li>
+        <li>Generated landing pages across four quarters for the Google SMB marketing insights team.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <nav id="next"><a href="index.html?intro=0">&larr; Menu</a><a href="art.html">Art &rarr;</a></nav>
 
-<div id="letter" role="dialog" aria-modal="true" aria-label="Flow State, June 2025" hidden>
-  <div class="bar"><b>Flow State, June 2025</b><button id="closeMail">Close</button></div>
-  <div id="letterBody" tabindex="0" aria-label="Flow State email, June 2025"></div>
+<div id="letter" role="dialog" aria-modal="true" aria-labelledby="letterTitle" hidden>
+  <div class="bar"><b id="letterTitle"></b><button id="closeMail">Close</button></div>
+  <div id="letterBody" tabindex="0"></div>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
 
-/* a hand-drawn envelope: body, flap, and the fold lines */
-function drawEnvelope(seed){
+/* a hand-drawn envelope: body, flap, and the fold lines. Each envelope
+   on the page gets its own seed, so no two are drawn quite the same. */
+function drawEnvelope(path,seed){
   const r=Ink.rng(seed);
   const body=Ink.line([[4,10],[92,8],[93,64],[3,66],[4,10]],.9,r);
   const flap=Ink.line([[5,11],[30,32],[48,44],[66,32],[91,9]],.9,r);
   const folds=Ink.line([[4,64],[36,38]],.6,r)+" "+Ink.line([[92,63],[60,38]],.6,r);
-  $("envelope").setAttribute("d",body+" "+flap+" "+folds);
-  $("envelope").setAttribute("stroke-width","1.6");
+  path.setAttribute("d",body+" "+flap+" "+folds);
+  path.setAttribute("stroke-width","1.6");
 }
-/* the flap lifts a little while you hover, by redrawing the drawing */
-let boil;
-$("openMail").addEventListener("mouseenter",()=>{ let k=0; boil=setInterval(()=>drawEnvelope(30+(k++%3)),130); });
-$("openMail").addEventListener("mouseleave",()=>{ clearInterval(boil); drawEnvelope(30); });
+const MAILS=[...document.querySelectorAll(".mail")];
+MAILS.forEach((m,i)=>{
+  const path=m.querySelector(".env"), seed=30+i*7; let boil;
+  drawEnvelope(path,seed);
+  /* the flap lifts a little while you hover, by redrawing the drawing */
+  m.addEventListener("mouseenter",()=>{ let k=0; boil=setInterval(()=>drawEnvelope(path,seed+(k++%3)),130); });
+  m.addEventListener("mouseleave",()=>{ clearInterval(boil); drawEnvelope(path,seed); });
+  m.addEventListener("click",()=>openLetter(m));
+});
 
-/* The email is read straight from its HTML and drawn into a shadow root,
-   so its own styles stay inside it and the page's stay out. */
-let letterReady=null;
-function loadLetter(){
-  if(letterReady) return letterReady;
-  letterReady=(async()=>{
-    const t=await (await fetch("assets/growth/flow-state-june-2025.html")).text();
+/* Each email is read straight from its HTML and drawn into a shadow root,
+   so its own styles stay inside it and the page's stay out. A shadow root
+   can be attached only once, so every opening gets a fresh host. */
+const parsed={};
+function readLetter(src){
+  return parsed[src]||(parsed[src]=(async()=>{
+    const t=await (await fetch(src)).text();
     const doc=new DOMParser().parseFromString(t,"text/html");
     /* its web fonts have to live on the page to apply inside the shadow root */
     doc.querySelectorAll('link[rel="stylesheet"]').forEach(l=>{
@@ -310,17 +443,24 @@ function loadLetter(){
     });
     const css=[...doc.querySelectorAll("style")].map(x=>x.textContent.replace(/\bbody\b/g,".mailbody")).join("\n");
     doc.querySelectorAll("a[href]").forEach(a=>{ a.target="_blank"; a.rel="noopener"; });
-    const root=$("letterBody").attachShadow({mode:"open"});
-    root.innerHTML=`<style>${css}\n.mailbody{margin:0}</style><div class="mailbody" style="${(doc.body.getAttribute("style")||"").replace(/"/g,"&quot;")}">${doc.body.innerHTML}</div>`;
-  })();
-  return letterReady;
+    return `<style>${css}\n.mailbody{margin:0}</style><div class="mailbody" style="${(doc.body.getAttribute("style")||"").replace(/"/g,"&quot;")}">${doc.body.innerHTML}</div>`;
+  })());
 }
-async function openLetter(){
+let opener=null;
+async function openLetter(m){
+  opener=m;
+  $("letterTitle").textContent=m.dataset.title;
+  $("letterBody").setAttribute("aria-label",m.dataset.title+", the email");
+  $("letterBody").replaceChildren();
   $("letter").hidden=false; document.body.style.overflow="hidden";
-  await loadLetter(); $("letterBody").scrollTop=0; $("closeMail").focus();
+  const html=await readLetter(m.dataset.src);
+  if(opener!==m || $("letter").hidden) return;
+  const host=document.createElement("div");
+  host.attachShadow({mode:"open"}).innerHTML=html;
+  $("letterBody").replaceChildren(host);
+  $("letterBody").scrollTop=0; $("closeMail").focus();
 }
-function closeLetter(){ $("letter").hidden=true; document.body.style.overflow=""; $("openMail").focus(); }
-$("openMail").addEventListener("click",openLetter);
+function closeLetter(){ $("letter").hidden=true; document.body.style.overflow=""; if(opener) opener.focus(); }
 $("closeMail").addEventListener("click",closeLetter);
 $("letter").addEventListener("click",e=>{ if(e.target.id==="letter") closeLetter(); });
 addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("letter").hidden) closeLetter(); });
@@ -331,7 +471,6 @@ function drawHead(){
   const cx=h.left-hb.left+h.width/2, rx=Math.min(h.width/2+22, cx-6, innerWidth-hb.left-cx-6);
   $("headInk").innerHTML=`<path d="${Ink.loop(cx,h.top-hb.top+h.height/2+2,rx,h.height/2+14,r)}" stroke="var(--red)" stroke-width="1.8"/>`;
 }
-drawEnvelope(30);
 document.fonts.ready.then(()=>{ drawHead(); setTimeout(drawHead,500); });
 addEventListener("resize",()=>setTimeout(drawHead,120));
 </script>

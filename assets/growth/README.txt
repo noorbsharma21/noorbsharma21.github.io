@@ -1,8 +1,9 @@
 Work samples for the Growth course.
 
-These show in the right-hand column of the drawer when you open
-02 Growth. The plate itself stays the juggler, so anything here is
-evidence, not decoration.
+Images here rotate on the Growth plate on the landing page. The
+plate opens growth.html, where each piece is placed by hand under
+its company (Wispr, Jimini, Disco), and the .html files are the
+emails that open from the envelopes there.
 
 Drop in screenshots, decks, dashboards, posts. The caption is read off
 the filename, so name them after what they are and which place:
