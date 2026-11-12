@@ -61,6 +61,39 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   .moves span{display:block;font-size:15px;line-height:1.55;color:var(--soft);margin-top:.45em;max-width:40ch}
   #csbc,#flourish{padding-top:14vh}
   #csbc{padding-top:10vh}
+  /* CSBC, as a flowchart: short steps joined by hand-drawn arrows, the
+     two routes side by side, every collateral beside a photo of it in place */
+  .case{position:relative;max-width:1100px;margin:0 auto;padding:10vh max(50px,env(safe-area-inset-right)) 2vh max(50px,env(safe-area-inset-left))}
+  .case-head h2{font-weight:500;font-size:clamp(30px,3.2vw,44px);line-height:1;margin:0;letter-spacing:-.015em}
+  .case-head .role{font-size:16px;line-height:1.55;color:var(--soft);margin:1.2em 0 0;max-width:46ch}
+  .flow{position:relative;margin-top:7vh;display:grid;gap:70px;justify-items:center}
+  .flow .node{max-width:34em;text-align:center}
+  .flow .node b{display:block;font-weight:500;font-size:17px}
+  .flow .node p{font-size:15px;line-height:1.55;color:var(--soft);margin:.35em 0 0}
+  .routes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5vw;width:100%;margin-top:6px}
+  .route .rt{display:block;font-weight:500;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow)}
+  .route .rq{font-weight:500;font-size:19px;line-height:1.3;margin:.25em 0 1.4em}
+  .items{display:grid;gap:34px}
+  .item{margin:0}
+  .pair{display:flex;gap:10px;align-items:flex-start}
+  .pair img{display:block;height:auto;min-width:0;flex:var(--a) 1 0;width:100%}
+  .item figcaption{font-size:14px;line-height:1.5;color:var(--soft);margin-top:.6em}
+  /* a strip too wide to sit beside its photo: the photo goes under it */
+  .pair.wide{flex-wrap:wrap}
+  .pair.wide img.art{flex:1 1 100%}
+  .pair.wide img:not(.art){flex:0 0 auto;width:38%}
+  .item figcaption b{display:block;font-weight:500;font-size:15px;color:var(--ink)}
+  .reserve{width:100%;margin-top:10px}
+  .reserve > p{font-size:14px;color:var(--soft);margin:0 0 .9em}
+  .rstrip{display:flex;gap:14px;align-items:flex-start;max-width:760px}
+  .rstrip figure{margin:0;flex:var(--a) 1 0;min-width:0}
+  .rstrip img{display:block;width:100%;height:auto}
+  .rstrip figcaption{font-size:12px;line-height:1.4;color:var(--soft);margin-top:.45em}
+  @media (max-width:800px){
+    .case{padding-left:28px;padding-right:28px}
+    .routes{grid-template-columns:minmax(0,1fr);gap:80px}
+    .rstrip{flex-wrap:wrap} .rstrip figure{flex:1 1 40%}
+  }
   /* what is on the page, before you scroll */
   .index{display:grid;gap:1.05em;margin:5.5vh 0 0;max-width:40em}
   .index a{display:block;text-decoration:none}
@@ -119,24 +152,52 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   <h1>Behavioural design</h1>
   <p>Research that ends in a decision, not a deck.</p>
   <nav class="index" aria-label="On this page">
-    <a href="#csbc"><b>Centre for Social and Behaviour Change</b><span>Smoking on the Intercity Express 14315, 2024</span></a>
+    <a href="#csbc"><b>Centre for Social and Behaviour Change</b><span>Smoking on the Intercity Express 14315, 2023</span></a>
     <a href="#flourish"><b>Flourish Science</b><span>Penn capstone, 2025 to 2026</span></a>
     <a href="#abit"><b>Ashoka Behavioural Insights Team</b><span>President, 2022 to 2024</span></a>
   </nav>
 </header>
 
-<!-- CSBC: smoking on trains -->
-<section class="co" id="csbc">
-  <div>
+<!-- CSBC: smoking on a train, drawn as the flow it ran in -->
+<section class="case" id="csbc">
+  <div class="case-head">
     <h2>Centre for Social and Behaviour Change</h2>
-    <p class="role">Spring 2024. Research Assistant, for the Railway Ministry of India and the Gates Foundation. The brief: reduce smoking among passengers on the Intercity Express 14315.</p>
+    <p class="role">Spring 2023. Research Assistant, for the Railway Ministry of India and the Gates Foundation, working with Northern Railways.</p>
   </div>
-  <div class="proof">
-    <ol class="moves">
-      <li><b>&ldquo;Why Not to Smoke&rdquo;</b><span>A two-frame sign: a passenger lighting a cigarette, then the train on fire. It turns a prohibition into cause and effect, and gives a reason instead of a rule.</span></li>
-      <li><b>The Ripple Effect</b><span>The fire reaches the smoker&rsquo;s family. Smokers are numb to their own health risk; harm to the people they love lands harder.</span></li>
-      <li><b>The Casual Spark</b><span>A comic in which one discarded cigarette stub becomes a fire. Made for train toilets, where people have time to read a story through.</span></li>
-    </ol>
+  <div class="flow" id="csbcFlow">
+    <svg class="ink" id="flowInk" aria-hidden="true"></svg>
+    <div class="node" data-n="problem"><b>The problem</b><p>Passengers smoking on the Intercity Express 14315, mostly in the toilets, where nobody is watching.</p></div>
+    <div class="node" data-n="found"><b>What the field visits found</b><p>A fire was not on smokers&rsquo; minds, and nobody expected to be caught.</p></div>
+    <div class="routes">
+      <div class="route" data-n="r1">
+        <b class="rt">Route 1</b><p class="rq">Make the risk of fire feel real</p>
+        <div class="items">
+          <figure class="item"><div class="pair"><img class="art" style="--a:1.414" src="assets/behaviour-page/csbc/r1-collage.jpg" alt="A collage of real newspaper clippings about fires on trains"><img style="--a:1.414" src="assets/behaviour-page/csbc/r1-collage-in-place.jpg" alt="Newspaper collage, in place on the train"></div><figcaption><b>Newspaper collage</b>Real reports of train fires. In the toilet and at the boarding door.</figcaption></figure>
+          <figure class="item"><div class="pair"><img class="art" style="--a:0.707" src="assets/behaviour-page/csbc/r1-comic.jpg" alt="A comic: a man drops a cigarette stub in the bin, and the train catches fire"><img style="--a:1.022" src="assets/behaviour-page/csbc/r1-comic-in-place.jpg" alt="The comic, in place on the train"></div><figcaption><b>The comic</b>A stub in the bin becomes a fire. In the toilet, where there is time to read it.</figcaption></figure>
+          <figure class="item"><div class="pair"><img class="art" style="--a:1.414" src="assets/behaviour-page/csbc/r1-sign.jpg" alt="A two-frame sign: a man smoking, then a train on fire"><img style="--a:0.853" src="assets/behaviour-page/csbc/r1-sign-in-place.jpg" alt="Why not to smoke, in place on the train"></div><figcaption><b>Why not to smoke</b>Two frames that give the reason. On the toilet doors.</figcaption></figure>
+          <figure class="item"><div class="pair"><img class="art" style="--a:1.414" src="assets/behaviour-page/csbc/r1-family.jpg" alt="A poster of a burning train above four family members the smoker would lose"><img style="--a:1.414" src="assets/behaviour-page/csbc/r1-family-in-place.jpg" alt="Only if you had not smoked, in place on the train"></div><figcaption><b>Only if you had not smoked</b>What it costs the smoker&rsquo;s family. At the boarding door.</figcaption></figure>
+        </div>
+      </div>
+      <div class="route" data-n="r2">
+        <b class="rt">Route 2</b><p class="rq">Make the risk of getting caught feel real</p>
+        <div class="items">
+          <figure class="item"><div class="pair"><img class="art" style="--a:0.703" src="assets/behaviour-page/csbc/r2-smoke-free.jpg" alt="A sign: now this train is a smoke-free zone"><img style="--a:1.333" src="assets/behaviour-page/csbc/r2-smoke-free-in-place.jpg" alt="Smoke-free zone, in place on the train"></div><figcaption><b>Smoke-free zone</b>Smoking is a punishable offence. On the coach, beside the door.</figcaption></figure>
+          <figure class="item"><div class="pair wide"><img class="art" style="--a:3.204" src="assets/behaviour-page/csbc/r2-eyes.jpg" alt="A strip with a no-smoking sign and a pair of watching eyes"><img style="--a:0.75" src="assets/behaviour-page/csbc/r2-eyes-in-place.jpg" alt="Watching eyes, in place on the train"></div><figcaption><b>Watching eyes</b>The feeling of being watched. Inside the toilet.</figcaption></figure>
+          <figure class="item"><div class="pair"><img class="art" style="--a:1.414" src="assets/behaviour-page/csbc/r2-report.jpg" alt="A seat-back sticker with a QR code to report smoking"><img style="--a:1.414" src="assets/behaviour-page/csbc/r2-report-in-place.jpg" alt="Scan to report, in place on the train"></div><figcaption><b>Scan to report</b>An anonymous complaint by QR code. On the seat backs.</figcaption></figure>
+        </div>
+      </div>
+    </div>
+    <div class="node" data-n="pilot"><b>The pilot</b><p>Ten days on the train: two of baseline, six with the collaterals up, two of endline. Four sets of coaches: none, fire, getting caught, both. 400 passengers, 100 to a set.</p></div>
+    <div class="node" data-n="measure"><b>Measured by</b><p>A passenger survey, and the cigarette butts collected from each coach.</p></div>
+    <div class="reserve">
+      <p>Also designed, and held in reserve</p>
+      <div class="rstrip">
+        <figure style="--a:0.707"><img src="assets/behaviour-page/csbc/x-to-die.jpg" alt="A poster: to die is one thing, to kill is another"><figcaption>To die is one thing, to kill is another</figcaption></figure>
+        <figure style="--a:1.414"><img src="assets/behaviour-page/csbc/x-danglers.jpg" alt="Danglers hung at a platform food stall"><figcaption>Danglers for platform food stalls</figcaption></figure>
+        <figure style="--a:1.499"><img src="assets/behaviour-page/csbc/x-badge.jpg" alt="A smoke-free zone badge"><figcaption>A badge for ticket examiners</figcaption></figure>
+        <figure style="--a:1.414"><img src="assets/behaviour-page/csbc/x-kerosene.jpg" alt="A kerosene can printed with the fire warning"><figcaption>A kerosene-can prop</figcaption></figure>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -254,6 +315,29 @@ function drawHead(){
 }
 document.fonts.ready.then(()=>{ drawHead(); setTimeout(drawHead,500); });
 addEventListener("resize",()=>setTimeout(drawHead,120));
+/* the flowchart's arrows, measured off the steps so they always join them */
+function drawFlow(){
+  const f=$("csbcFlow"); if(!f) return;
+  const fb=f.getBoundingClientRect(), q=n=>f.querySelector('[data-n="'+n+'"]');
+  const R=el=>{ const r=el.getBoundingClientRect(); return {l:r.left-fb.left,t:r.top-fb.top,r:r.right-fb.left,b:r.bottom-fb.top,cx:r.left-fb.left+r.width/2}; };
+  const P=R(q("problem")), F=R(q("found")), A=R(q("r1")), B=R(q("r2")), L=R(q("pilot")), M=R(q("measure"));
+  const Ah=R(q("r1").querySelector(".rt")), Bh=R(q("r2").querySelector(".rt"));
+  let d="", i=0; const g=12, arr=(x1,y1,x2,y2,bend)=>{ d+=Ink.arrow(x1,y1,x2,y2,bend,Ink.rng(60+(i++)),9)+" "; };
+  arr(P.cx,P.b+g,F.cx,F.t-g,7);
+  if(B.t>A.b-4){                      /* stacked on a phone: one line down */
+    arr(F.cx,F.b+g,Ah.l+24,Ah.t-g,0); arr(A.l+24,A.b+g,Bh.l+24,Bh.t-g,10); arr(B.l+24,B.b+g,L.cx,L.t-g,10);
+  }else{                              /* side by side: split, then join */
+    arr(F.cx-24,F.b+g,Ah.l+30,Ah.t-g,-16); arr(F.cx+24,F.b+g,Bh.l+30,Bh.t-g,16);
+    arr(A.cx,A.b+g,L.cx-36,L.t-g,16);  arr(B.cx,B.b+g,L.cx+36,L.t-g,-16);
+  }
+  arr(L.cx,L.b+g,M.cx,M.t-g,-7);
+  $("flowInk").innerHTML='<path d="'+d+'" stroke="var(--yellow)" stroke-width="1.5"/>';
+}
+document.fonts.ready.then(()=>{ drawFlow(); setTimeout(drawFlow,600); });
+addEventListener("load",drawFlow);
+addEventListener("resize",()=>setTimeout(drawFlow,140));
+document.querySelectorAll("#csbcFlow img").forEach(im=>im.addEventListener("load",drawFlow));
+
 </script>
 </body>
 </html>
