@@ -929,7 +929,7 @@ function drawLeaders(){
   const hint=$("tapHint"), cx=(l+r)/2;
   let gap=0;
   if(hint){
-    hint.textContent=(matchMedia("(hover: none)").matches?"Tap":"Click")+" to read, see, learn more.";
+    hint.textContent="Take a bite to read, see, learn more.";
     hint.style.left=cx.toFixed(1)+"px"; hint.style.top=(y-hint.offsetHeight/2).toFixed(1)+"px"; hint.classList.add("on");
     gap=hint.offsetWidth/2+16;
   }
