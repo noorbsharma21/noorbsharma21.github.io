@@ -94,6 +94,22 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
     .routes{grid-template-columns:minmax(0,1fr);gap:80px}
     .rstrip{flex-wrap:wrap} .rstrip figure{flex:1 1 40%}
   }
+  /* Flourish: a timeline into the insight, then the toolkit's screens */
+  .journey{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4vw;width:100%}
+  .journey li{min-width:0}
+  .journey i{display:block;font-style:normal;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--yellow)}
+  .journey b{display:block;font-weight:500;font-size:16px;margin:.3em 0 .25em}
+  .journey span{display:block;font-size:14px;line-height:1.5;color:var(--soft)}
+  .screens{width:100%;gap:14px}
+  .screens figure{margin:0}
+  .screens figcaption{font-size:12px;line-height:1.35;color:var(--soft);margin-top:.5em}
+  .impact{max-width:40em;text-align:center;font-size:16px;line-height:1.55;margin:0}
+  .poster{margin:0;width:100%}
+  .poster img{display:block;width:100%;height:auto}
+  .poster figcaption{font-size:13px;color:var(--soft);margin-top:.6em}
+  .poster figcaption a{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+  .poster figcaption a:hover{color:var(--yellow)}
+  @media (max-width:800px){ .journey{grid-template-columns:minmax(0,1fr);gap:46px} }
   /* what is on the page, before you scroll */
   .index{display:grid;gap:1.05em;margin:5.5vh 0 0;max-width:40em}
   .index a{display:block;text-decoration:none}
@@ -162,7 +178,7 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
 <section class="case" id="csbc">
   <div class="case-head">
     <h2>Centre for Social and Behaviour Change</h2>
-    <p class="role">Spring 2023. Research Assistant, for the Railway Ministry of India and the Gates Foundation, working with Northern Railways.</p>
+    <p class="role">Spring 2023. Research Assistant at the Centre for Social and Behaviour Change. Client: Northern Railways. The collaterals were designed with the CSBC team.</p>
   </div>
   <div class="flow" id="csbcFlow">
     <svg class="ink" id="flowInk" aria-hidden="true"></svg>
@@ -201,29 +217,40 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   </div>
 </section>
 
-<!-- Flourish Science: the Penn capstone client -->
-<section class="co" id="flourish">
-  <div>
+<!-- Flourish Science: the Penn capstone, from the team's poster -->
+<section class="case" id="flourish">
+  <div class="case-head">
     <h2>Flourish Science</h2>
-    <p class="role">Fall 2025 to Spring 2026. Strategy and Design Lead for Flourish Science, the client on Penn&rsquo;s capstone in consulting for behavioural science. Flourish makes a science-based wellness app with a companion called Sunnie, for journaling, focus and tiny habits.</p>
-    <ul class="did">
-      <li>Led the first deck for the client.</li>
-      <li>Built the competitive landscape.</li>
-      <li>Designed the team&rsquo;s posters.</li>
-    </ul>
+    <p class="role">Fall 2025 to Spring 2026. Strategy and Design Lead on Penn&rsquo;s capstone in consulting for behavioural science, with Ivy Guo, Mavis Chen, Luna Su and Taylor Kirk. Client: Flourish Science, a wellness app with a companion called Sunnie.</p>
+    <p class="role">My part: the first client deck, the competitive analysis and the team&rsquo;s posters.</p>
   </div>
-</section>
-
-<section class="row" id="flourish-app">
-  <h3>The client&rsquo;s app</h3>
-  <div class="strip narrow">
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-1-home.jpg" alt="Flourish home screen: Sunnie, with Journal, Focus and Relax"></figure>
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-2-insights.jpg" alt="Flourish insights screen"></figure>
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-3-tiny-habits.jpg" alt="Flourish tiny habits screen"></figure>
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-4-chat.jpg" alt="Flourish chat with Sunnie"></figure>
-    <figure style="--a:.461"><img src="assets/behaviour-page/flourish-5-memory.jpg" alt="Flourish memory screen"></figure>
+  <div class="flow" id="flourishFlow">
+    <svg class="ink" id="flourishInk" aria-hidden="true"></svg>
+    <ol class="journey">
+      <li><i>Nov 2025</i><b>Fifteen apps</b><span>Audited 15 mental health apps: features, pricing, onboarding, positioning.</span></li>
+      <li><i>Dec to Jan</i><b>Alignment</b><span>Two counsellor interviews. Flourish chose to lead with journaling, safety planning and habit tracking.</span></li>
+      <li><i>Feb to Mar</i><b>Recruiting</b><span>Penn students in therapy or on waitlists, found through posters and QR codes in 8+ buildings.</span></li>
+      <li><i>Mar to Apr</i><b>Interviews</b><span>14 interviews and 3 follow-ups. Emotions are hard to name, and opening the app is a burden.</span></li>
+      <li><i>Apr 2026</i><b>Synthesis</b><span>A prototype toolkit, built with NotebookLM, Claude and Figma.</span></li>
+    </ol>
+    <div class="node" data-n="insight"><b>The insight</b><p>The gap is between sessions. Before one, people need to surface what happened and what to ask; after it, somewhere to put what spilled over, and the next steps.</p></div>
+    <div class="node" data-n="toolkit"><b>The Therapy Prep Toolkit</b><p>Seven steps around a single session, from setting it up to folding what it found into Flourish&rsquo;s insights.</p></div>
+    <div class="strip screens" data-n="screens">
+      <figure style="--a:0.463"><img src="assets/behaviour-page/flourish/setup-1.jpg" alt="Flourish Therapy Prep Toolkit screen: Session setup"><figcaption>Session setup</figcaption></figure>
+      <figure style="--a:0.455"><img src="assets/behaviour-page/flourish/setup-2.jpg" alt="Flourish Therapy Prep Toolkit screen: Setup, from the calendar"><figcaption>Setup, from the calendar</figcaption></figure>
+      <figure style="--a:0.457"><img src="assets/behaviour-page/flourish/prep.jpg" alt="Flourish Therapy Prep Toolkit screen: Session prep"><figcaption>Session prep</figcaption></figure>
+      <figure style="--a:0.457"><img src="assets/behaviour-page/flourish/agenda.jpg" alt="Flourish Therapy Prep Toolkit screen: Next agenda"><figcaption>Next agenda</figcaption></figure>
+      <figure style="--a:0.457"><img src="assets/behaviour-page/flourish/reminder.jpg" alt="Flourish Therapy Prep Toolkit screen: Reminder"><figcaption>Reminder</figcaption></figure>
+      <figure style="--a:0.457"><img src="assets/behaviour-page/flourish/cooldown.jpg" alt="Flourish Therapy Prep Toolkit screen: Session cool down"><figcaption>Session cool down</figcaption></figure>
+      <figure style="--a:0.457"><img src="assets/behaviour-page/flourish/memory.jpg" alt="Flourish Therapy Prep Toolkit screen: Memory jar"><figcaption>Memory jar</figcaption></figure>
+      <figure style="--a:0.285"><img src="assets/behaviour-page/flourish/insights.jpg" alt="Flourish Therapy Prep Toolkit screen: Insights"><figcaption>Insights</figcaption></figure>
+    </div>
+    <p class="impact">83% of the people we interviewed wanted to keep using Flourish. The toolkit added 6 new screens and 20 improvements to existing ones, across 7 new user flows.</p>
+    <figure class="poster">
+      <a href="assets/behaviour-page/flourish/poster-full.jpg" target="_blank" rel="noopener"><img src="assets/behaviour-page/flourish/poster.jpg" alt="The Flourish capstone poster: the team's journey from competitive analysis to user insight, the Therapy Prep Toolkit, its screens, and the impact"></a>
+      <figcaption>The capstone poster, 38 &times; 28 in. <a href="assets/behaviour-page/flourish/poster-full.jpg" target="_blank" rel="noopener">Open it full size &nearr;</a></figcaption>
+    </figure>
   </div>
-  <p class="cap">Flourish Science&rsquo;s own app, the product the work was for.</p>
 </section>
 
 <!-- ABIT -->
@@ -337,6 +364,27 @@ document.fonts.ready.then(()=>{ drawFlow(); setTimeout(drawFlow,600); });
 addEventListener("load",drawFlow);
 addEventListener("resize",()=>setTimeout(drawFlow,140));
 document.querySelectorAll("#csbcFlow img").forEach(im=>im.addEventListener("load",drawFlow));
+/* Flourish's arrows: along the timeline, then down into the insight and the toolkit */
+function drawJourney(){
+  const f=$("flourishFlow"); if(!f) return;
+  const fb=f.getBoundingClientRect(), R=el=>{ const r=el.getBoundingClientRect(); return {l:r.left-fb.left,t:r.top-fb.top,r:r.right-fb.left,b:r.bottom-fb.top,cx:r.left-fb.left+r.width/2}; };
+  const steps=[...f.querySelectorAll(".journey li")].map(R), I=R(f.querySelector('[data-n="insight"]')), T=R(f.querySelector('[data-n="toolkit"]'));
+  let d="", i=0; const arr=(x1,y1,x2,y2,bend)=>{ d+=Ink.arrow(x1,y1,x2,y2,bend,Ink.rng(90+(i++)),9)+" "; };
+  const row=steps.length>1 && Math.abs(steps[1].t-steps[0].t)<8;
+  for(let k=0;k<steps.length-1;k++){
+    const a=steps[k], b=steps[k+1];
+    if(row) arr(a.r+6,a.t+8,b.l-8,b.t+8,-6); else arr(a.l+20,a.b+10,b.l+20,b.t-10,8);
+  }
+  const last=steps[steps.length-1];
+  if(row) arr((steps[0].l+last.r)/2,Math.max(...steps.map(s=>s.b))+14,I.cx,I.t-12,8); else arr(last.l+20,last.b+12,I.cx,I.t-12,8);
+  arr(I.cx,I.b+12,T.cx,T.t-12,-7);
+  $("flourishInk").innerHTML='<path d="'+d+'" stroke="var(--yellow)" stroke-width="1.5"/>';
+}
+document.fonts.ready.then(()=>{ drawJourney(); setTimeout(drawJourney,600); });
+addEventListener("load",drawJourney);
+addEventListener("resize",()=>setTimeout(drawJourney,140));
+document.querySelectorAll("#flourishFlow img").forEach(im=>im.addEventListener("load",drawJourney));
+
 
 </script>
 </body>
