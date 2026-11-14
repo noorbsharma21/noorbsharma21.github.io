@@ -94,9 +94,23 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   .arrows button:disabled{color:#cfcfca;cursor:default}
   .carousel figcaption{font-size:14px;line-height:1.5;color:var(--soft);margin-top:.3em}
   @media (max-width:800px){ .walk{grid-template-columns:minmax(0,1fr);gap:3vh} }
-  .brand{display:grid;grid-template-columns:1.778fr 1fr 1fr .5625fr;gap:18px;align-items:start}
-  .brand img,.brand video{display:block;width:100%;height:auto}
-  .brand video{aspect-ratio:9/16;background:#f2f2f0}
+  .brand{display:grid;grid-template-columns:1.778fr 1fr 1fr;gap:18px;align-items:start}
+  .brand img{display:block;width:100%;height:auto}
+
+  /* Disco's demo stands beside the introduction, the first thing you see of it */
+  .demo{margin:0}
+  .demo video{display:block;height:min(620px,78vh);width:auto;max-width:100%;aspect-ratio:9/16;background:#efe9dc}
+  .demo figcaption{font-size:14px;line-height:1.5;color:var(--soft);margin-top:.7em;max-width:38ch}
+  /* On a phone the columns stack, so the demo is moved up to sit straight
+     after the introduction, ahead of the list of what I did. */
+  @media (max-width:800px){
+    #disco{display:flex;flex-direction:column;align-items:flex-start;gap:0}
+    #disco>div{display:contents}
+    #disco .demo{order:1;margin-top:5vh;width:100%}
+    #disco .did{order:2}
+    #disco .lifecycle{order:3;margin-top:7vh}
+    .demo video{height:auto;width:min(100%,340px)}
+  }
   .row .links{display:flex;flex-wrap:wrap;gap:.5em 1.6em;margin-top:3vh;font-size:14px}
   .row .links a:hover{color:var(--red)}
   @media (max-width:800px){
@@ -345,7 +359,14 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
   </div>
 
   <div class="proof">
-    <div>
+    <figure class="demo">
+      <h3>How Disco works</h3>
+      <video id="discoDemo" src="assets/growth/g19-product-walkthrough--screen-recording.mp4" poster="assets/posters/disco-demo.jpg"
+             muted loop playsinline controls preload="none" width="1080" height="1920"
+             aria-label="Disco product walkthrough, a screen recording of the app, 1 minute 25"></video>
+      <figcaption>The product walkthrough, 1 min 25.</figcaption>
+    </figure>
+    <div class="lifecycle">
       <h3>Lifecycle</h3>
       <button class="mail" data-src="assets/growth/disco-its-time-to-disco.html" data-title="It's time to Disco" aria-haspopup="dialog">
         <svg viewBox="0 0 96 70" aria-hidden="true"><path class="env"/></svg>
@@ -386,7 +407,6 @@ addEventListener("DOMContentLoaded",()=>{ if(/^https?:$/.test(location.protocol)
     <figure class="wide"><img src="assets/growth/g16-stop-guessing-where-to-go-in-philly--launch-campaign.jpg" alt="Stop guessing where to go in Philly, the Philadelphia launch poster" loading="lazy"><figcaption>Stop guessing where to go in Philly, the Philadelphia launch</figcaption></figure>
     <figure><img src="assets/growth/g17-the-map-mark--brand-identity.png" alt="The Disco map mark" loading="lazy"><figcaption>The map mark</figcaption></figure>
     <figure><img src="assets/growth/g18-the-disco-stamp--brand-identity.webp" alt="The Disco stamp" loading="lazy"><figcaption>The Disco stamp</figcaption></figure>
-    <figure><video src="assets/growth/g19-product-walkthrough--screen-recording.mp4" controls muted playsinline preload="metadata" aria-label="Disco product walkthrough, screen recording"></video><figcaption>Product walkthrough</figcaption></figure>
   </div>
 </section>
 
@@ -483,6 +503,24 @@ function closeLetter(){ $("letter").hidden=true; document.body.style.overflow=""
 $("closeMail").addEventListener("click",closeLetter);
 $("letter").addEventListener("click",e=>{ if(e.target.id==="letter") closeLetter(); });
 addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("letter").hidden) closeLetter(); });
+
+/* The demo plays, muted, once it is on screen and stops when it leaves.
+   It loads nothing until then, so the page stays light. A pause by hand
+   is respected for the rest of the visit. */
+(function(){
+  const v=$("discoDemo"); if(!v) return;
+  let mine=false, held=false;
+  v.addEventListener("pause",()=>{ if(!mine) held=true; mine=false; });
+  function check(){
+    const r=v.getBoundingClientRect(), seen=Math.min(r.bottom,innerHeight)-Math.max(r.top,0);
+    const on=r.height>0 && seen>=r.height*.4;
+    if(on && v.paused && !held) v.play().catch(()=>{});
+    else if(!on && !v.paused){ mine=true; v.pause(); }
+  }
+  addEventListener("scroll",check,{passive:true});
+  addEventListener("resize",check);
+  check();
+})();
 
 /* the art walk card: one story at a time. Touch swipes natively, a mouse
    drags, the arrows, dots and arrow keys step it. */
