@@ -147,8 +147,10 @@ function meta(f){
   const base=f.replace(/\.[^.]+$/,"").replace(/^[a-z]?\d+[\s._-]*/i,"");
   const [t,m]=base.split("--");
   const cap=s=>s?s.replace(/[-_]+/g," ").trim().replace(/^./,c=>c.toUpperCase()):"";
-  return {t:cap(t), m:cap(m||"")};
+  return {t:TITLES[t]||cap(t), m:cap(m||"")};
 }
+/* where a filename can't carry the real name: capitals, the × */
+const TITLES={"emeco-rarify":"The Emeco × Rarify table"};
 
 /* ---------- placing the work in space ----------
    Each piece gets its own depth, a step further back than the last,
