@@ -951,6 +951,13 @@ function drawLeaders(){
   const caps=slots.map(s=>s.el.querySelector(".cap").getBoundingClientRect().bottom);
   const y=Math.round(Math.max(...rs.map(b=>b.bottom),...caps))+18.5;
   const hint=$("tapHint"), cx=(l+r)/2;
+  /* On a window too short for the plates to leave room, the rule would
+     land on the frame's own border. Then neither is drawn: a missing
+     rule reads as nothing, a doubled one as a mistake. */
+  const fr=$("frame").getBoundingClientRect();
+  const fits=!fr.height || y+8<=fr.bottom-10;
+  if(hint) hint.style.visibility=fits?"":"hidden";
+  if(!fits){ svg.innerHTML=""; return; }
   let gap=0;
   if(hint){
     hint.textContent="Take a bite to read, see, learn more.";
@@ -1444,13 +1451,21 @@ function layoutAspects(capH){
 
   let top0=tb.bottom+H*0.055;
   let bot0=H-(H*0.03+20);
+  /* Under the captions comes the rule, 18.5px down, with the prompt set
+     into it. Both have to sit inside the frame. The frame's inset is a
+     share of the width, so on a wide, short window its bottom edge rises
+     above the old limit and the rule landed on it, the prompt struck
+     through by the border. Room is kept for rule, prompt and a margin. */
+  const UNDER=42;
+  const fr=$("frame").getBoundingClientRect();
+  if(fr.height) bot0=Math.min(bot0,fr.bottom-UNDER);
   /* The panel is read rather than assumed, because it moves to the
      foot of the page on a narrow window. Whichever half it is in, the
-     slots stop short of it. */
+     slots stop short of it, leaving the rule and the prompt room too. */
   const bio=$("bio").getBoundingClientRect();
   if(bio.height){
     if(bio.bottom<H*0.5) top0=Math.max(top0,bio.bottom+18);
-    else                 bot0=Math.min(bot0,bio.top-18);
+    else                 bot0=Math.min(bot0,bio.top-UNDER);
   }
 
   /* All of them on one line, always: a menu read in two goes is not a
